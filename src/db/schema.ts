@@ -1,5 +1,4 @@
 import { pgTable, text, timestamp, boolean } from "drizzle-orm/pg-core"
-import { relations } from "drizzle-orm"
 
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
@@ -51,22 +50,4 @@ export const verification = pgTable("verification", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 })
 
-export const userOrganizationLinks = pgTable("user_organization_links", {
-  id: text("id").primaryKey(),
-  userId: text("user_id")
-    .notNull()
-    .references(() => user.id, { onDelete: "cascade" }),
-  organizationId: text("organization_id").notNull(),
-  organizationName: text("organization_name").notNull(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-})
 
-export const userOrganizationLinksRelations = relations(
-  userOrganizationLinks,
-  ({ one }) => ({
-    user: one(user, {
-      fields: [userOrganizationLinks.userId],
-      references: [user.id],
-    }),
-  })
-)
