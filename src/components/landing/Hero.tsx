@@ -7,6 +7,7 @@ export function Hero() {
   const navigate = useNavigate()
   const [dragText, setDragText] = useState("DRAG ME PLEASE...")
   const [isDraggingUsage, setIsDraggingUsage] = useState(false)
+  const [isDraggingAngry, setIsDraggingAngry] = useState(false)
 
   return (
     <section className="relative w-full overflow-hidden border-b-2 border-black bg-white dark:border-white dark:bg-black">
@@ -68,18 +69,27 @@ export function Hero() {
         className="absolute right-12 top-1/3 z-20 hidden xl:block"
       >
         <motion.div
+          drag
+          dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
+          dragElastic={0.15}
+          onDragStart={() => setIsDraggingAngry(true)}
+          onDragEnd={() => setIsDraggingAngry(false)}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95, cursor: "grabbing" }}
           animate={{ y: [0, -15, 0], rotate: [0, 5, -5, 0] }}
-          transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
-          className="flex flex-col items-center border-2 border-black bg-white p-3 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:bg-black"
+          transition={{ y: { repeat: Infinity, duration: 4, ease: "easeInOut" }, rotate: { repeat: Infinity, duration: 4, ease: "easeInOut" } }}
+          className="cursor-grab flex flex-col items-center border-2 border-black bg-white p-3 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:bg-black"
         >
           <div className="flex h-8 w-8 items-center justify-center border-2 border-black bg-yellow-400 font-mono text-lg font-bold text-black">
             *
           </div>
-          <span className="mt-2 font-mono text-[10px] font-black tracking-widest text-black dark:text-white">STATUS: ANGRY</span>
+          <span className="mt-2 font-mono text-[10px] font-black tracking-widest text-black dark:text-white">
+            {isDraggingAngry ? "HOLD ON TIGHTER" : "STATUS: ANGRY"}
+          </span>
         </motion.div>
       </motion.div>
 
-      <div className="relative z-10 mx-auto flex min-h-[85vh] max-w-[1400px] flex-col items-center justify-between pb-12 pt-16 lg:flex-row lg:items-center">
+      <div className="relative z-10 mx-auto flex min-h-[calc(100vh-64px)] max-w-[1400px] flex-col items-center justify-between pb-12 pt-16 lg:flex-row lg:items-center">
         
         {/* Left Column: Typographic Poster */}
         <div className="flex w-full flex-col items-start px-6 lg:w-[55%] lg:px-12">

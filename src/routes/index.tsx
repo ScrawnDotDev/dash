@@ -10,6 +10,7 @@ import { Architecture } from "@/components/landing/Architecture"
 import { BeforeAfter } from "@/components/landing/BeforeAfter"
 import { FAQ } from "@/components/landing/FAQ"
 import { CTA } from "@/components/landing/CTA"
+import { Contact } from "@/components/landing/Contact"
 
 export const Route = createFileRoute("/")({ component: Landing })
 
@@ -73,10 +74,11 @@ function Landing() {
         <BeforeAfter />
         <FAQ />
         <CTA />
+        <Contact />
       </main>
 
       {/* FOOTER */}
-      <footer className="border-t border-black bg-white py-8 px-6 md:px-12 dark:border-white dark:bg-black">
+      <footer className="border-t-4 border-black bg-white py-8 px-6 md:px-12 dark:border-white dark:bg-black">
         <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
           <span className="text-2xl font-black tracking-tighter uppercase">
             Scrawn

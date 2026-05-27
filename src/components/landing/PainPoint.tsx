@@ -1,56 +1,80 @@
-import { motion } from "framer-motion"
+import { useRef } from "react"
+import { motion, useScroll, useTransform } from "framer-motion"
 
 export function PainPoint() {
-  return (
-    <section className="relative w-full border-b border-black bg-yellow-400 py-24 dark:border-white">
-      <div className="mx-auto max-w-7xl px-6 md:px-12">
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            className="mb-8 inline-flex items-center border-2 border-black bg-black px-4 py-2 text-sm font-bold uppercase tracking-widest text-white dark:border-white dark:bg-white dark:text-black"
-          >
-            <span className="relative mr-3 flex h-3 w-3">
-              <span className="absolute inline-flex h-full w-full animate-ping bg-yellow-400 opacity-75" />
-              <span className="relative inline-flex h-3 w-3 bg-yellow-500" />
-            </span>
-            The Missing Brain for DodoPayments
-          </motion.div>
+  const containerRef = useRef<HTMLElement>(null)
+  
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start end", "end start"],
+  })
 
-          <div className="grid gap-12 md:grid-cols-2 md:gap-24">
-            <motion.h2
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 }}
-              className="text-5xl font-black uppercase leading-[0.9] tracking-tighter text-black md:text-7xl lg:text-8xl"
-            >
-              Dodo gets the cash.{" "}
-              <span className="text-transparent [-webkit-text-stroke:2px_#000]">
+  // Parallax transforms
+  const yText = useTransform(scrollYProgress, [0, 1], [-100, 100])
+  const yBox = useTransform(scrollYProgress, [0, 1], [100, -100])
+  const rotateSticker = useTransform(scrollYProgress, [0, 1], [-5, 15])
+
+  return (
+    <section ref={containerRef} className="relative overflow-hidden border-b-4 border-black bg-yellow-400 py-32 lg:py-48 dark:border-white">
+      {/* Background Math Parallax */}
+      <motion.div
+        style={{ y: yText }}
+        className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-10 mix-blend-overlay"
+      >
+        <div className="flex w-[150%] flex-wrap gap-12 font-mono text-[10rem] font-black leading-none text-black">
+          {"% * + - = $ % * + - = $ % * + - = $ % * + - = $ % * + - = $ % * + - = $"}
+        </div>
+      </motion.div>
+
+      <div className="relative z-10 mx-auto max-w-[1400px] px-6 lg:px-12">
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          className="mb-12 inline-flex items-center border-4 border-black bg-black px-6 py-3 font-mono text-sm font-black uppercase tracking-widest text-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:bg-white dark:text-black dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)]"
+        >
+          <span className="relative mr-4 flex h-4 w-4">
+            <span className="absolute inline-flex h-full w-full animate-ping bg-yellow-400 opacity-75" />
+            <span className="relative inline-flex h-4 w-4 border-2 border-black bg-yellow-400 dark:border-white" />
+          </span>
+          The Missing Brain for DodoPayments
+        </motion.div>
+
+        <div className="grid gap-16 lg:grid-cols-12 lg:gap-24 items-center">
+          <div className="lg:col-span-7">
+            <h2 className="text-6xl font-black uppercase leading-[0.85] tracking-tighter text-black md:text-8xl lg:text-[7rem] dark:text-white">
+              Dodo gets the cash. <br />
+              <span className="text-transparent [-webkit-text-stroke:2px_#000] lg:[-webkit-text-stroke:4px_#000] dark:[-webkit-text-stroke:2px_#fff] lg:dark:[-webkit-text-stroke:4px_#fff]">
                 We do the math.
               </span>
-            </motion.h2>
+            </h2>
+          </div>
 
+          <motion.div
+            style={{ y: yBox }}
+            className="relative lg:col-span-5 flex flex-col justify-center border-4 border-black bg-white p-8 shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] lg:p-10 dark:border-white dark:bg-black dark:shadow-[12px_12px_0px_0px_rgba(255,255,255,1)]"
+          >
+            {/* Animated Sticker */}
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
-              className="flex flex-col justify-center"
+              style={{ rotate: rotateSticker }}
+              className="absolute -top-6 -right-6 z-20 border-4 border-black bg-[#00ff00] px-4 py-2 font-mono text-sm font-black uppercase tracking-widest text-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:shadow-[6px_6px_0px_0px_rgba(255,255,255,1)]"
             >
-              <p className="text-xl font-bold uppercase tracking-tight text-black sm:text-2xl">
-                Dodo is great at checkout. But it has absolutely no idea how many AI tokens your user generated, or that you charge exactly $0.0042 per GPU second.
-              </p>
-              <p className="mt-6 text-lg font-medium text-black">
-                Instead of writing a brittle cron job to sync your database with Dodo, just fire events to Scrawn. We aggregate the usage, evaluate your weird pricing logic, and push the final tab directly to DodoPayments. 
-              </p>
+              // NO CRON JOBS
+            </motion.div>
 
-              <div className="mt-10 flex flex-wrap gap-3">
-                {["Usage Aggregation", "Math Engine", "Stateless", "Dodo Native"].map(
+            <p className="font-mono text-lg font-bold uppercase tracking-widest text-black md:text-xl dark:text-white">
+              Dodo is great at checkout. But it has absolutely no idea how many AI tokens your user generated, or that you charge exactly $0.0042 per GPU second.
+            </p>
+            <p className="mt-8 border-l-4 border-yellow-400 pl-4 font-mono text-base font-bold text-gray-600 dark:text-gray-400">
+              Instead of writing a brittle cron job to sync your database with Dodo, just fire events to Scrawn. We aggregate the usage, evaluate your weird pricing logic, and push the final tab directly to DodoPayments. 
+            </p>
+
+            <div className="mt-10 flex flex-wrap gap-4">
+              {["Usage Aggregation", "Math Engine", "Stateless", "Dodo Native"].map(
                 (item) => (
                   <span
                     key={item}
-                    className="border-2 border-black bg-white px-4 py-2 font-mono text-sm font-bold uppercase tracking-widest text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:bg-black dark:text-white dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]"
+                    className="border-4 border-black bg-yellow-400 px-4 py-2 font-mono text-sm font-black uppercase tracking-widest text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]"
                   >
                     {item}
                   </span>

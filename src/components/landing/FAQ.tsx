@@ -32,42 +32,44 @@ export function FAQ() {
   const [open, setOpen] = useState<number | null>(0)
 
   return (
-    <section className="border-b border-black bg-white py-24 dark:border-white dark:bg-black">
-      <div className="mx-auto max-w-4xl px-6 md:px-12">
+    <section className="border-b-4 border-black bg-white py-24 lg:py-32 dark:border-white dark:bg-black">
+      <div className="mx-auto max-w-[1400px] px-6 lg:px-12">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="mb-12"
+          className="mb-20 lg:mb-24"
         >
-          <h2 className="text-5xl font-black uppercase leading-[0.9] tracking-tighter text-black md:text-6xl dark:text-white">
-            Questions you're <br className="hidden md:block" />
-            <span className="text-transparent [-webkit-text-stroke:2px_#000] dark:[-webkit-text-stroke:2px_#fff]">
+          <h2 className="text-6xl font-black uppercase leading-[0.85] tracking-tighter text-black md:text-8xl lg:text-[7rem] dark:text-white">
+            Questions you're <br className="hidden lg:block" />
+            <span className="text-transparent [-webkit-text-stroke:2px_#000] lg:[-webkit-text-stroke:3px_#000] dark:[-webkit-text-stroke:2px_#fff] lg:dark:[-webkit-text-stroke:3px_#fff]">
               too embarrassed
-            </span>{" "}
-            to ask
+            </span>
+            <br className="hidden lg:block" />
+            to ask.
           </h2>
         </motion.div>
 
-        <div className="flex flex-col gap-4">
+        <div className="flex w-full flex-col gap-6">
           {faqs.map((faq, i) => {
             const isOpen = open === i
             return (
               <div
                 key={i}
-                className="border-2 border-black bg-white transition-all dark:border-white dark:bg-black"
+                className="border-4 border-black bg-white transition-all dark:border-white dark:bg-black"
                 style={{
-                  boxShadow: isOpen ? "8px 8px 0px 0px rgba(0,0,0,1)" : "4px 4px 0px 0px rgba(0,0,0,1)"
+                  boxShadow: isOpen ? "12px 12px 0px 0px rgba(0,0,0,1)" : "6px 6px 0px 0px rgba(0,0,0,1)",
+                  transform: isOpen ? "translate(-4px, -4px)" : "translate(0px, 0px)"
                 }}
               >
                 <button
                   onClick={() => setOpen(isOpen ? null : i)}
-                  className="flex w-full items-center justify-between p-6 text-left"
+                  className="flex w-full items-center justify-between p-6 text-left md:p-8"
                 >
-                  <span className="text-lg font-bold uppercase tracking-tight text-black dark:text-white">
+                  <span className="font-mono text-lg font-black uppercase tracking-widest text-black md:text-2xl dark:text-white">
                     {faq.q}
                   </span>
-                  <span className="font-mono text-xl font-bold text-black dark:text-white">
+                  <span className="font-mono text-3xl font-black text-black md:text-4xl dark:text-white">
                     {isOpen ? "-" : "+"}
                   </span>
                 </button>
@@ -80,7 +82,7 @@ export function FAQ() {
                       transition={{ duration: 0.2 }}
                       className="overflow-hidden"
                     >
-                      <div className="border-t-2 border-black p-6 font-mono text-sm font-bold text-gray-500 dark:border-white">
+                      <div className="border-t-4 border-black p-6 font-mono text-base font-bold leading-relaxed text-gray-600 md:p-8 md:text-lg dark:border-white dark:text-gray-400">
                         {faq.a}
                       </div>
                     </motion.div>
