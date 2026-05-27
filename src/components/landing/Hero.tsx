@@ -1,93 +1,213 @@
 import { motion } from "framer-motion"
 import { useNavigate } from "@tanstack/react-router"
+import { IconTerminal2, IconArrowDownRight } from "@tabler/icons-react"
+import { useState } from "react"
 
 export function Hero() {
   const navigate = useNavigate()
+  const [dragText, setDragText] = useState("DRAG ME PLEASE...")
+  const [isDraggingUsage, setIsDraggingUsage] = useState(false)
 
   return (
-    <section className="relative w-full border-b border-black dark:border-white">
+    <section className="relative w-full overflow-hidden border-b-2 border-black bg-white dark:border-white dark:bg-black">
       {/* Brutalist Grid Background */}
       <div className="absolute inset-0 z-0 bg-[linear-gradient(to_right,#00000015_2px,transparent_2px),linear-gradient(to_bottom,#00000015_2px,transparent_2px)] bg-[size:64px_64px] dark:bg-[linear-gradient(to_right,#ffffff15_2px,transparent_2px),linear-gradient(to_bottom,#ffffff15_2px,transparent_2px)]" />
 
-      <div className="relative z-10 mx-auto flex min-h-[85vh] max-w-7xl flex-col justify-center px-6 py-20 md:px-12">
+      {/* Decorative Crosshairs */}
+      <div className="absolute top-10 left-10 hidden font-mono text-xl font-bold text-gray-300 dark:text-gray-700 md:block">+</div>
+      <div className="absolute top-10 right-10 hidden font-mono text-xl font-bold text-gray-300 dark:text-gray-700 md:block">+</div>
+      <div className="absolute bottom-20 left-10 hidden font-mono text-xl font-bold text-gray-300 dark:text-gray-700 md:block">+</div>
+      <div className="absolute bottom-20 right-10 hidden font-mono text-xl font-bold text-gray-300 dark:text-gray-700 md:block">+</div>
+
+      {/* Floating Interactable Elements */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.5, type: "spring" }}
+        className="absolute top-24 left-[40%] z-30 hidden lg:block"
+      >
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.2 }}
-          className="flex flex-col gap-6"
+          drag
+          dragConstraints={{ left: -50, right: 200, top: -50, bottom: 200 }}
+          whileHover={{ scale: 1.05, rotate: 2 }}
+          whileTap={{ scale: 0.95, cursor: "grabbing" }}
+          onDragStart={() => setDragText("THANKS!")}
+          onDragEnd={() => setDragText("DRAG ME PLEASE...")}
+          className="cursor-grab border-2 border-black bg-white px-3 py-1.5 font-mono text-sm font-black uppercase text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:bg-black dark:text-white dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]"
         >
-          <div className="inline-flex w-fit items-center border-2 border-black bg-yellow-400 px-4 py-1 text-sm font-bold uppercase tracking-widest text-black dark:border-white">
-            <span className="mr-2 h-2 w-2 animate-pulse bg-black" />
-            DodoPayments Native
-          </div>
-
-          <h1 className="max-w-5xl text-6xl font-black uppercase leading-[0.95] tracking-tighter sm:text-7xl md:text-9xl">
-            Bill your <br className="hidden md:block" />
-            <span className="text-transparent [-webkit-text-stroke:2px_#000] dark:[-webkit-text-stroke:2px_#fff]">
-              self-rolled
-            </span>{" "}
-            <br className="hidden md:block" />
-            abomination <br className="hidden md:block" />
-            <span className="inline-block mt-4 bg-yellow-400 px-4 py-2 text-black">
-              in one-ish line.
-            </span>
-          </h1>
-
-          <p className="mt-4 max-w-2xl text-xl font-medium tracking-tight uppercase sm:text-2xl md:text-3xl">
-            Wrap DodoPayments. Track usage. Collect cash. One import. One call.
-            You're billing.
-          </p>
-
-          <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center">
-            <button
-              onClick={() => navigate({ to: "/sign-in" })}
-              className="group relative border-2 border-black bg-black px-8 py-4 text-lg font-bold uppercase tracking-tight text-white transition-all hover:bg-yellow-400 hover:text-black dark:border-white dark:bg-white dark:text-black dark:hover:bg-yellow-400"
-            >
-              Start Building
-            </button>
-            <a
-              href="https://github.com/ScrawnDotDev/scrawn"
-              target="_blank"
-              rel="noreferrer"
-              className="border-2 border-black bg-white px-8 py-4 text-lg font-bold uppercase tracking-tight text-black transition-all hover:bg-black hover:text-white dark:border-white dark:bg-black dark:text-white dark:hover:bg-white dark:hover:text-black"
-            >
-              Read The Code
-            </a>
+          <div className="flex items-center gap-2">
+            <div className="h-2 w-2 animate-pulse bg-red-500" />
+            <span>{dragText}</span>
           </div>
         </motion.div>
+      </motion.div>
 
-        {/* Brutalist Code Block */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.6, type: "spring" }}
+        className="absolute bottom-40 right-1/3 z-30 hidden lg:block"
+      >
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.2, delay: 0.1 }}
-          className="mt-20 w-full max-w-4xl border-2 border-black bg-[#f4f4f4] text-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:bg-[#111] dark:text-white dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)]"
+          drag
+          dragConstraints={{ left: -200, right: 50, top: -100, bottom: 100 }}
+          animate={{ y: [0, -10, 0], rotate: [0, -2, 2, 0] }}
+          transition={{ y: { repeat: Infinity, duration: 3, ease: "easeInOut" }, rotate: { repeat: Infinity, duration: 4, ease: "easeInOut" } }}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95, cursor: "grabbing" }}
+          className="cursor-grab border-4 border-black bg-[#ff00ff] px-4 py-2 font-mono text-lg font-black uppercase text-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] dark:border-white"
         >
-          <div className="border-b-2 border-black bg-yellow-400 px-4 py-2 font-mono text-sm font-bold uppercase tracking-widest text-black dark:border-white">
-            biller.ts
+          NO DB MIGRATIONS
+        </motion.div>
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.7, type: "spring" }}
+        className="absolute right-12 top-1/3 z-20 hidden xl:block"
+      >
+        <motion.div
+          animate={{ y: [0, -15, 0], rotate: [0, 5, -5, 0] }}
+          transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+          className="flex flex-col items-center border-2 border-black bg-white p-3 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:bg-black"
+        >
+          <div className="flex h-8 w-8 items-center justify-center border-2 border-black bg-yellow-400 font-mono text-lg font-bold text-black">
+            *
           </div>
-          <div className="overflow-x-auto p-6 font-mono text-sm sm:text-base">
-            <pre className="!m-0 !bg-transparent !p-0">
-              <code className="grid gap-1 font-bold">
-                <span className="opacity-50">
-                  // ~1-ish line to bill anything
-                </span>
-                <span>
-                  import {"{"} Scrawn {"}"} from "@scrawn/core";
-                </span>
-                <br />
-                <span>
-                  const s = new Scrawn({"{"} apiKey: env.SCRAWN_KEY {"}"});
-                </span>
-                <br />
-                <span className="opacity-50">// Bill an API call</span>
-                <span>await s.basicUsageEventConsumer({"{"}</span>
-                <span> userId: "usr_123",</span>
-                <span> debitAmount: 50</span>
-                <span>{"}"});</span>
-              </code>
-            </pre>
+          <span className="mt-2 font-mono text-[10px] font-black tracking-widest text-black dark:text-white">STATUS: ANGRY</span>
+        </motion.div>
+      </motion.div>
+
+      <div className="relative z-10 mx-auto flex min-h-[85vh] max-w-[1400px] flex-col items-center justify-between pb-12 pt-16 lg:flex-row lg:items-center">
+        
+        {/* Left Column: Typographic Poster */}
+        <div className="flex w-full flex-col items-start px-6 lg:w-[55%] lg:px-12">
+          <motion.div
+            drag
+            dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
+            dragElastic={0.15}
+            onDragStart={() => setIsDraggingUsage(true)}
+            onDragEnd={() => setIsDraggingUsage(false)}
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            whileDrag={{ cursor: "grabbing" }}
+            className="relative mb-8 w-max cursor-grab border-2 border-black bg-white px-3 py-1 font-mono text-xs font-black uppercase tracking-widest text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:bg-black dark:text-white dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]"
+          >
+            // USAGE METERING
+            <motion.span
+              initial={false}
+              animate={{ opacity: isDraggingUsage ? 1 : 0, y: isDraggingUsage ? -20 : 0 }}
+              className="pointer-events-none absolute -top-2 left-1/2 z-50 -translate-x-1/2 whitespace-nowrap font-mono text-xs font-black lowercase text-red-600 dark:text-red-500"
+            >
+              not me!!
+            </motion.span>
+          </motion.div>
+
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-left text-7xl font-black uppercase leading-[0.85] tracking-tighter text-black dark:text-white sm:text-[6rem] md:text-[7rem] lg:text-[4.5rem] xl:text-[5.5rem] 2xl:text-[6.5rem]"
+          >
+            BILL <br />
+            YOUR <br />
+            SELF- <br />
+            ROLLED <br />
+            ABOMINATION.
+          </motion.h1>
+
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, rotate: 0 }}
+            animate={{ opacity: 1, scale: 1, rotate: -2 }}
+            transition={{ delay: 0.2, type: "spring", bounce: 0.5 }}
+            className="mt-6 w-max border-4 border-black bg-yellow-400 px-4 py-2 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] dark:border-white lg:-ml-2 lg:px-6"
+          >
+            <span className="text-3xl font-black uppercase tracking-tighter text-black sm:text-4xl md:text-5xl lg:text-4xl xl:text-5xl">
+              IN ONE-ISH LINE.
+            </span>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="mt-12 flex w-full max-w-md flex-col gap-4 sm:flex-row lg:mt-16"
+          >
+            <button
+              onClick={() => navigate({ to: "/sign-in" })}
+              className="flex flex-1 items-center justify-between border-2 border-black bg-black px-6 py-4 font-mono text-base font-bold uppercase tracking-widest text-white shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:bg-white dark:text-black"
+            >
+              <span>Try now for free</span>
+              <IconArrowDownRight className="h-5 w-5" />
+            </button>
+          </motion.div>
+        </div>
+
+        {/* Right Column: The Code Window */}
+        <motion.div
+          initial={{ opacity: 0, x: 50 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.4 }}
+          className="relative mt-16 flex w-full justify-center px-6 lg:mt-0 lg:w-[45%] lg:justify-end lg:px-12"
+        >
+          {/* Decorative background box to make it look messy/stacked */}
+          <div className="absolute -right-2 bottom-6 left-8 top-6 hidden border-2 border-black bg-gray-200 dark:border-white dark:bg-gray-800 lg:block xl:-right-4 xl:bottom-8 xl:left-12 xl:top-8" />
+          
+          <div className="relative w-full max-w-md border-4 border-black bg-white text-black shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:bg-black dark:text-white dark:shadow-[12px_12px_0px_0px_rgba(255,255,255,1)] xl:max-w-lg xl:shadow-[16px_16px_0px_0px_rgba(0,0,0,1)] dark:xl:shadow-[16px_16px_0px_0px_rgba(255,255,255,1)]">
+            <div className="flex items-center justify-between border-b-4 border-black bg-yellow-400 px-4 py-3 dark:border-white">
+              <div className="flex gap-2">
+                <div className="h-4 w-4 border-2 border-black bg-white" />
+                <div className="h-4 w-4 border-2 border-black bg-black" />
+              </div>
+              <span className="font-mono text-xs font-black uppercase tracking-widest text-black">
+                billing.ts
+              </span>
+              <IconTerminal2 className="h-6 w-6 text-black" />
+            </div>
+            
+            <div className="p-6 font-mono text-[15px] font-bold leading-relaxed sm:text-lg">
+              <div className="text-gray-500 dark:text-gray-400">{"// No webhook nightmares."}</div>
+              <div className="mb-4 text-gray-500 dark:text-gray-400">{"// Just log usage & get paid."}</div>
+              
+              <div>
+                <span className="text-purple-600 dark:text-purple-400">import</span> {"{"} <span className="text-black dark:text-white">Scrawn</span> {"}"} <span className="text-purple-600 dark:text-purple-400">from</span> <span className="text-green-600 dark:text-green-400">"@scrawn/core"</span>;
+              </div>
+              <div className="mt-4">
+                <span className="text-purple-600 dark:text-purple-400">const</span> <span className="text-blue-600 dark:text-blue-400">scrawn</span> = <span className="text-purple-600 dark:text-purple-400">new</span> <span className="text-yellow-600 dark:text-yellow-400">Scrawn</span>({"{"}
+              </div>
+              <div className="pl-4">
+                apiKey: <span className="text-black dark:text-white">env.DODO_KEY</span>
+              </div>
+              <div>{"}"});</div>
+              
+              <div className="mt-4">
+                <span className="text-purple-600 dark:text-purple-400">await</span> <span className="text-blue-600 dark:text-blue-400">scrawn</span>.<span className="text-yellow-600 dark:text-yellow-400">bill</span>({"{"}
+              </div>
+              <div className="pl-4">
+                customer: <span className="text-green-600 dark:text-green-400">"cus_123"</span>,
+              </div>
+              <div className="pl-4">
+                tokens_used: <span className="text-orange-600 dark:text-orange-400">4500</span>
+              </div>
+              <div>{"}"});</div>
+            </div>
           </div>
+        </motion.div>
+      </div>
+      
+      {/* Running ticker at bottom */}
+      <div className="flex overflow-hidden border-t-2 border-black bg-yellow-400 py-3 dark:border-white">
+        <motion.div
+          animate={{ x: ["0%", "-50%"] }}
+          transition={{ ease: "linear", duration: 20, repeat: Infinity }}
+          className="flex whitespace-nowrap font-mono text-sm font-black uppercase tracking-widest text-black"
+        >
+          {[...Array(10)].map((_, i) => (
+            <span key={i} className="mx-4">
+              STOP WRITING BILLING LOGIC <span className="mx-4 opacity-30">///</span> NO WEBHOOKS <span className="mx-4 opacity-30">///</span> FIRE AND FORGET <span className="mx-4 opacity-30">///</span>
+            </span>
+          ))}
         </motion.div>
       </div>
     </section>

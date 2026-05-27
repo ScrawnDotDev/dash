@@ -50,7 +50,7 @@ export function PainPoint() {
                 (item) => (
                   <span
                     key={item}
-                    className="border-2 border-black bg-white px-4 py-2 font-mono text-sm font-bold uppercase tracking-widest text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                    className="border-2 border-black bg-white px-4 py-2 font-mono text-sm font-bold uppercase tracking-widest text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:bg-black dark:text-white dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]"
                   >
                     {item}
                   </span>
