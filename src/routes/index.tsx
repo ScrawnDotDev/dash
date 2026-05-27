@@ -12,7 +12,70 @@ import { FAQ } from "@/components/landing/FAQ"
 import { CTA } from "@/components/landing/CTA"
 import { Contact } from "@/components/landing/Contact"
 
-export const Route = createFileRoute("/")({ component: Landing })
+export const Route = createFileRoute("/")({
+  component: Landing,
+  head: () => ({
+    meta: [
+      { title: "Scrawn | Usage Based Billing & AI Token Metering for Developers" },
+      {
+        name: "description",
+        content:
+          "Stop building billing. Scrawn is the open-source usage based billing engine for developers. Track AI token billing, API usage, and complex pricing logic in one line. The missing brain for DodoPayments.",
+      },
+      {
+        name: "keywords",
+        content:
+          "usage based billing, developer billing, ai token usage, ai token billing, scrawn, scrawn dot dev, dodopayments, monetization for AI, stripe alternative, api metering, open source billing",
+      },
+      {
+        property: "og:title",
+        content: "Scrawn ☠️ The Anti-Billing Billing Tool",
+      },
+      {
+        property: "og:description",
+        content:
+          "RIP Boilerplate. Usage based billing without the webhook nightmares. Track AI tokens, evaluate your weird pricing logic, and push the tab to DodoPayments in two lines of code.",
+      },
+      {
+        property: "og:type",
+        content: "website",
+      },
+      {
+        property: "og:url",
+        content: "https://scrawn.dev",
+      },
+      {
+        property: "og:image",
+        content: "https://scrawn.dev/api/og",
+      },
+      {
+        property: "og:site_name",
+        content: "Scrawn.dev",
+      },
+      {
+        name: "twitter:card",
+        content: "summary_large_image",
+      },
+      {
+        name: "twitter:site",
+        content: "@scrawndotdev",
+      },
+      {
+        name: "twitter:title",
+        content: "Scrawn ☠️ Usage Billing for your Abominations",
+      },
+      {
+        name: "twitter:description",
+        content:
+          "Dodo gets the cash. We do the math. Stop writing billing logic and start building. Track AI token usage and basic events instantly.",
+      },
+      {
+        name: "twitter:image",
+        content: "https://scrawn.dev/api/og",
+      },
+    ],
+  }),
+})
 
 function Landing() {
   const navigate = useNavigate()
