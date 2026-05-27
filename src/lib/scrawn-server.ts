@@ -23,8 +23,8 @@ export const getPaymentLink = createServerFn({ method: "POST" })
     return { link }
   })
 
-export const getUsageOverTime = createServerFn({ method: "GET" })
-  .handler(async () => {
+export const getUsageOverTime = createServerFn({ method: "GET" }).handler(
+  async () => {
     const f = analytics.query.sdkEvent.fields
     const result = await analytics.query.sdkEvent
       .aggregate(sum(f.debitAmount))
@@ -32,11 +32,14 @@ export const getUsageOverTime = createServerFn({ method: "GET" })
       .orderBy(desc(f.reportedTimestamp))
       .limit(30)
       .execute()
-    return result.rows.reverse().map((r) => ({ groupValue: r.groupValue, aggValue: r.aggValue }))
-  })
+    return result.rows
+      .reverse()
+      .map((r) => ({ groupValue: r.groupValue, aggValue: r.aggValue }))
+  }
+)
 
-export const getTopUsers = createServerFn({ method: "GET" })
-  .handler(async () => {
+export const getTopUsers = createServerFn({ method: "GET" }).handler(
+  async () => {
     const f = analytics.query.sdkEvent.fields
     const result = await analytics.query.sdkEvent
       .aggregate(sum(f.debitAmount))
@@ -44,21 +47,29 @@ export const getTopUsers = createServerFn({ method: "GET" })
       .orderBy(desc(f.debitAmount))
       .limit(10)
       .execute()
-    return result.rows.map((r) => ({ groupValue: r.groupValue, aggValue: r.aggValue }))
-  })
+    return result.rows.map((r) => ({
+      groupValue: r.groupValue,
+      aggValue: r.aggValue,
+    }))
+  }
+)
 
-export const getEventTypeDistribution = createServerFn({ method: "GET" })
-  .handler(async () => {
-    const f = analytics.query.sdkEvent.fields
-    const result = await analytics.query.sdkEvent
-      .aggregate(count())
-      .groupBy(f.eventType)
-      .execute()
-    return result.rows.map((r) => ({ groupValue: r.groupValue, aggValue: r.aggValue }))
-  })
+export const getEventTypeDistribution = createServerFn({
+  method: "GET",
+}).handler(async () => {
+  const f = analytics.query.sdkEvent.fields
+  const result = await analytics.query.sdkEvent
+    .aggregate(count())
+    .groupBy(f.eventType)
+    .execute()
+  return result.rows.map((r) => ({
+    groupValue: r.groupValue,
+    aggValue: r.aggValue,
+  }))
+})
 
-export const getAiTokenUsage = createServerFn({ method: "GET" })
-  .handler(async () => {
+export const getAiTokenUsage = createServerFn({ method: "GET" }).handler(
+  async () => {
     const f = analytics.query.aiToken.fields
     const input = await analytics.query.aiToken
       .aggregate(sum(f.inputDebitAmount))
@@ -69,13 +80,20 @@ export const getAiTokenUsage = createServerFn({ method: "GET" })
       .groupBy(f.model)
       .execute()
     return {
-      input: input.rows.map((r) => ({ groupValue: r.groupValue, aggValue: r.aggValue })),
-      output: output.rows.map((r) => ({ groupValue: r.groupValue, aggValue: r.aggValue })),
+      input: input.rows.map((r) => ({
+        groupValue: r.groupValue,
+        aggValue: r.aggValue,
+      })),
+      output: output.rows.map((r) => ({
+        groupValue: r.groupValue,
+        aggValue: r.aggValue,
+      })),
     }
-  })
+  }
+)
 
-export const getPaymentHistory = createServerFn({ method: "GET" })
-  .handler(async () => {
+export const getPaymentHistory = createServerFn({ method: "GET" }).handler(
+  async () => {
     const f = analytics.query.payment.fields
     const result = await analytics.query.payment
       .aggregate(sum(f.creditAmount))
@@ -83,11 +101,14 @@ export const getPaymentHistory = createServerFn({ method: "GET" })
       .orderBy(desc(f.reportedTimestamp))
       .limit(30)
       .execute()
-    return result.rows.reverse().map((r) => ({ groupValue: r.groupValue, aggValue: r.aggValue }))
-  })
+    return result.rows
+      .reverse()
+      .map((r) => ({ groupValue: r.groupValue, aggValue: r.aggValue }))
+  }
+)
 
-export const getDashboardSummary = createServerFn({ method: "GET" })
-  .handler(async () => {
+export const getDashboardSummary = createServerFn({ method: "GET" }).handler(
+  async () => {
     const sf = analytics.query.sdkEvent.fields
     const pf = analytics.query.payment.fields
 
@@ -102,4 +123,5 @@ export const getDashboardSummary = createServerFn({ method: "GET" })
       totalEvents: eventCount.rows[0]?.aggValue ?? "0",
       totalCredits: totalCredits.rows[0]?.aggValue ?? "0",
     }
-  })
+  }
+)

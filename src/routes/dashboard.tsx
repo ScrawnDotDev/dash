@@ -6,13 +6,11 @@ import { authClient } from "@/lib/auth-client"
 import {
   getAiTokenUsage,
   getDashboardSummary,
-  getEventTypeDistribution,
   getPaymentHistory,
-  getTopUsers,
   getUsageOverTime,
 } from "@/lib/scrawn-server"
 import { UsageOverTime } from "@/components/analytics/usage-over-time"
-import { TopUsers } from "@/components/analytics/top-users"
+// import { TopUsers } from "@/components/analytics/top-users"
 // import { EventDistribution } from "@/components/analytics/event-distribution"
 import { AiTokenUsage } from "@/components/analytics/ai-token-usage"
 import { PaymentHistory } from "@/components/analytics/payment-history"
@@ -31,8 +29,8 @@ function Dashboard() {
     totalCredits: string
   } | null>(null)
   const [usageOverTime, setUsageOverTime] = useState<Array<AggregationRow>>([])
-  const [topUsers, setTopUsers] = useState<Array<AggregationRow>>([])
-  const [eventDist, setEventDist] = useState<Array<AggregationRow>>([])
+  // const [topUsers, setTopUsers] = useState<Array<AggregationRow>>([])
+  // const [eventDist, setEventDist] = useState<Array<AggregationRow>>([])
   const [aiToken, setAiToken] = useState<{
     input: Array<AggregationRow>
     output: Array<AggregationRow>
@@ -45,15 +43,15 @@ function Dashboard() {
       Promise.all([
         getDashboardSummary(),
         getUsageOverTime(),
-        getTopUsers(),
-        getEventTypeDistribution(),
+        // getTopUsers(),
+        // getEventTypeDistribution(),
         getAiTokenUsage(),
         getPaymentHistory(),
-      ]).then(([s, u, t, e, a, p]) => {
+      ]).then(([s, u, a, p]) => {
         setSummary(s)
         setUsageOverTime(u)
-        setTopUsers(t)
-        setEventDist(e)
+        // setTopUsers(t)
+        // setEventDist(e)
         setAiToken(a)
         setPaymentHist(p)
         setLoading(false)
@@ -139,7 +137,7 @@ function Dashboard() {
         <UsageOverTime data={usageOverTime} />
       )}
 
-      {/*<div className="grid grid-cols-2 gap-4">
+      {/* <div className="grid grid-cols-2 gap-4">
         {loading ? (
           <>
             <Skeleton className="h-[310px] w-full" />

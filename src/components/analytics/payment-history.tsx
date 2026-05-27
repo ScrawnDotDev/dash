@@ -3,6 +3,7 @@
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts"
 
 import type { AggregationRow } from "@scrawn/core"
+import type {ChartConfig} from "@/components/ui/chart";
 import {
   Card,
   CardContent,
@@ -11,10 +12,10 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import {
+  
   ChartContainer,
   ChartTooltip,
-  ChartTooltipContent,
-  type ChartConfig,
+  ChartTooltipContent
 } from "@/components/ui/chart"
 
 const chartConfig = {
@@ -24,11 +25,7 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
-export function PaymentHistory({
-  data,
-}: {
-  data: Array<AggregationRow>
-}) {
+export function PaymentHistory({ data }: { data: Array<AggregationRow> }) {
   const chartData = data.map((d) => ({
     date: d.groupValue,
     amount: Number(d.aggValue) / 100,

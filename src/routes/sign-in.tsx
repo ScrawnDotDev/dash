@@ -35,7 +35,9 @@ function SignIn() {
           name,
         })
         if (signUpError) {
-          setError(signUpError.message || signUpError.code || "Something went wrong")
+          setError(
+            signUpError.message || signUpError.code || "Something went wrong"
+          )
           return
         }
         setMode("sign-in")
@@ -45,7 +47,9 @@ function SignIn() {
           password,
         })
         if (signInError) {
-          setError(signInError.message || signInError.code || "Something went wrong")
+          setError(
+            signInError.message || signInError.code || "Something went wrong"
+          )
           return
         }
       }
@@ -72,7 +76,7 @@ function SignIn() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Name"
-            className="rounded-lg border border-gray-700 bg-transparent px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-500"
+            className="rounded-lg border border-gray-700 bg-transparent px-4 py-2 text-sm focus:ring-2 focus:ring-gray-500 focus:outline-none"
             required
           />
         )}
@@ -82,7 +86,7 @@ function SignIn() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Email"
-          className="rounded-lg border border-gray-700 bg-transparent px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-500"
+          className="rounded-lg border border-gray-700 bg-transparent px-4 py-2 text-sm focus:ring-2 focus:ring-gray-500 focus:outline-none"
           required
         />
 
@@ -91,7 +95,7 @@ function SignIn() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Password"
-          className="rounded-lg border border-gray-700 bg-transparent px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-500"
+          className="rounded-lg border border-gray-700 bg-transparent px-4 py-2 text-sm focus:ring-2 focus:ring-gray-500 focus:outline-none"
           required
           minLength={8}
         />
