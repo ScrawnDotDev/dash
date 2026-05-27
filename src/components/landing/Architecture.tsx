@@ -1,9 +1,17 @@
 import { motion } from "framer-motion"
 import { IconServer, IconDatabase } from "@tabler/icons-react"
 
-function Box({ title, subtitle, icon: Icon }: { title: string; subtitle: string; icon: any }) {
+function Box({
+  title,
+  subtitle,
+  icon: Icon,
+}: {
+  title: string
+  subtitle: string
+  icon: any
+}) {
   return (
-    <motion.div 
+    <motion.div
       whileHover={{ x: -4, y: -4, transition: { duration: 0.1 } }}
       className="relative border-4 border-black bg-white p-5 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:bg-black dark:shadow-[6px_6px_0px_0px_rgba(255,255,255,1)] dark:hover:shadow-[10px_10px_0px_0px_rgba(255,255,255,1)]"
     >
@@ -14,22 +22,24 @@ function Box({ title, subtitle, icon: Icon }: { title: string; subtitle: string;
           <div className="h-3 w-3 border-2 border-black bg-black dark:border-white dark:bg-white" />
         </div>
       </div>
-      <h4 className="font-mono text-lg font-black uppercase tracking-widest text-black dark:text-white">
+      <h4 className="font-mono text-lg font-black tracking-widest text-black uppercase dark:text-white">
         {title}
       </h4>
-      <p className="mt-2 font-mono text-[11px] font-bold uppercase tracking-widest text-gray-500">{subtitle}</p>
+      <p className="mt-2 font-mono text-[11px] font-bold tracking-widest text-gray-500 uppercase">
+        {subtitle}
+      </p>
     </motion.div>
   )
 }
 
 function FlowArrow() {
   return (
-    <div className="hidden flex-1 shrink-0 items-center justify-center px-4 lg:flex min-w-[64px]">
+    <div className="hidden min-w-[64px] flex-1 shrink-0 items-center justify-center px-4 lg:flex">
       <div className="relative flex h-8 w-full items-center overflow-hidden border-y-4 border-black bg-yellow-400 dark:border-white">
         <motion.div
           animate={{ x: ["-50%", "0%"] }}
           transition={{ ease: "linear", duration: 1.5, repeat: Infinity }}
-          className="flex whitespace-nowrap font-mono text-sm font-black tracking-[0.2em] text-black"
+          className="flex font-mono text-sm font-black tracking-[0.2em] whitespace-nowrap text-black"
         >
           {[...Array(15)].map((_, i) => (
             <span key={i} className="mx-2">
@@ -56,9 +66,9 @@ export function Architecture() {
           dragElastic={0.15}
           animate={{ y: [-8, 8, -8], rotate: [-3, 3, -3] }}
           transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute right-12 top-0 z-30 hidden cursor-grab active:cursor-grabbing lg:block"
+          className="absolute top-0 right-12 z-30 hidden cursor-grab active:cursor-grabbing lg:block"
         >
-          <div className="border-4 border-black bg-yellow-400 px-6 py-3 font-mono text-sm font-black uppercase tracking-widest text-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)]">
+          <div className="border-4 border-black bg-yellow-400 px-6 py-3 font-mono text-sm font-black tracking-widest text-black uppercase shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)]">
             // NO DATA LOSS
           </div>
         </motion.div>
@@ -69,10 +79,10 @@ export function Architecture() {
           viewport={{ once: true }}
           className="mb-16"
         >
-          <h2 className="text-6xl font-black uppercase leading-[0.85] tracking-tighter text-black md:text-8xl lg:text-[7rem] dark:text-white">
+          <h2 className="text-6xl leading-[0.85] font-black tracking-tighter text-black uppercase md:text-8xl lg:text-[7rem] dark:text-white">
             The Orchestration Layer.
           </h2>
-          <p className="mt-6 font-mono text-base font-bold uppercase tracking-widest text-gray-500">
+          <p className="mt-6 font-mono text-base font-bold tracking-widest text-gray-500 uppercase">
             Scrawn wraps DodoPayments, meters usage across your stack, and pipes
             data into your DB.
           </p>
@@ -86,8 +96,16 @@ export function Architecture() {
             viewport={{ once: true }}
             className="flex w-full shrink-0 flex-col gap-6 lg:w-72"
           >
-            <Box title="Web Backend" subtitle="Node / Go / Python" icon={IconServer} />
-            <Box title="AI Backend" subtitle="Vercel AI SDK" icon={IconServer} />
+            <Box
+              title="Web Backend"
+              subtitle="Node [for now]"
+              icon={IconServer}
+            />
+            <Box
+              title="AI Backend"
+              subtitle="Vercel AI SDK"
+              icon={IconServer}
+            />
           </motion.div>
 
           <FlowArrow />
@@ -100,25 +118,25 @@ export function Architecture() {
             transition={{ delay: 0.1 }}
             className="w-full shrink-0 lg:w-[420px] xl:w-[480px]"
           >
-            <div className="group relative mx-auto w-full border-4 border-black bg-yellow-400 p-8 shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] transition-transform hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[16px_16px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:shadow-[12px_12px_0px_0px_rgba(255,255,255,1)] dark:hover:shadow-[16px_16px_0px_0px_rgba(255,255,255,1)]">
+            <div className="group relative mx-auto w-full border-4 border-black bg-yellow-400 p-8 shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] transition-transform hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[16px_16px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:shadow-[12px_12px_0px_0px_rgba(255,255,255,1)] dark:hover:shadow-[16px_16px_0px_0px_rgba(255,255,255,1)]">
               {/* Engine Screws/Details */}
-              <div className="absolute left-3 top-3 h-3 w-3 border-2 border-black bg-white dark:border-white" />
-              <div className="absolute right-3 top-3 h-3 w-3 border-2 border-black bg-white dark:border-white" />
+              <div className="absolute top-3 left-3 h-3 w-3 border-2 border-black bg-white dark:border-white" />
+              <div className="absolute top-3 right-3 h-3 w-3 border-2 border-black bg-white dark:border-white" />
               <div className="absolute bottom-3 left-3 h-3 w-3 border-2 border-black bg-white dark:border-white" />
-              <div className="absolute bottom-3 right-3 h-3 w-3 border-2 border-black bg-white dark:border-white" />
+              <div className="absolute right-3 bottom-3 h-3 w-3 border-2 border-black bg-white dark:border-white" />
 
-              <div className="mb-6 flex items-center justify-center gap-3 mt-4">
+              <div className="mt-4 mb-6 flex items-center justify-center gap-3">
                 <div className="h-4 w-4 animate-pulse border-2 border-black bg-red-500 dark:border-white" />
-                <h3 className="text-center text-3xl font-black uppercase tracking-tighter text-black">
+                <h3 className="text-center text-3xl font-black tracking-tighter text-black uppercase">
                   Scrawn Engine
                 </h3>
               </div>
 
               <div className="relative border-4 border-black bg-white p-5 text-center dark:border-white dark:bg-black">
-                <span className="block font-mono text-lg font-black uppercase tracking-widest text-black dark:text-white">
+                <span className="block font-mono text-lg font-black tracking-widest text-black uppercase dark:text-white">
                   DodoPayments
                 </span>
-                <p className="mt-2 flex flex-wrap items-center justify-center gap-2 font-mono text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                <p className="mt-2 flex flex-wrap items-center justify-center gap-2 font-mono text-[10px] font-bold tracking-widest text-gray-500 uppercase">
                   <span>CHECKOUT</span>
                   <span className="hidden h-1 w-1 border border-black bg-gray-400 sm:block" />
                   <span>INVOICING</span>
@@ -139,8 +157,21 @@ export function Architecture() {
             transition={{ delay: 0.2 }}
             className="flex w-full shrink-0 flex-col gap-6 lg:w-72"
           >
-            <Box title="PostgreSQL" subtitle="Primary Data Store" icon={IconDatabase} />
-            <Box title="ClickHouse" subtitle="Fast Telemetry" icon={IconDatabase} />
+            <Box
+              title="PostgreSQL"
+              subtitle="Primary Data Store"
+              icon={IconDatabase}
+            />
+            <div className="relative">
+              <Box
+                title="ClickHouse"
+                subtitle="Fast Telemetry"
+                icon={IconDatabase}
+              />
+              <div className="absolute top-1/2 -right-4 -left-4 -translate-y-1/2 rotate-[-5deg] border-y-4 border-black bg-yellow-400 py-1 text-center font-mono text-sm font-black tracking-widest text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
+                /// COMING SOON ///
+              </div>
+            </div>
           </motion.div>
         </div>
       </div>
