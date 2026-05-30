@@ -16,21 +16,21 @@ function DashboardLayout() {
   const navigate = useNavigate()
   const location = useLocation()
   const { data: session, isPending } = authClient.useSession()
-  const { data: _session } = authClient.useSession()
+
+  useEffect(() => {
+    if (!session || isPending) return
+    getBackendConfig().then((res) => {
+      if (!res.configured) {
+        navigate({ to: "/onboarding", replace: true })
+      }
+    })
+  }, [session, isPending])
 
   if (isPending) return null
   if (!session) {
     navigate({ to: "/sign-in", replace: true })
     return null
   }
-
-  useEffect(() => {
-    getBackendConfig().then((res) => {
-      if (!res.configured) {
-        navigate({ to: "/onboarding", replace: true })
-      }
-    })
-  }, [])
 
   return (
     <div className="flex min-h-svh">
