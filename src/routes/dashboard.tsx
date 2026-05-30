@@ -22,12 +22,6 @@ function DashboardLayout() {
   const online = useOnlineStatus()
 
   useEffect(() => {
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("/sw.js")
-    }
-  }, [])
-
-  useEffect(() => {
     if (!session || isPending) return
     getBackendConfig().then((res) => {
       if (!res.configured) {

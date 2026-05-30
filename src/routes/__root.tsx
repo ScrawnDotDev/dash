@@ -1,4 +1,5 @@
 import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router"
+import { useEffect } from "react"
 import { ThemeProvider } from "@/lib/theme-provider"
 import appCss from "../styles.css?url"
 
@@ -80,6 +81,12 @@ export const Route = createRootRoute({
 })
 
 function RootDocument({ children }: { children: React.ReactNode }) {
+  useEffect(() => {
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/sw.js")
+    }
+  }, [])
+
   return (
     <html lang="en" className="light">
       <head>
