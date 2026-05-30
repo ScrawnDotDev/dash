@@ -252,6 +252,11 @@ export const listDeliveries = createServerFn({ method: "GET" })
   })
 
 // Send test webhook
-export const sendTestWebhook = createServerFn({ method: "POST" }).handler(async () =>
-  apiPost("/api/v1/internals/webhook-endpoint/send-test", {})
-)
+export const sendTestWebhook = createServerFn({ method: "POST" })
+  .inputValidator(validator<{ apiKeyId: string }>())
+  .handler(async (ctx) => apiPost("/api/v1/internals/webhook-endpoint/send-test", ctx.data))
+
+// Set webhook URL for an API key (dashboard key can set for any key)
+export const setWebhookUrl = createServerFn({ method: "POST" })
+  .inputValidator(validator<{ apiKeyId: string; url: string }>())
+  .handler(async (ctx) => apiPost("/api/v1/internals/webhook-endpoint", ctx.data))

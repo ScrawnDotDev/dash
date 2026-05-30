@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { createFileRoute } from "@tanstack/react-router"
-import { listApiKeys, createApiKey, revokeApiKey, sendTestWebhook } from "@/lib/scrawn-server"
+import { listApiKeys, createApiKey, revokeApiKey, sendTestWebhook, setWebhookUrl as updateWebhookUrl } from "@/lib/scrawn-server"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 
@@ -15,10 +15,14 @@ function ApiKeysPage() {
   const [webhookUrl, setWebhookUrl] = useState("")
   const [createdKey, setCreatedKey] = useState<string | null>(null)
   const [error, setError] = useState("")
+  const [editingWebhook, setEditingWebhook] = useState<string | null>(null)
+  const [editUrl, setEditUrl] = useState("")
+  const [testError, setTestError] = useState("")
 
   const fetchKeys = () => {
+    setTestError("")
     listApiKeys()
-      .then((data) => setKeys((data as { keys: Array<Record<string, unknown>> }).keys ?? []))
+      .then((data) => setKeys(((data as Record<string, unknown>).keys as Array<Record<string, unknown>>) ?? []))
       .catch(() => {})
       .finally(() => setLoading(false))
   }
@@ -30,7 +34,7 @@ function ApiKeysPage() {
     setError("")
     try {
       const data = (await createApiKey({
-        data: { name, role, expiresIn: 365 * 24 * 60 * 60, webhookUrl: webhookUrl || undefined },
+        data: { name, role, expiresIn: 365 * 24 * 60 * 60, webhookUrl },
       })) as Record<string, unknown>
       setCreatedKey(data.key as string)
       setName("")
@@ -42,6 +46,15 @@ function ApiKeysPage() {
     }
   }
 
+  async function handleSaveWebhook(apiKeyId: string) {
+    try {
+      await updateWebhookUrl({ data: { apiKeyId, url: editUrl } })
+      setEditingWebhook(null)
+      setEditUrl("")
+      fetchKeys()
+    } catch {}
+  }
+
   async function handleRevoke(id: string) {
     try {
       await revokeApiKey({ data: { id } })
@@ -49,10 +62,17 @@ function ApiKeysPage() {
     } catch {}
   }
 
-  async function handleSendTest() {
+  async function handleSendTest(apiKeyId: string) {
+    setTestError("")
     try {
-      await sendTestWebhook()
-    } catch {}
+      await sendTestWebhook({ data: { apiKeyId } })
+    } catch (err) {
+      setTestError(err instanceof Error ? err.message : "Failed to send test webhook")
+    }
+  }
+
+  function copyToClipboard(text: string) {
+    navigator.clipboard.writeText(text)
   }
 
   return (
@@ -84,8 +104,8 @@ function ApiKeysPage() {
                 <option value="test">Test</option>
                 <option value="production">Production</option>
               </select>
-              <input value={webhookUrl} onChange={(e) => setWebhookUrl(e.target.value)} placeholder="Webhook URL (optional)"
-                className="rounded-lg border border-gray-700 bg-transparent px-3 py-2 text-sm" />
+              <input value={webhookUrl} onChange={(e) => setWebhookUrl(e.target.value)} placeholder="Webhook URL (required)"
+                required className="rounded-lg border border-gray-700 bg-transparent px-3 py-2 text-sm" />
               {error && <p className="text-sm text-red-400">{error}</p>}
               <Button type="submit">Generate Key</Button>
             </form>
@@ -100,17 +120,68 @@ function ApiKeysPage() {
           {keys.length === 0 && <p className="text-sm text-gray-500">No API keys yet.</p>}
           {keys.map((k: Record<string, unknown>) => (
             <Card key={k.id as string}>
-              <CardContent className="flex items-center justify-between p-4">
-                <div>
-                  <p className="text-sm font-medium">{k.name as string}</p>
-                  <p className="text-xs text-gray-500">{k.role as string} · {k.id as string}</p>
+              <CardContent className="p-4">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-medium">{k.name as string}</p>
+                      <span className="rounded bg-gray-800 px-1.5 py-0.5 text-xs text-gray-400">{k.role as string}</span>
+                      {!!k.revoked && <span className="rounded bg-red-900 px-1.5 py-0.5 text-xs text-red-400">Revoked</span>}
+                    </div>
+                    <p className="mt-0.5 text-xs text-gray-500">ID: {k.id as string}</p>
+                  </div>
+                  <div className="flex gap-2">
+                    {k.role === "test" && !k.revoked && <Button size="sm" onClick={() => handleSendTest(k.id as string)}>Send Test</Button>}
+                    {!k.revoked && (
+                      <Button size="sm" variant="destructive" onClick={() => handleRevoke(k.id as string)}>Revoke</Button>
+                    )}
+                  </div>
                 </div>
-                <div className="flex gap-2">
-                  {k.role === "test" && <Button size="sm" onClick={handleSendTest}>Send Test</Button>}
-                  <Button size="sm" variant="destructive" onClick={() => handleRevoke(k.id as string)} disabled={!!k.revoked}>
-                    {k.revoked ? "Revoked" : "Revoke"}
-                  </Button>
-                </div>
+
+                {editingWebhook === (k.id as string) ? (
+                  <div className="mt-3 border-t border-gray-800 pt-3">
+                    <div className="flex gap-2">
+                      <input value={editUrl} onChange={(e) => setEditUrl(e.target.value)}
+                        placeholder="https://..." className="flex-1 rounded-lg border border-gray-700 bg-transparent px-3 py-1.5 text-xs" />
+                      <Button size="sm" onClick={() => handleSaveWebhook(k.id as string)}>Save</Button>
+                      <Button size="sm" variant="secondary" onClick={() => setEditingWebhook(null)}>Cancel</Button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    {k.webhookUrl && (
+                      <div className="mt-3 border-t border-gray-800 pt-3">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-gray-500">Webhook:</span>
+                          <code className="break-all text-xs text-gray-300">{k.webhookUrl as string}</code>
+                          {!k.revoked && (
+                            <button onClick={() => { setEditingWebhook(k.id as string); setEditUrl(k.webhookUrl as string) }}
+                              className="text-xs text-yellow-500 hover:text-yellow-400">Edit</button>
+                          )}
+                        </div>
+                        {!!k.webhookPublicKey && (
+                          <div className="mt-1 flex items-center gap-2">
+                            <span className="text-xs text-gray-500">Public Key:</span>
+                            <code className="break-all text-xs text-gray-300">{k.webhookPublicKey as string}</code>
+                            <button onClick={() => copyToClipboard(k.webhookPublicKey as string)}
+                              className="text-xs text-yellow-500 hover:text-yellow-400">Copy</button>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    {!k.webhookUrl && !k.revoked && (
+                      <div className="mt-2">
+                        <button onClick={() => { setEditingWebhook(k.id as string); setEditUrl("") }}
+                          className="text-xs text-yellow-600 hover:text-yellow-500">
+                          + Set Webhook URL
+                        </button>
+                      </div>
+                    )}
+                  </>
+                )}
+                {testError && k.role === "test" && (
+                  <p className="mt-2 text-xs text-red-400">{testError}</p>
+                )}
               </CardContent>
             </Card>
           ))}
