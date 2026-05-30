@@ -2,7 +2,7 @@ import { createFileRoute, Outlet, useNavigate, useLocation } from "@tanstack/rea
 import { useEffect, useState } from "react"
 import { authClient } from "@/lib/auth-client"
 import { getBackendConfig } from "@/lib/scrawn-server"
-import { RefreshContext, useIsRefreshing } from "@/lib/useCache"
+import { RefreshContext, useIsRefreshing, useOnlineStatus, hasAnyCachedData } from "@/lib/useCache"
 
 export const Route = createFileRoute("/dashboard")({ component: DashboardLayout })
 
@@ -19,6 +19,7 @@ function DashboardLayout() {
   const { data: session, isPending } = authClient.useSession()
   const [refreshVersion, setRefreshVersion] = useState(0)
   const refreshing = useIsRefreshing()
+  const online = useOnlineStatus()
 
   useEffect(() => {
     if (!session || isPending) return
@@ -28,6 +29,13 @@ function DashboardLayout() {
       }
     })
   }, [session, isPending])
+
+  // Re-fetch all data when browser comes back online
+  useEffect(() => {
+    const on = () => setRefreshVersion((v) => v + 1)
+    window.addEventListener("online", on)
+    return () => window.removeEventListener("online", on)
+  }, [])
 
   if (isPending) return null
   if (!session) {
@@ -84,6 +92,18 @@ function DashboardLayout() {
           </div>
         </aside>
         <main className="flex-1 overflow-auto p-6">
+          {!online && (
+            <div className="-mx-6 -mt-6 mb-6 flex items-center gap-2 border-b border-yellow-800 bg-yellow-950 px-6 py-2.5 text-sm text-yellow-300">
+              <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+              </svg>
+              <span>
+                {hasAnyCachedData()
+                  ? "You're offline — showing cached data. Auto-reconnecting..."
+                  : "You're offline — no cached data available."}
+              </span>
+            </div>
+          )}
           <Outlet />
         </main>
       </div>

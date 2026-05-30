@@ -60,6 +60,25 @@ export function invalidateCache(key: string): void {
   } catch {}
 }
 
+// ── Online status ────────────────────────────────────────────────────
+
+export function useOnlineStatus(): boolean {
+  const [online, setOnline] = useState(
+    typeof window !== "undefined" ? navigator.onLine : true
+  )
+  useEffect(() => {
+    const on = () => setOnline(true)
+    const off = () => setOnline(false)
+    window.addEventListener("online", on)
+    window.addEventListener("offline", off)
+    return () => {
+      window.removeEventListener("online", on)
+      window.removeEventListener("offline", off)
+    }
+  }, [])
+  return online
+}
+
 // ── Global refresh context ──────────────────────────────────────────
 
 export interface RefreshContextType {
@@ -103,12 +122,36 @@ export function useIsRefreshing(): boolean {
   return refreshing
 }
 
+// ── Cache timestamp helper (for offline banner) ─────────────────────
+
+export function getCacheTimestamp(key: string): Date | null {
+  if (typeof window === "undefined") return null
+  try {
+    const raw = localStorage.getItem(CACHE_PREFIX + key)
+    if (!raw) return null
+    const entry: StoredEntry<unknown> = JSON.parse(raw)
+    return new Date(entry.timestamp)
+  } catch {
+    return null
+  }
+}
+
+export function hasAnyCachedData(): boolean {
+  if (typeof window === "undefined") return false
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i)
+    if (k?.startsWith(CACHE_PREFIX)) return true
+  }
+  return false
+}
+
 // ── useCachedData hook ──────────────────────────────────────────────
 
 interface CachedDataResult<T> {
   data: T | null
   loading: boolean
   refreshing: boolean
+  offline: boolean
   error: string | null
   refresh: () => Promise<void>
 }
@@ -121,9 +164,13 @@ export function useCachedData<T>(
   const [data, setData] = useState<T | null>(() => getFromCache<T>(key))
   const [loading, setLoading] = useState(!data)
   const [refreshing, setRefreshing] = useState(false)
+  const [offline, setOffline] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const fetchId = useRef(0)
   const ctx = useContext(RefreshContext)
+  const online = useOnlineStatus()
+  const onlineRef = useRef(online)
+  onlineRef.current = online
 
   const doFetch = useCallback(
     async (background: boolean) => {
@@ -140,10 +187,15 @@ export function useCachedData<T>(
         const result = await fetcher()
         if (id !== fetchId.current) return
         setData(result)
+        setOffline(false)
         setInCache(key, result, ttl)
       } catch (err) {
         if (id !== fetchId.current) return
-        setError(err instanceof Error ? err.message : "Request failed")
+        if (!onlineRef.current) {
+          setOffline(true)
+        } else {
+          setError(err instanceof Error ? err.message : "Request failed")
+        }
       } finally {
         if (id !== fetchId.current) return
         setLoading(false)
@@ -165,9 +217,18 @@ export function useCachedData<T>(
     if (cached !== null) {
       setData(cached)
       setLoading(false)
-      doFetch(true)
+      if (online) {
+        doFetch(true)
+      } else {
+        setOffline(true)
+      }
     } else {
-      doFetch(false)
+      if (online) {
+        doFetch(false)
+      } else {
+        setLoading(false)
+        setOffline(true)
+      }
     }
   }, [key]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -177,6 +238,15 @@ export function useCachedData<T>(
       doFetch(true)
     }
   }, [ctx.version]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Re-fetch when coming back online
+  const prevOnline = useRef(online)
+  useEffect(() => {
+    if (online && !prevOnline.current) {
+      doFetch(true)
+    }
+    prevOnline.current = online
+  }, [online]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Auto-poll at TTL interval
   useEffect(() => {
@@ -189,5 +259,5 @@ export function useCachedData<T>(
     await doFetch(false)
   }, [key]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  return { data, loading, refreshing, error, refresh }
+  return { data, loading, refreshing, offline, error, refresh }
 }
