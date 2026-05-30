@@ -8,12 +8,10 @@ import {
   getDashboardSummary,
   getEventTypeDistribution,
   getPaymentHistory,
-  getTopUsers,
   getUsageOverTime,
+  getBackendConfig,
 } from "@/lib/scrawn-server"
 import { UsageOverTime } from "@/components/analytics/usage-over-time"
-import { TopUsers } from "@/components/analytics/top-users"
-// import { EventDistribution } from "@/components/analytics/event-distribution"
 import { AiTokenUsage } from "@/components/analytics/ai-token-usage"
 import { PaymentHistory } from "@/components/analytics/payment-history"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -31,8 +29,6 @@ function Dashboard() {
     totalCredits: string
   } | null>(null)
   const [usageOverTime, setUsageOverTime] = useState<Array<AggregationRow>>([])
-  const [topUsers, setTopUsers] = useState<Array<AggregationRow>>([])
-  const [eventDist, setEventDist] = useState<Array<AggregationRow>>([])
   const [aiToken, setAiToken] = useState<{
     input: Array<AggregationRow>
     output: Array<AggregationRow>
@@ -42,22 +38,27 @@ function Dashboard() {
 
   useEffect(() => {
     if (session) {
+      getBackendConfig().then((res) => {
+        if (!res.configured) {
+          navigate({ to: "/onboarding", replace: true })
+          return
+        }
+      })
       Promise.all([
         getDashboardSummary(),
         getUsageOverTime(),
-        getTopUsers(),
         getEventTypeDistribution(),
         getAiTokenUsage(),
         getPaymentHistory(),
-      ]).then(([s, u, t, e, a, p]) => {
-        setSummary(s)
-        setUsageOverTime(u)
-        setTopUsers(t)
-        setEventDist(e)
-        setAiToken(a)
-        setPaymentHist(p)
-        setLoading(false)
-      })
+      ])
+        .then(([s, u, , a, p]) => {
+          setSummary(s)
+          setUsageOverTime(u)
+          setAiToken(a)
+          setPaymentHist(p)
+          setLoading(false)
+        })
+        .catch(() => setLoading(false))
     }
   }, [session])
 

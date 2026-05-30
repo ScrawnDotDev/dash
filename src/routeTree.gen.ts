@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SignInRouteImport } from './routes/sign-in'
+import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
@@ -17,6 +18,11 @@ import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 const SignInRoute = SignInRouteImport.update({
   id: '/sign-in',
   path: '/sign-in',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OnboardingRoute = OnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -38,12 +44,14 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
+  '/onboarding': typeof OnboardingRoute
   '/sign-in': typeof SignInRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
+  '/onboarding': typeof OnboardingRoute
   '/sign-in': typeof SignInRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
@@ -51,20 +59,28 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
+  '/onboarding': typeof OnboardingRoute
   '/sign-in': typeof SignInRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard' | '/sign-in' | '/api/auth/$'
+  fullPaths: '/' | '/dashboard' | '/onboarding' | '/sign-in' | '/api/auth/$'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/sign-in' | '/api/auth/$'
-  id: '__root__' | '/' | '/dashboard' | '/sign-in' | '/api/auth/$'
+  to: '/' | '/dashboard' | '/onboarding' | '/sign-in' | '/api/auth/$'
+  id:
+    | '__root__'
+    | '/'
+    | '/dashboard'
+    | '/onboarding'
+    | '/sign-in'
+    | '/api/auth/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRoute
+  OnboardingRoute: typeof OnboardingRoute
   SignInRoute: typeof SignInRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
@@ -76,6 +92,13 @@ declare module '@tanstack/react-router' {
       path: '/sign-in'
       fullPath: '/sign-in'
       preLoaderRoute: typeof SignInRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/onboarding': {
+      id: '/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof OnboardingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -105,6 +128,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRoute,
+  OnboardingRoute: OnboardingRoute,
   SignInRoute: SignInRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
