@@ -35,9 +35,12 @@ async function findCachedNavigation(cache) {
   return null
 }
 
-async function handleFetch(e) {
+self.addEventListener("fetch", (e) => {
   if (isApiRequest(e.request.url)) return
+  e.respondWith(handleNavigationOrAsset(e))
+})
 
+async function handleNavigationOrAsset(e) {
   const cache = await caches.open(CACHE)
 
   if (e.request.mode === "navigate") {
@@ -53,7 +56,7 @@ async function handleFetch(e) {
       if (fallback) return fallback
 
       return new Response(
-        "<!DOCTYPE html><html><head><meta charset='utf-8'><title>Offline</title><meta name='viewport' content='width=device-width,initial-scale=1'><style>body{background:#000;color:#fff;font-family:system-ui;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;padding:2rem;text-align:center}p{color:#999}</style></head><body><div><h1>You're offline</h1><p>No cached data available. Connect to the internet and reload.</p></div></body></html>",
+        "<!DOCTYPE html><html lang='en'><head><meta charset='utf-8'><title>Offline</title><meta name='viewport' content='width=device-width,initial-scale=1'><style>body{background:#000;color:#fff;font-family:system-ui;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;padding:2rem;text-align:center}p{color:#999}</style></head><body><div><h1>You're offline</h1><p>No cached data available. Connect to the internet and reload.</p></div></body></html>",
         { headers: { "Content-Type": "text/html; charset=utf-8" } }
       )
     }
@@ -62,14 +65,10 @@ async function handleFetch(e) {
   const cached = await cache.match(e.request)
   const fetchPromise = fetch(e.request)
     .then((res) => {
-      if (res.ok && !isApiRequest(e.request.url)) cache.put(e.request, res.clone())
+      if (res.ok) cache.put(e.request, res.clone())
       return res
     })
     .catch(() => cached)
 
   return cached || fetchPromise
 }
-
-self.addEventListener("fetch", (e) => {
-  e.respondWith(handleFetch(e))
-})
