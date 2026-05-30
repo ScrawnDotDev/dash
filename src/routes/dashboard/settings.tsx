@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { createFileRoute } from "@tanstack/react-router"
 import { listTags, createTag, deleteTag, listExpressions, createExpression, deleteExpression } from "@/lib/scrawn-server"
+import { ExpressionBuilder } from "@/components/ExpressionBuilder"
 import { Button } from "@/components/ui/button"
 
 export const Route = createFileRoute("/dashboard/settings")({ component: SettingsPage })
@@ -10,9 +11,8 @@ function SettingsPage() {
   const [exprs, setExprs] = useState<string[]>([])
   const [newTagKey, setNewTagKey] = useState("")
   const [newTagAmount, setNewTagAmount] = useState("")
-  const [newExprKey, setNewExprKey] = useState("")
-  const [newExprBody, setNewExprBody] = useState("")
-  const [error, setError] = useState("")
+  const [exprError, setExprError] = useState<string | null>(null)
+  const [tagError, setTagError] = useState("")
 
   const fetchAll = () => {
     listTags().then((d) => setTags(((d as { tags: string[] }).tags ?? [])))
@@ -23,24 +23,23 @@ function SettingsPage() {
 
   async function handleAddTag(e: React.FormEvent) {
     e.preventDefault()
-    setError("")
+    setTagError("")
     try {
       await createTag({ data: { key: newTagKey, amount: parseInt(newTagAmount) || 0 } })
       setNewTagKey(""); setNewTagAmount(""); fetchAll()
-    } catch (err) { setError(err instanceof Error ? err.message : "Failed") }
+    } catch (err) { setTagError(err instanceof Error ? err.message : "Failed") }
   }
 
   async function handleDeleteTag(key: string) {
     try { await deleteTag({ data: { key } }); fetchAll() } catch {}
   }
 
-  async function handleAddExpr(e: React.FormEvent) {
-    e.preventDefault()
-    setError("")
+  async function handleAddExpr(key: string, expr: string) {
+    setExprError(null)
     try {
-      await createExpression({ data: { key: newExprKey, expr: newExprBody } })
-      setNewExprKey(""); setNewExprBody(""); fetchAll()
-    } catch (err) { setError(err instanceof Error ? err.message : "Failed") }
+      await createExpression({ data: { key, expr } })
+      fetchAll()
+    } catch (err) { setExprError(err instanceof Error ? err.message : "Failed to save expression") }
   }
 
   async function handleDeleteExpr(key: string) {
@@ -56,10 +55,11 @@ function SettingsPage() {
         <form onSubmit={handleAddTag} className="mb-4 flex gap-2">
           <input value={newTagKey} onChange={(e) => setNewTagKey(e.target.value)} placeholder="TAG_NAME" required
             className="flex-1 rounded-lg border border-gray-700 bg-transparent px-3 py-2 text-sm" />
-          <input value={newTagAmount} onChange={(e) => setNewTagAmount(e.target.value)} placeholder="Amount (cents)" required type="number"
+          <input value={newTagAmount} onChange={(e) => setNewTagAmount(e.target.value)} placeholder="Amount" required type="number"
             className="w-32 rounded-lg border border-gray-700 bg-transparent px-3 py-2 text-sm" />
           <Button type="submit">Add</Button>
         </form>
+        {tagError && <p className="mb-2 text-sm text-red-400">{tagError}</p>}
         <div className="flex flex-wrap gap-2">
           {tags.map((t) => (
             <div key={t} className="flex items-center gap-2 rounded-lg border border-gray-700 px-3 py-1.5 text-sm">
@@ -73,14 +73,15 @@ function SettingsPage() {
 
       <section>
         <h2 className="mb-3 text-lg font-medium">Expressions</h2>
-        <form onSubmit={handleAddExpr} className="mb-4 flex gap-2">
-          <input value={newExprKey} onChange={(e) => setNewExprKey(e.target.value)} placeholder="EXPR_NAME" required
-            className="w-40 rounded-lg border border-gray-700 bg-transparent px-3 py-2 text-sm" />
-          <input value={newExprBody} onChange={(e) => setNewExprBody(e.target.value)} placeholder="add(mul(tag(RATE), 2), 100)" required
-            className="flex-1 rounded-lg border border-gray-700 bg-transparent px-3 py-2 text-sm font-mono" />
-          <Button type="submit">Add</Button>
-        </form>
-        {error && <p className="mb-2 text-sm text-red-400">{error}</p>}
+        <div className="mb-4">
+          <ExpressionBuilder
+            tags={tags}
+            expressions={exprs}
+            onError={setExprError}
+            onSaveExpression={handleAddExpr}
+          />
+        </div>
+        {exprError && <p className="mb-2 text-sm text-red-400">{exprError}</p>}
         <div className="flex flex-wrap gap-2">
           {exprs.map((e) => (
             <div key={e} className="flex items-center gap-2 rounded-lg border border-gray-700 px-3 py-1.5 text-sm">
