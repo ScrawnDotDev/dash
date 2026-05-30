@@ -1,7 +1,5 @@
 import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router"
-// import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools"
-// import { TanStackDevtools } from "@tanstack/react-devtools"
-
+import { ThemeProvider } from "@/lib/theme-provider"
 import appCss from "../styles.css?url"
 
 export const Route = createRootRoute({
@@ -15,13 +13,60 @@ export const Route = createRootRoute({
         content: "width=device-width, initial-scale=1",
       },
       {
-        title: "TanStack Start Starter",
+        title: "Scrawn — Usage-based billing in one-ish line",
+      },
+      {
+        name: "description",
+        content:
+          "Bill your self-rolled abomination in one-ish line. Wrap DodoPayments. Track usage. Collect cash. One import.",
+      },
+      {
+        name: "og:title",
+        content: "Scrawn — Usage-based billing in one-ish line",
+      },
+      {
+        name: "og:description",
+        content:
+          "Bill your self-rolled abomination in one-ish line. Open-source usage-based billing that wraps DodoPayments.",
+      },
+      {
+        name: "og:image",
+        content: "/og.png",
+      },
+      {
+        name: "twitter:card",
+        content: "summary_large_image",
       },
     ],
     links: [
       {
         rel: "stylesheet",
         href: appCss,
+      },
+      {
+        rel: "apple-touch-icon",
+        sizes: "180x180",
+        href: "/apple-touch-icon.png",
+      },
+      {
+        rel: "icon",
+        type: "image/png",
+        sizes: "32x32",
+        href: "/favicon-32x32.png",
+      },
+      {
+        rel: "icon",
+        type: "image/png",
+        sizes: "16x16",
+        href: "/favicon-16x16.png",
+      },
+      {
+        rel: "manifest",
+        href: "/site.webmanifest",
+      },
+      {
+        rel: "icon",
+        href: "/favicon.ico",
       },
     ],
   }),
@@ -36,23 +81,12 @@ export const Route = createRootRoute({
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" className="light">
       <head>
         <HeadContent />
       </head>
-      <body className="dark">
-        {children}
-{/* <TanStackDevtools
-          config={{
-            position: "bottom-right",
-          }}
-          plugins={[
-            {
-              name: "Tanstack Router",
-              render: <TanStackRouterDevtoolsPanel />,
-            },
-          ]}
-        /> */}
+      <body>
+        <ThemeProvider>{children}</ThemeProvider>
         <Scripts />
       </body>
     </html>

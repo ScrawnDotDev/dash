@@ -4,6 +4,7 @@ import { useMemo } from "react"
 import { Pie, PieChart } from "recharts"
 
 import type { AggregationRow } from "@scrawn/core"
+import type {ChartConfig} from "@/components/ui/chart";
 import {
   Card,
   CardContent,
@@ -12,10 +13,10 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import {
+  
   ChartContainer,
   ChartTooltip,
-  ChartTooltipContent,
-  type ChartConfig,
+  ChartTooltipContent
 } from "@/components/ui/chart"
 
 const COLORS = [
@@ -26,11 +27,7 @@ const COLORS = [
   "var(--chart-5)",
 ]
 
-export function EventDistribution({
-  data,
-}: {
-  data: Array<AggregationRow>
-}) {
+export function EventDistribution({ data }: { data: Array<AggregationRow> }) {
   const { chartData, chartConfig, total } = useMemo(() => {
     const items = data.map((d, i) => ({
       name: d.groupValue ?? "unknown",

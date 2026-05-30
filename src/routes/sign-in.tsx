@@ -33,9 +33,36 @@ function SignIn() {
     e.preventDefault()
     setLoading(true)
     setError("")
-    const { error: signInError } = await authClient.signIn.email({ email, password })
-    if (signInError) {
-      setError(signInError.message || signInError.code || "Invalid credentials")
+
+    try {
+      if (mode === "sign-up") {
+        const { error: signUpError } = await authClient.signUp.email({
+          email,
+          password,
+          name,
+        })
+        if (signUpError) {
+          setError(
+            signUpError.message || signUpError.code || "Something went wrong"
+          )
+          return
+        }
+        setMode("sign-in")
+      } else {
+        const { error: signInError } = await authClient.signIn.email({
+          email,
+          password,
+        })
+        if (signInError) {
+          setError(
+            signInError.message || signInError.code || "Something went wrong"
+          )
+          return
+        }
+      }
+    } catch {
+      setError("Something went wrong")
+    } finally {
       setLoading(false)
     }
   }
@@ -90,17 +117,41 @@ function SignIn() {
 
   return (
     <div className="flex min-h-svh items-center justify-center p-6">
-      <form onSubmit={handleSignIn} className="flex w-full max-w-sm flex-col gap-4">
-        <h1 className="text-2xl font-medium">Sign In</h1>
+      <form
+        onSubmit={handleSubmit}
+        className="flex w-full max-w-sm flex-col gap-4"
+      >
+        <h1 className="text-2xl font-medium">
+          {mode === "sign-in" ? "Sign In" : "Sign Up"}
+        </h1>
+
+        {mode === "sign-up" && (
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Name"
+            className="rounded-lg border border-gray-700 bg-transparent px-4 py-2 text-sm focus:ring-2 focus:ring-gray-500 focus:outline-none"
+            required
+          />
+        )}
+
         <input
-          type="email" value={email} onChange={(e) => setEmail(e.target.value)}
-          placeholder="Email" required
-          className="rounded-lg border border-gray-700 bg-transparent px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-500"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Email"
+          className="rounded-lg border border-gray-700 bg-transparent px-4 py-2 text-sm focus:ring-2 focus:ring-gray-500 focus:outline-none"
+          required
         />
         <input
-          type="password" value={password} onChange={(e) => setPassword(e.target.value)}
-          placeholder="Password" required
-          className="rounded-lg border border-gray-700 bg-transparent px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-500"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Password"
+          className="rounded-lg border border-gray-700 bg-transparent px-4 py-2 text-sm focus:ring-2 focus:ring-gray-500 focus:outline-none"
+          required
+          minLength={8}
         />
         {error && <p className="text-sm text-red-400">{error}</p>}
         <Button type="submit" disabled={loading}>
