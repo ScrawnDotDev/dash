@@ -104,7 +104,7 @@ export const getEventTypeDistribution = createServerFn({
 }).handler(async () => {
   const f = analytics.query.sdkEvent.fields
   const result = await analytics.query.sdkEvent
-    .aggregate(count())
+    .aggregate(analyticsCount())
     .groupBy(f.eventType)
     .execute()
   return result.rows.map((r) => ({

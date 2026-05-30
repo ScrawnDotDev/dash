@@ -19,19 +19,20 @@ function Onboarding() {
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
 
-  if (isPending) return null
-  if (!session) {
-    navigate({ to: "/sign-in", replace: true })
-    return null
-  }
-
   useEffect(() => {
+    if (!session || isPending) return
     getBackendConfig().then((res) => {
       if (res.configured) {
         navigate({ to: "/dashboard", replace: true })
       }
     })
-  }, [])
+  }, [session, isPending])
+
+  if (isPending) return null
+  if (!session) {
+    navigate({ to: "/sign-in", replace: true })
+    return null
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()

@@ -33,36 +33,9 @@ function SignIn() {
     e.preventDefault()
     setLoading(true)
     setError("")
-
-    try {
-      if (mode === "sign-up") {
-        const { error: signUpError } = await authClient.signUp.email({
-          email,
-          password,
-          name,
-        })
-        if (signUpError) {
-          setError(
-            signUpError.message || signUpError.code || "Something went wrong"
-          )
-          return
-        }
-        setMode("sign-in")
-      } else {
-        const { error: signInError } = await authClient.signIn.email({
-          email,
-          password,
-        })
-        if (signInError) {
-          setError(
-            signInError.message || signInError.code || "Something went wrong"
-          )
-          return
-        }
-      }
-    } catch {
-      setError("Something went wrong")
-    } finally {
+    const { error: signInError } = await authClient.signIn.email({ email, password })
+    if (signInError) {
+      setError(signInError.message || signInError.code || "Invalid credentials")
       setLoading(false)
     }
   }
@@ -118,23 +91,10 @@ function SignIn() {
   return (
     <div className="flex min-h-svh items-center justify-center p-6">
       <form
-        onSubmit={handleSubmit}
+        onSubmit={handleSignIn}
         className="flex w-full max-w-sm flex-col gap-4"
       >
-        <h1 className="text-2xl font-medium">
-          {mode === "sign-in" ? "Sign In" : "Sign Up"}
-        </h1>
-
-        {mode === "sign-up" && (
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Name"
-            className="rounded-lg border border-gray-700 bg-transparent px-4 py-2 text-sm focus:ring-2 focus:ring-gray-500 focus:outline-none"
-            required
-          />
-        )}
+        <h1 className="text-2xl font-medium">Sign In</h1>
 
         <input
           type="email"
