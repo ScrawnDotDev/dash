@@ -170,3 +170,88 @@ export const getDashboardSummary = createServerFn({ method: "GET" }).handler(
     }
   }
 )
+
+async function apiGet(path: string) {
+  const res = await fetch(`${SCRAWN_HTTP_URL}${path}`, {
+    headers: { Authorization: `Bearer ${SCRAWN_KEY}` },
+  })
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}))
+    throw new Error(body.error || `Request failed: ${res.status}`)
+  }
+  return res.json()
+}
+
+async function apiPost(path: string, body: unknown) {
+  const res = await fetch(`${SCRAWN_HTTP_URL}${path}`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${SCRAWN_KEY}`, "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  })
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}))
+    throw new Error(body.error || `Request failed: ${res.status}`)
+  }
+  return res.json()
+}
+
+async function apiDelete(path: string) {
+  const res = await fetch(`${SCRAWN_HTTP_URL}${path}`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${SCRAWN_KEY}` },
+  })
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}))
+    throw new Error(body.error || `Request failed: ${res.status}`)
+  }
+  return res.json()
+}
+
+// API Keys
+export const listApiKeys = createServerFn({ method: "GET" }).handler(async () => apiGet("/api/v1/api-keys"))
+
+export const createApiKey = createServerFn({ method: "POST" })
+  .inputValidator(validator<{ name: string; role: "test" | "production"; expiresIn: number; webhookUrl?: string }>())
+  .handler(async (ctx) => apiPost("/api/v1/api-keys", ctx.data))
+
+export const revokeApiKey = createServerFn({ method: "POST" })
+  .inputValidator(validator<{ id: string }>())
+  .handler(async (ctx) => apiDelete(`/api/v1/api-keys/${ctx.data.id}`))
+
+// Tags
+export const listTags = createServerFn({ method: "GET" }).handler(async () => apiGet("/api/v1/tags"))
+
+export const createTag = createServerFn({ method: "POST" })
+  .inputValidator(validator<{ key: string; amount: number }>())
+  .handler(async (ctx) => apiPost("/api/v1/tags", ctx.data))
+
+export const deleteTag = createServerFn({ method: "POST" })
+  .inputValidator(validator<{ key: string }>())
+  .handler(async (ctx) => apiDelete(`/api/v1/tags/${ctx.data.key}`))
+
+// Expressions
+export const listExpressions = createServerFn({ method: "GET" }).handler(async () => apiGet("/api/v1/expressions"))
+
+export const createExpression = createServerFn({ method: "POST" })
+  .inputValidator(validator<{ key: string; expr: string }>())
+  .handler(async (ctx) => apiPost("/api/v1/expressions", ctx.data))
+
+export const deleteExpression = createServerFn({ method: "POST" })
+  .inputValidator(validator<{ key: string }>())
+  .handler(async (ctx) => apiDelete(`/api/v1/expressions/${ctx.data.key}`))
+
+// Webhook deliveries
+export const listDeliveries = createServerFn({ method: "GET" })
+  .inputValidator(validator<{ apiKeyId?: string; limit?: number; offset?: number }>())
+  .handler(async (ctx) => {
+    const params = new URLSearchParams()
+    if (ctx.data.apiKeyId) params.set("apiKeyId", ctx.data.apiKeyId)
+    if (ctx.data.limit) params.set("limit", String(ctx.data.limit))
+    if (ctx.data.offset) params.set("offset", String(ctx.data.offset))
+    return apiGet(`/api/v1/internals/webhook-deliveries?${params}`)
+  })
+
+// Send test webhook
+export const sendTestWebhook = createServerFn({ method: "POST" }).handler(async () =>
+  apiPost("/api/v1/internals/webhook-endpoint/send-test", {})
+)
