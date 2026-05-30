@@ -1,0 +1,10 @@
+node_modules
+.git
+.pgdata
+.tanstack
+dist
+NUL
+*.log
+.env
+.env.local
+bun.lock
