@@ -1,14 +1,18 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { createFileRoute } from "@tanstack/react-router"
 import { listApiKeys, createApiKey, revokeApiKey, sendTestWebhook, setWebhookUrl as updateWebhookUrl } from "@/lib/scrawn-server"
+import { useCachedData, TTL, invalidateCache } from "@/lib/useCache"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 
 export const Route = createFileRoute("/dashboard/api-keys")({ component: ApiKeysPage })
 
+const CACHE_KEY = "api-keys"
+
 function ApiKeysPage() {
-  const [keys, setKeys] = useState<Array<Record<string, unknown>>>([])
-  const [loading, setLoading] = useState(true)
+  const { data: keysData, loading, refresh } = useCachedData(CACHE_KEY, listApiKeys, TTL.API_KEYS)
+  const keys = ((keysData as Record<string, unknown> | null)?.keys as Array<Record<string, unknown>>) ?? []
+
   const [showCreate, setShowCreate] = useState(false)
   const [name, setName] = useState("")
   const [role, setRole] = useState<"test" | "production">("test")
@@ -18,16 +22,6 @@ function ApiKeysPage() {
   const [editingWebhook, setEditingWebhook] = useState<string | null>(null)
   const [editUrl, setEditUrl] = useState("")
   const [testError, setTestError] = useState("")
-
-  const fetchKeys = () => {
-    setTestError("")
-    listApiKeys()
-      .then((data) => setKeys(((data as Record<string, unknown>).keys as Array<Record<string, unknown>>) ?? []))
-      .catch(() => {})
-      .finally(() => setLoading(false))
-  }
-
-  useEffect(() => { fetchKeys() }, [])
 
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault()
@@ -40,7 +34,8 @@ function ApiKeysPage() {
       setName("")
       setWebhookUrl("")
       setShowCreate(false)
-      fetchKeys()
+      invalidateCache(CACHE_KEY)
+      refresh()
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create key")
     }
@@ -51,14 +46,16 @@ function ApiKeysPage() {
       await updateWebhookUrl({ data: { apiKeyId, url: editUrl } })
       setEditingWebhook(null)
       setEditUrl("")
-      fetchKeys()
+      invalidateCache(CACHE_KEY)
+      refresh()
     } catch {}
   }
 
   async function handleRevoke(id: string) {
     try {
       await revokeApiKey({ data: { id } })
-      fetchKeys()
+      invalidateCache(CACHE_KEY)
+      refresh()
     } catch {}
   }
 
@@ -79,9 +76,14 @@ function ApiKeysPage() {
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-medium">API Keys</h1>
-        <Button onClick={() => { setShowCreate(!showCreate); setCreatedKey(null) }}>
-          {showCreate ? "Cancel" : "Create Key"}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button size="sm" variant="secondary" onClick={refresh} disabled={loading}>
+            Refresh
+          </Button>
+          <Button onClick={() => { setShowCreate(!showCreate); setCreatedKey(null) }}>
+            {showCreate ? "Cancel" : "Create Key"}
+          </Button>
+        </div>
       </div>
 
       {createdKey && (
@@ -115,9 +117,10 @@ function ApiKeysPage() {
 
       {loading ? (
         <p className="text-sm text-gray-500">Loading...</p>
+      ) : keys.length === 0 ? (
+        <p className="text-sm text-gray-500">No API keys yet.</p>
       ) : (
         <div className="flex flex-col gap-3">
-          {keys.length === 0 && <p className="text-sm text-gray-500">No API keys yet.</p>}
           {keys.map((k: Record<string, unknown>) => (
             <Card key={k.id as string}>
               <CardContent className="p-4">

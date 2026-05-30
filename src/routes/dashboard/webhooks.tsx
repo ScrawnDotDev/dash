@@ -1,22 +1,20 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { createFileRoute } from "@tanstack/react-router"
 import { listDeliveries } from "@/lib/scrawn-server"
+import { useCachedData, TTL } from "@/lib/useCache"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 
 export const Route = createFileRoute("/dashboard/webhooks")({ component: WebhooksPage })
 
 function WebhooksPage() {
-  const [deliveries, setDeliveries] = useState<Array<Record<string, unknown>>>([])
-  const [loading, setLoading] = useState(true)
+  const { data: deliveriesData, loading, refresh } = useCachedData(
+    "webhook-deliveries",
+    () => listDeliveries({ data: { limit: 50 } }),
+    TTL.WEBHOOK_DELIVERIES
+  )
+  const deliveries = ((deliveriesData as { deliveries: Array<Record<string, unknown>> } | null)?.deliveries) ?? []
   const [expanded, setExpanded] = useState<Set<string>>(new Set())
-
-  useEffect(() => {
-    listDeliveries({ data: { limit: 50 } })
-      .then((d) => setDeliveries(((d as { deliveries: Array<Record<string, unknown>> }).deliveries ?? [])))
-      .catch(() => {})
-      .finally(() => setLoading(false))
-  }, [])
 
   function toggleExpand(id: string) {
     setExpanded((prev) => {
@@ -29,7 +27,12 @@ function WebhooksPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-medium">Webhook Deliveries</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-medium">Webhook Deliveries</h1>
+        <Button size="sm" variant="secondary" onClick={refresh} disabled={loading}>
+          Refresh
+        </Button>
+      </div>
 
       {loading ? (
         <p className="text-sm text-gray-500">Loading...</p>

@@ -1,12 +1,11 @@
-import { useEffect, useState } from "react"
 import { createFileRoute } from "@tanstack/react-router"
-import type { AggregationRow } from "@scrawn/core"
 import {
   getAiTokenUsage,
   getDashboardSummary,
   getPaymentHistory,
   getUsageOverTime,
 } from "@/lib/scrawn-server"
+import { useCachedData, TTL } from "@/lib/useCache"
 import { UsageOverTime } from "@/components/analytics/usage-over-time"
 import { AiTokenUsage } from "@/components/analytics/ai-token-usage"
 import { PaymentHistory } from "@/components/analytics/payment-history"
@@ -16,41 +15,16 @@ import { Skeleton } from "@/components/ui/skeleton"
 export const Route = createFileRoute("/dashboard/")({ component: DashboardHome })
 
 function DashboardHome() {
-  const [summary, setSummary] = useState<{
-    totalRevenue: string
-    totalEvents: string
-    totalCredits: string
-  } | null>(null)
-  const [usageOverTime, setUsageOverTime] = useState<Array<AggregationRow>>([])
-  const [aiToken, setAiToken] = useState<{
-    input: Array<AggregationRow>
-    output: Array<AggregationRow>
-  }>({ input: [], output: [] })
-  const [paymentHist, setPaymentHist] = useState<Array<AggregationRow>>([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    Promise.all([
-      getDashboardSummary(),
-      getUsageOverTime(),
-      getAiTokenUsage(),
-      getPaymentHistory(),
-    ])
-      .then(([s, u, a, p]) => {
-        setSummary(s)
-        setUsageOverTime(u)
-        setAiToken(a)
-        setPaymentHist(p)
-        setLoading(false)
-      })
-      .catch(() => setLoading(false))
-  }, [])
+  const summary = useCachedData("summary", getDashboardSummary, TTL.DASHBOARD_SUMMARY)
+  const usage = useCachedData("usage-over-time", getUsageOverTime, TTL.USAGE_OVER_TIME)
+  const ai = useCachedData("ai-token-usage", getAiTokenUsage, TTL.AI_TOKEN_USAGE)
+  const payments = useCachedData("payment-history", getPaymentHistory, TTL.PAYMENT_HISTORY)
 
   return (
     <div className="flex flex-col gap-6">
       <h1 className="text-2xl font-medium">Dashboard</h1>
 
-      {loading ? (
+      {summary.loading ? (
         <div className="grid grid-cols-3 gap-4">
           {[1, 2, 3].map((i) => (
             <Skeleton key={i} className="h-[120px] w-full" />
@@ -64,7 +38,7 @@ function DashboardHome() {
             </CardHeader>
             <CardContent>
               <p className="text-2xl font-medium">
-                ${Number(summary?.totalRevenue ?? 0).toLocaleString()}
+                ${Number(summary.data?.totalRevenue ?? 0).toLocaleString()}
               </p>
             </CardContent>
           </Card>
@@ -74,7 +48,7 @@ function DashboardHome() {
             </CardHeader>
             <CardContent>
               <p className="text-2xl font-medium">
-                {Number(summary?.totalEvents ?? 0).toLocaleString()}
+                {Number(summary.data?.totalEvents ?? 0).toLocaleString()}
               </p>
             </CardContent>
           </Card>
@@ -84,29 +58,29 @@ function DashboardHome() {
             </CardHeader>
             <CardContent>
               <p className="text-2xl font-medium">
-                ${Number(summary?.totalCredits ?? 0).toLocaleString()}
+                ${Number(summary.data?.totalCredits ?? 0).toLocaleString()}
               </p>
             </CardContent>
           </Card>
         </div>
       )}
 
-      {loading ? (
+      {usage.loading ? (
         <Skeleton className="h-[260px] w-full" />
       ) : (
-        <UsageOverTime data={usageOverTime} />
+        <UsageOverTime data={usage.data ?? []} />
       )}
 
       <div className="grid grid-cols-2 gap-4">
-        {loading ? (
+        {ai.loading && payments.loading ? (
           <>
             <Skeleton className="h-[310px] w-full" />
             <Skeleton className="h-[310px] w-full" />
           </>
         ) : (
           <>
-            <AiTokenUsage data={aiToken} />
-            <PaymentHistory data={paymentHist} />
+            <AiTokenUsage data={ai.data ?? { input: [], output: [] }} />
+            <PaymentHistory data={payments.data ?? []} />
           </>
         )}
       </div>
