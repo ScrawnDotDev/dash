@@ -279,17 +279,31 @@ export const getDashboardSummary = createServerFn({ method: "GET" }).handler(
   async () => {
     const analytics = createAnalytics()
     const sf = analytics.query.basicUsage.fields
+    const af = analytics.query.aiToken.fields
     const pf = analytics.query.payment.fields
 
-    const [totalDebit, eventCount, totalCredits] = await Promise.all([
+    const [basicDebit, aiInput, aiOutput, aiCache, basicCount, aiCount, totalCredits] = await Promise.all([
       analytics.query.basicUsage.aggregate(sum(sf.debitAmount)).execute(),
+      analytics.query.aiToken.aggregate(sum(af.inputDebitAmount)).execute(),
+      analytics.query.aiToken.aggregate(sum(af.outputDebitAmount)).execute(),
+      analytics.query.aiToken.aggregate(sum(af.inputCacheDebitAmount)).execute(),
       analytics.query.basicUsage.aggregate(analyticsCount()).execute(),
+      analytics.query.aiToken.aggregate(analyticsCount()).execute(),
       analytics.query.payment.aggregate(sum(pf.creditAmount)).execute(),
     ])
 
+    const aiDebit =
+      Number(aiInput.rows[0]?.aggValue ?? 0) +
+      Number(aiOutput.rows[0]?.aggValue ?? 0) +
+      Number(aiCache.rows[0]?.aggValue ?? 0)
+    const totalRevenue =
+      (Number(basicDebit.rows[0]?.aggValue ?? 0) + aiDebit).toString()
+    const totalEvents =
+      (Number(basicCount.rows[0]?.aggValue ?? 0) + Number(aiCount.rows[0]?.aggValue ?? 0)).toString()
+
     return {
-      totalRevenue: totalDebit.rows[0]?.aggValue ?? "0",
-      totalEvents: eventCount.rows[0]?.aggValue ?? "0",
+      totalRevenue,
+      totalEvents,
       totalCredits: totalCredits.rows[0]?.aggValue ?? "0",
     }
   }
