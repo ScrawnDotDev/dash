@@ -230,23 +230,62 @@ export const getFilteredEvents = createServerFn({ method: "GET" })
   )
   .handler(async (ctx) => {
     const analytics = createAnalytics()
-    const f = analytics.query.basicUsage.fields
-    const conditions = []
-    if (ctx.data.apiKeyId) conditions.push(eq(f.apiKeyId, ctx.data.apiKeyId))
-    if (ctx.data.userId) conditions.push(eq(f.userId, ctx.data.userId))
-    if (ctx.data.eventType) conditions.push(eq(f.eventType, ctx.data.eventType))
+    const bf = analytics.query.basicUsage.fields
+    const af = analytics.query.aiToken.fields
+    const limit = ctx.data.limit ?? 10
+    const offset = ctx.data.offset ?? 0
+    const fetchLimit = 500
 
-    let query = analytics.query.basicUsage
-      .orderBy(desc(f.ingestedTimestamp))
-      .limit(ctx.data.limit ?? 10)
-      .offset(ctx.data.offset ?? 0)
-
-    if (conditions.length > 0) {
-      query = query.where(and(...conditions))
+    function mkBasicQuery() {
+      const conds: import("@scrawn/analytics").FilterCondition[] = []
+      if (ctx.data.apiKeyId) conds.push(eq(bf.apiKeyId, ctx.data.apiKeyId))
+      if (ctx.data.userId) conds.push(eq(bf.userId, ctx.data.userId))
+      let q = analytics.query.basicUsage.orderBy(desc(bf.ingestedTimestamp)).limit(fetchLimit)
+      if (conds.length > 0) q = q.where(and(...conds))
+      return q.execute()
     }
 
-    const result = await query.execute()
-    return { rows: result.rows, total: result.total }
+    function mkAiQuery() {
+      const conds: import("@scrawn/analytics").FilterCondition[] = []
+      if (ctx.data.apiKeyId) conds.push(eq(af.apiKeyId, ctx.data.apiKeyId))
+      if (ctx.data.userId) conds.push(eq(af.userId, ctx.data.userId))
+      let q = analytics.query.aiToken.orderBy(desc(af.ingestedTimestamp)).limit(fetchLimit)
+      if (conds.length > 0) q = q.where(and(...conds))
+      return q.execute()
+    }
+
+    const [basicResult, aiResult] = await Promise.all([mkBasicQuery(), mkAiQuery()])
+
+    const basicRows = basicResult.rows.map((r) => ({
+      eventId: (r as { eventId?: string }).eventId ?? "",
+      eventType: (r as { eventType?: string }).eventType ?? "",
+      userId: (r as { userId?: string }).userId ?? "",
+      reportedTimestamp: (r as { reportedTimestamp?: string }).reportedTimestamp ?? "",
+      ingestedTimestamp: (r as { ingestedTimestamp?: string }).ingestedTimestamp ?? "",
+      basicUsageType: (r as { basicUsageType?: string }).basicUsageType ?? "",
+      debitAmount: Number((r as { debitAmount?: number }).debitAmount ?? 0),
+    }))
+
+    const aiRows = aiResult.rows.map((r) => ({
+      eventId: (r as { eventId?: string }).eventId ?? "",
+      eventType: (r as { eventType?: string }).eventType ?? "",
+      userId: (r as { userId?: string }).userId ?? "",
+      reportedTimestamp: (r as { reportedTimestamp?: string }).reportedTimestamp ?? "",
+      ingestedTimestamp: (r as { ingestedTimestamp?: string }).ingestedTimestamp ?? "",
+      basicUsageType: "",
+      debitAmount: Number((r as { debitAmount?: number }).debitAmount ?? 0),
+    }))
+
+    const all = [...basicRows, ...aiRows].sort((a, b) =>
+      b.ingestedTimestamp.localeCompare(a.ingestedTimestamp)
+    )
+
+    const total = (basicResult.total ?? 0) + (aiResult.total ?? 0)
+
+    return {
+      rows: all.slice(offset, offset + limit),
+      total,
+    }
   })
 
 export const getApiKeySummary = createServerFn({ method: "GET" })
