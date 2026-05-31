@@ -254,31 +254,22 @@ export const getApiKeySummary = createServerFn({ method: "GET" })
   .handler(async (ctx) => {
     const analytics = createAnalytics()
     const sf = analytics.query.sdkEvent.fields
-    const pf = analytics.query.payment.fields
-    const filter = and(eq(sf.apiKeyId, ctx.data.apiKeyId))
 
-    const [totalDebit, eventCount] = await Promise.all([
-      analytics.query.sdkEvent
-        .where(filter)
-        .aggregate(sum(sf.debitAmount))
-        .execute(),
-      analytics.query.sdkEvent
-        .where(filter)
-        .aggregate(analyticsCount())
-        .execute(),
-    ])
+    const result = await analytics.query.sdkEvent
+      .where(and(eq(sf.apiKeyId, ctx.data.apiKeyId)))
+      .orderBy(desc(sf.ingestedTimestamp))
+      .limit(10000)
+      .execute()
 
-    const [creditResult] = await Promise.all([
-      analytics.query.payment
-        .where(and(eq(pf.apiKeyId, ctx.data.apiKeyId)))
-        .aggregate(sum(pf.creditAmount))
-        .execute(),
-    ])
+    let totalRevenue = 0
+    for (const row of result.rows) {
+      totalRevenue += (row as { debitAmount?: number }).debitAmount ?? 0
+    }
 
     return {
-      totalRevenue: totalDebit.rows[0]?.aggValue ?? "0",
-      totalEvents: eventCount.rows[0]?.aggValue ?? "0",
-      totalCredits: creditResult.rows[0]?.aggValue ?? "0",
+      totalRevenue: String(totalRevenue),
+      totalEvents: String(result.total),
+      totalCredits: "0",
     }
   })
 
