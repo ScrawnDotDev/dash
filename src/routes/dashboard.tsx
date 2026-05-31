@@ -35,6 +35,7 @@ function DashboardLayout() {
   const [expanded, setExpanded] = useState(false)
   const refreshing = useIsRefreshing()
   const online = useOnlineStatus()
+  const [signingOut, setSigningOut] = useState(false)
 
   const triggerRefresh = useMemo(() => () => setRefreshVersion((v) => v + 1), [])
   const refreshValue = useMemo(
@@ -60,7 +61,7 @@ function DashboardLayout() {
   }, [triggerRefresh])
 
   if (isPending) return null
-  if (!session) {
+  if (!session && !signingOut) {
     navigate({ to: "/sign-in", replace: true })
     return null
   }
@@ -145,7 +146,7 @@ function DashboardLayout() {
               transition={{ duration: 0.2 }}
             >
               <p className="mb-2 truncate px-2 text-[10px] font-bold text-gray-500">
-                {session.user?.email}
+                {session?.user?.email}
               </p>
             </motion.div>
             
@@ -171,9 +172,12 @@ function DashboardLayout() {
             </button>
 
             <button
-              onClick={() =>
-                authClient.signOut().then(() => navigate({ to: "/sign-in" }))
-              }
+              onClick={() => {
+                setSigningOut(true)
+                authClient.signOut().then(() => {
+                  window.location.href = "/sign-in"
+                })
+              }}
               className="mt-2 group flex h-10 w-full shrink-0 items-center overflow-hidden border-2 border-black bg-red-500 text-xs font-bold text-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none active:translate-x-[2px] active:translate-y-[2px] dark:border-white dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] dark:hover:shadow-none"
             >
               <div className="flex w-11 shrink-0 items-center justify-center">
