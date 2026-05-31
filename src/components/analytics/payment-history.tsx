@@ -58,7 +58,7 @@ export function PaymentHistory({ data }: { data: Array<AggregationRow> }) {
         <CardTitle className="text-black dark:text-white">
           PAYMENT HISTORY
         </CardTitle>
-        <CardDescription>CREDITS COLLECTED</CardDescription>
+        <CardDescription>CREDITS COLLECTED (SMALLEST CURRENCY UNIT)</CardDescription>
       </CardHeader>
       <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
         <ChartContainer

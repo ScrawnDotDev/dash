@@ -137,11 +137,11 @@ export const getAiTokenUsage = createServerFn({ method: "GET" }).handler(
     const analytics = createAnalytics()
     const f = analytics.query.aiToken.fields
     const input = await analytics.query.aiToken
-      .aggregate(sum(f.inputDebitAmount))
+      .aggregate(sum(f.inputTokens))
       .groupBy(f.model)
       .execute()
     const output = await analytics.query.aiToken
-      .aggregate(sum(f.outputDebitAmount))
+      .aggregate(sum(f.outputTokens))
       .groupBy(f.model)
       .execute()
     return {
@@ -154,6 +154,38 @@ export const getAiTokenUsage = createServerFn({ method: "GET" }).handler(
         aggValue: r.aggValue,
       })),
     }
+  }
+)
+
+export const getAiTokenUsageOverTime = createServerFn({ method: "GET" }).handler(
+  async () => {
+    const analytics = createAnalytics()
+    const f = analytics.query.aiToken.fields
+    const result = await analytics.query.aiToken
+      .orderBy(desc(f.ingestedTimestamp))
+      .limit(500)
+      .execute()
+
+    const groups = new Map<string, Map<string, { input: number; output: number }>>()
+    for (const row of result.rows) {
+      const date = (row.ingestedTimestamp ?? "").slice(0, 10)
+      const model = row.model ?? "unknown"
+      if (!groups.has(date)) groups.set(date, new Map())
+      const modelMap = groups.get(date)!
+      if (!modelMap.has(model)) modelMap.set(model, { input: 0, output: 0 })
+      const acc = modelMap.get(model)!
+      acc.input += row.inputTokens ?? 0
+      acc.output += row.outputTokens ?? 0
+    }
+
+    const flat: Array<{ date: string; model: string; inputTokens: number; outputTokens: number }> = []
+    for (const [date, modelMap] of groups) {
+      for (const [model, counts] of modelMap) {
+        flat.push({ date, model, inputTokens: counts.input, outputTokens: counts.output })
+      }
+    }
+
+    return flat.sort((a, b) => a.date.localeCompare(b.date))
   }
 )
 
@@ -171,6 +203,18 @@ export const getPaymentHistory = createServerFn({ method: "GET" }).handler(
       .reverse()
       .filter((r) => r.groupValue != null)
       .map((r) => ({ groupValue: r.groupValue!, aggValue: r.aggValue }))
+  }
+)
+
+export const getRecentEvents = createServerFn({ method: "GET" }).handler(
+  async () => {
+    const analytics = createAnalytics()
+    const f = analytics.query.sdkEvent.fields
+    const result = await analytics.query.sdkEvent
+      .orderBy(desc(f.ingestedTimestamp))
+      .limit(10)
+      .execute()
+    return result.rows
   }
 )
 

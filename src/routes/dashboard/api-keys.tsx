@@ -7,9 +7,9 @@ import {
   sendTestWebhook,
   setWebhookUrl as updateWebhookUrl,
 } from "@/lib/scrawn-server"
-import { useCachedData, TTL, invalidateCache } from "@/lib/useCache"
+import { useCachedData, TTL, invalidateCache, useIsRefreshing } from "@/lib/useCache"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 export const Route = createFileRoute("/dashboard/api-keys")({
   component: ApiKeysPage,
@@ -41,6 +41,7 @@ function ApiKeysPage() {
   const [revoking, setRevoking] = useState<string | null>(null)
   const [savingWebhook, setSavingWebhook] = useState(false)
   const [sendingTest, setSendingTest] = useState<string | null>(null)
+  const refreshing = useIsRefreshing()
 
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault()
@@ -108,144 +109,158 @@ function ApiKeysPage() {
   }
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
-        <h1 className="w-max border-2 border-black bg-white px-4 py-2 font-mono text-3xl font-black tracking-widest text-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:bg-black dark:text-white dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">
-          API KEYS
+        <h1 className="font-mono text-2xl font-black tracking-widest text-black uppercase dark:text-white">
+          API Keys
         </h1>
         <div className="flex items-center gap-3">
-          <Button onClick={() => setShowCreate(true)}>CREATE NEW KEY</Button>
+          <Button onClick={() => setShowCreate(true)} disabled={creating}>
+            {creating ? "CREATING..." : "CREATE KEY"}
+          </Button>
           <Button
             size="sm"
             variant="secondary"
             onClick={refresh}
-            disabled={loading}
+            disabled={loading || refreshing}
           >
-            REFRESH
+            {refreshing ? "REFRESHING..." : "REFRESH"}
           </Button>
         </div>
       </div>
 
       {createdKey && (
-        <Card className="border-2 border-green-600 bg-green-300 p-0 shadow-[2px_2px_0px_0px_rgba(22,163,74,1)] dark:border-green-400 dark:bg-green-900">
+        <Card className="border-2 border-green-600 bg-green-200 shadow-[2px_2px_0px_0px_rgba(22,163,74,1)] dark:border-green-400 dark:bg-green-900 dark:shadow-[2px_2px_0px_0px_rgba(74,222,128,1)]">
           <CardContent className="p-4">
-            <p className="font-mono text-sm font-black text-green-900 uppercase dark:text-green-100">
-              KEY CREATED — COPY IT NOW. YOU WON'T SEE IT AGAIN!
+            <p className="font-mono text-xs font-black text-green-900 uppercase dark:text-green-100">
+              Key Created — Copy It Now. You Won't See It Again!
             </p>
-            <code className="mt-3 block border-2 border-black bg-white px-4 py-3 font-mono text-sm font-bold break-all text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:bg-black dark:text-white dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">
-              {createdKey}
-            </code>
+            <div className="mt-3 flex items-center gap-2">
+              <code className="flex-1 border-2 border-black bg-white px-3 py-2 font-mono text-xs font-bold break-all text-black dark:border-white dark:bg-black dark:text-white">
+                {createdKey}
+              </code>
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() => copyToClipboard(createdKey)}
+              >
+                COPY
+              </Button>
+            </div>
           </CardContent>
         </Card>
       )}
 
       {showCreate && (
-        <Card className="border-2 border-black bg-yellow-400 p-6 dark:border-white dark:bg-yellow-500">
-          <h2 className="mb-4 font-mono text-xl font-black text-black uppercase">
-            NEW API KEY
-          </h2>
-          <form onSubmit={handleCreate} className="flex flex-col gap-4">
-            <div className="flex gap-4">
-              <input
-                type="text"
-                placeholder="Key Name (e.g. Production Billing)"
-                className="flex-1 border-2 border-black bg-white px-3 py-2 text-sm text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all outline-none focus:translate-x-[2px] focus:translate-y-[2px] focus:shadow-none dark:bg-black dark:text-white dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] dark:border-white"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-              />
-              <select
-                className="w-40 border-2 border-black bg-white px-3 py-2 font-mono text-sm text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] outline-none dark:border-white"
-                value={role}
-                onChange={(e) =>
-                  setRole(e.target.value as "test" | "production")
-                }
-              >
-                <option value="test">TEST</option>
-                <option value="production">PRODUCTION</option>
-              </select>
-            </div>
-            <input
-              type="url"
-              placeholder="WEBHOOK URL (FOR TEST EVENTS)"
-              className="border-2 border-black bg-white px-3 py-2 text-sm text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all outline-none focus:translate-x-[2px] focus:translate-y-[2px] focus:shadow-none dark:bg-black dark:text-white dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] dark:border-white"
-              value={webhookUrl}
-              onChange={(e) => setWebhookUrl(e.target.value)}
-            />
-            {error && (
-              <p className="w-max bg-black px-2 py-1 font-mono text-sm font-bold text-red-600">
-                {error}
-              </p>
-            )}
-            <div className="flex justify-end gap-2">
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={() => setShowCreate(false)}
-                disabled={creating}
-              >
-                CANCEL
-              </Button>
-              <Button
-                type="submit"
-                variant="default"
-                className="bg-black text-white dark:bg-white dark:text-black"
-                disabled={creating}
-              >
-                {creating ? "CREATING..." : "CREATE KEY"}
-              </Button>
-            </div>
-          </form>
+        <Card className="bg-yellow-400 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:bg-yellow-500 dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">
+          <CardHeader>
+            <CardTitle className="text-black dark:text-black">New API Key</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleCreate} className="flex flex-col gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <input
+                  type="text"
+                  placeholder="Key name (e.g. Production Billing)"
+                  className="border-2 border-black bg-white px-3 py-2 text-sm text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all outline-none focus:translate-x-[2px] focus:translate-y-[2px] focus:shadow-none dark:bg-black dark:text-white dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] dark:border-white"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                />
+                <select
+                  className="border-2 border-black bg-white px-3 py-2 font-mono text-sm text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] outline-none dark:bg-black dark:text-white dark:border-white dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]"
+                  value={role}
+                  onChange={(e) =>
+                    setRole(e.target.value as "test" | "production")
+                  }
+                >
+                  <option value="test">Test</option>
+                  <option value="production">Production</option>
+                </select>
+                <input
+                  type="url"
+                  placeholder="Webhook URL (optional)"
+                  className="border-2 border-black bg-white px-3 py-2 text-sm text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all outline-none focus:translate-x-[2px] focus:translate-y-[2px] focus:shadow-none dark:bg-black dark:text-white dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] dark:border-white"
+                  value={webhookUrl}
+                  onChange={(e) => setWebhookUrl(e.target.value)}
+                />
+              </div>
+              {error && (
+                <p className="w-max bg-black px-2 py-1 font-mono text-xs font-bold text-red-500">
+                  {error}
+                </p>
+              )}
+              <div className="flex justify-end gap-2">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => setShowCreate(false)}
+                  disabled={creating}
+                >
+                  CANCEL
+                </Button>
+                <Button
+                  type="submit"
+                  variant="default"
+                  className="bg-black text-white dark:bg-white dark:text-black"
+                  disabled={creating}
+                >
+                  CREATE
+                </Button>
+              </div>
+            </form>
+          </CardContent>
         </Card>
       )}
 
       {loading ? (
-        <p className="text-sm text-gray-500">
-          LOADING KEYS ///
-        </p>
+        <p className="text-sm text-gray-500 font-mono">Loading keys...</p>
       ) : keys.length === 0 ? (
         <p className="font-mono text-sm font-bold text-red-500 uppercase">
-          NO API KEYS FOUND ///
+          No API Keys Found
         </p>
       ) : (
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-3">
           {keys.map((k: Record<string, unknown>) => (
             <Card
               key={k.id as string}
-              className="border-2 border-black bg-white p-0 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:bg-black dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]"
+              className="shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]"
             >
               <CardContent className="p-4">
-                <div className="flex items-start justify-between border-b-2 border-black pb-3 dark:border-white">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3">
-                      <p className="font-mono text-base font-black text-black uppercase dark:text-white">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <p className="font-mono text-sm font-black text-black uppercase dark:text-white truncate">
                         {k.name as string}
                       </p>
                       <span
-                        className={`border-2 border-black px-1.5 py-0.5 font-mono text-xs font-bold uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] ${k.role === "production" ? "bg-yellow-400 text-black dark:bg-yellow-500" : "bg-blue-400 text-black dark:bg-blue-500"}`}
+                        className={`border-2 border-black px-1.5 py-0.5 font-mono text-[10px] font-bold uppercase shrink-0 ${
+                          k.role === "production"
+                            ? "bg-yellow-400 text-black"
+                            : "bg-blue-400 text-black"
+                        }`}
                       >
                         {k.role as string}
                       </span>
                       {!!k.revoked && (
-                        <span className="animate-pulse border-2 border-black bg-red-500 px-1.5 py-0.5 text-xs font-bold text-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">
-                          REVOKED
+                        <span className="border-2 border-black bg-red-500 px-1.5 py-0.5 text-[10px] font-bold text-white uppercase shrink-0">
+                          Revoked
                         </span>
                       )}
                     </div>
-                    <p className="mt-2 text-xs text-gray-500">
-                      ID: {k.id as string}
+                    <p className="mt-1 text-[11px] text-gray-400 font-mono">
+                      {k.id as string}
                     </p>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 shrink-0">
                     {k.role === "test" && !k.revoked && (
                       <Button
                         size="sm"
+                        variant="secondary"
                         onClick={() => handleSendTest(k.id as string)}
                         disabled={sendingTest === (k.id as string)}
                       >
-                        {sendingTest === (k.id as string)
-                          ? "SENDING..."
-                          : "SEND TEST"}
+                        {sendingTest === (k.id as string) ? "..." : "TEST"}
                       </Button>
                     )}
                     {!k.revoked && (
@@ -255,33 +270,37 @@ function ApiKeysPage() {
                         onClick={() => handleRevoke(k.id as string)}
                         disabled={revoking === (k.id as string)}
                       >
-                        {revoking === (k.id as string)
-                          ? "REVOKING..."
-                          : "REVOKE"}
+                        {revoking === (k.id as string) ? "..." : "REVOKE"}
                       </Button>
                     )}
                   </div>
                 </div>
 
+                {testError && k.role === "test" && (
+                  <p className="mt-2 w-max bg-black px-2 py-1 font-mono text-[10px] font-bold text-red-500">
+                    {testError}
+                  </p>
+                )}
+
                 {editingWebhook === (k.id as string) ? (
-                  <div className="mt-3 pt-3">
+                  <div className="mt-3 border-t-2 border-black pt-3 dark:border-white">
                     <div className="flex gap-2">
                       <input
                         value={editUrl}
                         onChange={(e) => setEditUrl(e.target.value)}
                         placeholder="https://..."
-                        className="flex-1 border-2 border-black bg-white px-3 py-1.5 font-mono text-xs text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all outline-none focus:translate-x-[4px] focus:translate-y-[4px] focus:shadow-none dark:border-white"
+                        className="flex-1 border-2 border-black bg-white px-3 py-1.5 font-mono text-xs text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all outline-none focus:translate-x-[2px] focus:translate-y-[2px] focus:shadow-none dark:bg-black dark:text-white dark:border-white dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]"
                       />
                       <Button
                         size="sm"
                         onClick={() => handleSaveWebhook(k.id as string)}
                         disabled={savingWebhook}
                       >
-                        {savingWebhook ? "SAVING..." : "SAVE"}
+                        {savingWebhook ? "..." : "SAVE"}
                       </Button>
                       <Button
                         size="sm"
-                        variant="secondary"
+                        variant="ghost"
                         onClick={() => setEditingWebhook(null)}
                       >
                         CANCEL
@@ -291,12 +310,12 @@ function ApiKeysPage() {
                 ) : (
                   <>
                     {k.webhookUrl && (
-                      <div className="mt-3 pt-3">
+                      <div className="mt-3 border-t-2 border-black pt-3 dark:border-white">
                         <div className="flex items-center gap-2">
-                          <span className="text-xs text-gray-500">
-                            WEBHOOK:
+                          <span className="text-[10px] text-gray-400 font-mono uppercase shrink-0">
+                            Webhook:
                           </span>
-                          <code className="border-2 border-black bg-white px-2 py-0.5 font-mono text-xs font-bold break-all text-black dark:border-white dark:bg-black dark:text-white">
+                          <code className="flex-1 border-2 border-black bg-white px-2 py-1 font-mono text-[11px] font-bold break-all text-black dark:border-white dark:bg-black dark:text-white">
                             {k.webhookUrl as string}
                           </code>
                           {!k.revoked && (
@@ -305,7 +324,7 @@ function ApiKeysPage() {
                                 setEditingWebhook(k.id as string)
                                 setEditUrl(k.webhookUrl as string)
                               }}
-                              className="border-2 border-transparent px-2 py-0.5 font-mono text-xs font-black text-[#ff00ff] uppercase transition-colors hover:border-black hover:bg-[#ff00ff] hover:text-black dark:hover:border-white dark:hover:text-white"
+                              className="border-2 border-black px-2 py-1 font-mono text-[10px] font-bold text-black uppercase transition-all hover:bg-black hover:text-white dark:border-white dark:text-white dark:hover:bg-white dark:hover:text-black"
                             >
                               EDIT
                             </button>
@@ -313,17 +332,17 @@ function ApiKeysPage() {
                         </div>
                         {!!k.webhookPublicKey && (
                           <div className="mt-2 flex items-center gap-2">
-                            <span className="text-xs text-gray-500">
-                              PUBLIC KEY:
+                            <span className="text-[10px] text-gray-400 font-mono uppercase shrink-0">
+                              Public Key:
                             </span>
-                            <code className="border-2 border-black bg-white px-2 py-0.5 font-mono text-xs font-bold break-all text-black dark:border-white dark:bg-black dark:text-white">
+                            <code className="flex-1 border-2 border-black bg-white px-2 py-1 font-mono text-[11px] font-bold break-all text-black dark:border-white dark:bg-black dark:text-white">
                               {k.webhookPublicKey as string}
                             </code>
                             <button
                               onClick={() =>
                                 copyToClipboard(k.webhookPublicKey as string)
                               }
-                              className="border-2 border-transparent px-2 py-0.5 font-mono text-xs font-black text-[#ff00ff] uppercase transition-colors hover:border-black hover:bg-[#ff00ff] hover:text-black dark:hover:border-white dark:hover:text-white"
+                              className="border-2 border-black px-2 py-1 font-mono text-[10px] font-bold text-black uppercase transition-all hover:bg-black hover:text-white dark:border-white dark:text-white dark:hover:bg-white dark:hover:text-black"
                             >
                               COPY
                             </button>
@@ -332,24 +351,19 @@ function ApiKeysPage() {
                       </div>
                     )}
                     {!k.webhookUrl && !k.revoked && (
-                      <div className="mt-3">
+                      <div className="mt-3 border-t-2 border-black pt-3 dark:border-white">
                         <button
                           onClick={() => {
                             setEditingWebhook(k.id as string)
                             setEditUrl("")
                           }}
-                          className="border-2 border-transparent px-2 py-1 font-mono text-xs font-black text-[#ff00ff] uppercase transition-all hover:border-black hover:bg-[#ff00ff] hover:text-black dark:hover:border-white dark:hover:text-white"
+                          className="border-2 border-black px-2 py-1 font-mono text-[10px] font-bold text-black uppercase transition-all hover:bg-black hover:text-white dark:border-white dark:text-white dark:hover:bg-white dark:hover:text-black"
                         >
-                          + ADD WEBHOOK URL
+                          + ADD WEBHOOK
                         </button>
                       </div>
                     )}
                   </>
-                )}
-                {testError && k.role === "test" && (
-                  <p className="mt-3 w-max bg-black px-2 py-1 font-mono text-xs font-bold text-red-600">
-                    {testError}
-                  </p>
                 )}
               </CardContent>
             </Card>

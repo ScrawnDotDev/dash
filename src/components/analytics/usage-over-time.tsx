@@ -58,7 +58,7 @@ export function UsageOverTime({ data }: { data: Array<AggregationRow> }) {
         <CardTitle className="text-black dark:text-white">
           USAGE OVER TIME
         </CardTitle>
-        <CardDescription>REVENUE FROM SDK EVENTS</CardDescription>
+        <CardDescription>REVENUE FROM SDK EVENTS (SMALLEST CURRENCY UNIT)</CardDescription>
       </CardHeader>
       <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
         <ChartContainer

@@ -36,8 +36,8 @@ function WebhooksPage() {
   return (
     <div className="flex flex-col gap-8">
       <div className="flex items-center justify-between">
-        <h1 className="w-max border-2 border-black bg-white px-4 py-2 font-mono text-3xl font-black tracking-widest text-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:bg-black dark:text-white dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">
-          WEBHOOKS
+        <h1 className="font-mono text-2xl font-black tracking-widest text-black uppercase dark:text-white">
+          Webhooks
         </h1>
         <Button
           size="sm"

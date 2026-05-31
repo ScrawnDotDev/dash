@@ -20,12 +20,12 @@ import {
 } from "@/components/ui/chart"
 
 const chartConfig = {
-  inputCost: {
-    label: "Input Cost",
+  inputTokens: {
+    label: "Input Tokens",
     color: "var(--chart-1)",
   },
-  outputCost: {
-    label: "Output Cost",
+  outputTokens: {
+    label: "Output Tokens",
     color: "var(--chart-2)",
   },
 } satisfies ChartConfig
@@ -54,18 +54,18 @@ export function AiTokenUsage({
 
   const chartData = allModels.map((model) => ({
     model,
-    inputCost: inputMap.get(model) ?? 0,
-    outputCost: outputMap.get(model) ?? 0,
+    inputTokens: inputMap.get(model) ?? 0,
+    outputTokens: outputMap.get(model) ?? 0,
   }))
 
   if (!chartData.length) {
     return (
-      <Card className="shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">
+      <Card>
         <CardHeader>
           <CardTitle className="text-black dark:text-white">
             AI TOKEN USAGE
           </CardTitle>
-          <CardDescription>COST BY MODEL</CardDescription>
+          <CardDescription>TOKEN CONSUMPTION BY MODEL</CardDescription>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-red-500">
@@ -77,12 +77,12 @@ export function AiTokenUsage({
   }
 
   return (
-    <Card className="shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">
+    <Card>
       <CardHeader>
         <CardTitle className="text-black dark:text-white">
           AI TOKEN USAGE
         </CardTitle>
-        <CardDescription>COST BY MODEL</CardDescription>
+        <CardDescription>TOKEN CONSUMPTION BY MODEL</CardDescription>
       </CardHeader>
       <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
         <ChartContainer
@@ -118,7 +118,7 @@ export function AiTokenUsage({
             />
             <ChartLegend content={<ChartLegendContent />} />
             <Bar
-              dataKey="inputCost"
+              dataKey="inputTokens"
               fill="#eab308"
               stroke="currentColor"
               strokeWidth={2}
@@ -127,7 +127,7 @@ export function AiTokenUsage({
               className="text-black dark:text-white"
             />
             <Bar
-              dataKey="outputCost"
+              dataKey="outputTokens"
               fill="#ef4444"
               stroke="currentColor"
               strokeWidth={2}
@@ -137,6 +137,9 @@ export function AiTokenUsage({
             />
           </BarChart>
         </ChartContainer>
+        <p className="mt-3 text-[10px] text-gray-400 font-mono tracking-widest uppercase">
+          Token counts (input / output per model)
+        </p>
       </CardContent>
     </Card>
   )
