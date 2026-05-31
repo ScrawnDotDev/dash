@@ -10,6 +10,7 @@ import {
 import { useCachedData, TTL, invalidateCache, useIsRefreshing } from "@/lib/useCache"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 
 export const Route = createFileRoute("/dashboard/api-keys")({
   component: ApiKeysPage,
@@ -39,6 +40,7 @@ function ApiKeysPage() {
   const [testError, setTestError] = useState("")
   const [creating, setCreating] = useState(false)
   const [revoking, setRevoking] = useState<string | null>(null)
+  const [confirmRevoke, setConfirmRevoke] = useState<string | null>(null)
   const [savingWebhook, setSavingWebhook] = useState(false)
   const [sendingTest, setSendingTest] = useState<string | null>(null)
   const refreshing = useIsRefreshing()
@@ -221,20 +223,22 @@ function ApiKeysPage() {
         </p>
       ) : (
         <div className="flex flex-col gap-3">
-          {keys.map((k: Record<string, unknown>) => (
-            <Card
-              key={k.id as string}
-              className="shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]"
-            >
-              <CardContent className="p-4">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
+          {keys.map((k: Record<string, unknown>) => {
+            const keyId = k.id as string
+            const shortId = keyId.length > 14 ? keyId.slice(0, 14) + "..." : keyId
+            return (
+              <Card
+                key={keyId}
+                className="shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]"
+              >
+                <CardContent className="p-0">
+                  <div className="flex items-center justify-between gap-4 px-4 py-3">
+                    <div className="min-w-0 flex-1 flex items-center gap-3">
                       <p className="font-mono text-sm font-black text-black uppercase dark:text-white truncate">
                         {k.name as string}
                       </p>
                       <span
-                        className={`border-2 border-black px-1.5 py-0.5 font-mono text-[10px] font-bold uppercase shrink-0 ${
+                        className={`border-2 border-black px-1.5 py-0.5 font-mono text-xs font-bold uppercase shrink-0 ${
                           k.role === "production"
                             ? "bg-yellow-400 text-black"
                             : "bg-blue-400 text-black"
@@ -243,133 +247,147 @@ function ApiKeysPage() {
                         {k.role as string}
                       </span>
                       {!!k.revoked && (
-                        <span className="border-2 border-black bg-red-500 px-1.5 py-0.5 text-[10px] font-bold text-white uppercase shrink-0">
+                        <span className="border-2 border-black bg-red-500 px-1.5 py-0.5 text-xs font-bold text-white uppercase shrink-0">
                           Revoked
                         </span>
                       )}
                     </div>
-                    <p className="mt-1 text-[11px] text-gray-400 font-mono">
-                      {k.id as string}
-                    </p>
-                  </div>
-                  <div className="flex gap-2 shrink-0">
-                    {k.role === "test" && !k.revoked && (
-                      <Button
-                        size="sm"
-                        variant="secondary"
-                        onClick={() => handleSendTest(k.id as string)}
-                        disabled={sendingTest === (k.id as string)}
-                      >
-                        {sendingTest === (k.id as string) ? "..." : "TEST"}
-                      </Button>
-                    )}
-                    {!k.revoked && (
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        onClick={() => handleRevoke(k.id as string)}
-                        disabled={revoking === (k.id as string)}
-                      >
-                        {revoking === (k.id as string) ? "..." : "REVOKE"}
-                      </Button>
-                    )}
-                  </div>
-                </div>
-
-                {testError && k.role === "test" && (
-                  <p className="mt-2 w-max bg-black px-2 py-1 font-mono text-[10px] font-bold text-red-500">
-                    {testError}
-                  </p>
-                )}
-
-                {editingWebhook === (k.id as string) ? (
-                  <div className="mt-3 border-t-2 border-black pt-3 dark:border-white">
-                    <div className="flex gap-2">
-                      <input
-                        value={editUrl}
-                        onChange={(e) => setEditUrl(e.target.value)}
-                        placeholder="https://..."
-                        className="flex-1 border-2 border-black bg-white px-3 py-1.5 font-mono text-xs text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all outline-none focus:translate-x-[2px] focus:translate-y-[2px] focus:shadow-none dark:bg-black dark:text-white dark:border-white dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]"
-                      />
-                      <Button
-                        size="sm"
-                        onClick={() => handleSaveWebhook(k.id as string)}
-                        disabled={savingWebhook}
-                      >
-                        {savingWebhook ? "..." : "SAVE"}
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => setEditingWebhook(null)}
-                      >
-                        CANCEL
-                      </Button>
+                    <div className="flex gap-2 shrink-0">
+                      {k.role === "test" && !k.revoked && (
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          onClick={() => handleSendTest(keyId)}
+                          disabled={sendingTest === keyId}
+                        >
+                          {sendingTest === keyId ? "..." : "TEST"}
+                        </Button>
+                      )}
+                      {!k.revoked && (
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          onClick={() => setConfirmRevoke(keyId)}
+                        >
+                          REVOKE
+                        </Button>
+                      )}
                     </div>
                   </div>
-                ) : (
-                  <>
-                    {k.webhookUrl && (
-                      <div className="mt-3 border-t-2 border-black pt-3 dark:border-white">
-                        <div className="flex items-center gap-2">
-                          <span className="text-[10px] text-gray-400 font-mono uppercase shrink-0">
-                            Webhook:
-                          </span>
-                          <code className="flex-1 border-2 border-black bg-white px-2 py-1 font-mono text-[11px] font-bold break-all text-black dark:border-white dark:bg-black dark:text-white">
-                            {k.webhookUrl as string}
-                          </code>
-                          {!k.revoked && (
-                            <button
-                              onClick={() => {
-                                setEditingWebhook(k.id as string)
-                                setEditUrl(k.webhookUrl as string)
-                              }}
-                              className="border-2 border-black px-2 py-1 font-mono text-[10px] font-bold text-black uppercase transition-all hover:bg-black hover:text-white dark:border-white dark:text-white dark:hover:bg-white dark:hover:text-black"
-                            >
-                              EDIT
-                            </button>
-                          )}
-                        </div>
-                        {!!k.webhookPublicKey && (
-                          <div className="mt-2 flex items-center gap-2">
-                            <span className="text-[10px] text-gray-400 font-mono uppercase shrink-0">
-                              Public Key:
-                            </span>
-                            <code className="flex-1 border-2 border-black bg-white px-2 py-1 font-mono text-[11px] font-bold break-all text-black dark:border-white dark:bg-black dark:text-white">
-                              {k.webhookPublicKey as string}
-                            </code>
-                            <button
-                              onClick={() =>
-                                copyToClipboard(k.webhookPublicKey as string)
-                              }
-                              className="border-2 border-black px-2 py-1 font-mono text-[10px] font-bold text-black uppercase transition-all hover:bg-black hover:text-white dark:border-white dark:text-white dark:hover:bg-white dark:hover:text-black"
-                            >
-                              COPY
-                            </button>
-                          </div>
+
+                  <div className="border-t-2 border-black px-4 py-2 dark:border-white">
+                    <p className="font-mono text-xs text-gray-400">
+                      {shortId}
+                    </p>
+                  </div>
+
+                  {testError && k.role === "test" && (
+                    <p className="mx-4 mb-2 w-max bg-black px-2 py-1 font-mono text-xs font-bold text-red-500">
+                      {testError}
+                    </p>
+                  )}
+
+                  {editingWebhook === keyId ? (
+                    <div className="border-t-2 border-black px-4 py-3 dark:border-white">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-gray-400 font-mono uppercase shrink-0">
+                          Webhook:
+                        </span>
+                        <input
+                          value={editUrl}
+                          onChange={(e) => setEditUrl(e.target.value)}
+                          placeholder="https://..."
+                          className="flex-1 border-2 border-black bg-white px-2 py-1.5 font-mono text-sm text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all outline-none focus:translate-x-[2px] focus:translate-y-[2px] focus:shadow-none dark:bg-black dark:text-white dark:border-white dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]"
+                        />
+                        <Button
+                          size="sm"
+                          onClick={() => handleSaveWebhook(keyId)}
+                          disabled={savingWebhook}
+                        >
+                          {savingWebhook ? "..." : "SAVE"}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => setEditingWebhook(null)}
+                        >
+                          CANCEL
+                        </Button>
+                      </div>
+                    </div>
+                  ) : k.webhookUrl ? (
+                    <div className="border-t-2 border-black px-4 py-2 dark:border-white">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-gray-400 font-mono uppercase shrink-0">
+                          Webhook:
+                        </span>
+                        <span className="flex-1 font-mono text-sm font-bold text-black truncate dark:text-white">
+                          {k.webhookUrl as string}
+                        </span>
+                        {!k.revoked && (
+                          <button
+                            onClick={() => {
+                              setEditingWebhook(keyId)
+                              setEditUrl(k.webhookUrl as string)
+                            }}
+                            className="border-2 border-black px-2 py-0.5 font-mono text-xs font-bold text-black uppercase transition-all hover:bg-black hover:text-white dark:border-white dark:text-white dark:hover:bg-white dark:hover:text-black shrink-0"
+                          >
+                            EDIT
+                          </button>
                         )}
                       </div>
-                    )}
-                    {!k.webhookUrl && !k.revoked && (
-                      <div className="mt-3 border-t-2 border-black pt-3 dark:border-white">
-                        <button
-                          onClick={() => {
-                            setEditingWebhook(k.id as string)
-                            setEditUrl("")
-                          }}
-                          className="border-2 border-black px-2 py-1 font-mono text-[10px] font-bold text-black uppercase transition-all hover:bg-black hover:text-white dark:border-white dark:text-white dark:hover:bg-white dark:hover:text-black"
-                        >
-                          + ADD WEBHOOK
-                        </button>
-                      </div>
-                    )}
-                  </>
-                )}
-              </CardContent>
-            </Card>
-          ))}
+                      {!!k.webhookPublicKey && (
+                        <div className="mt-1.5 flex items-center gap-2">
+                          <span className="text-xs text-gray-400 font-mono uppercase shrink-0">
+                            PubKey:
+                          </span>
+                          <span className="flex-1 font-mono text-sm font-bold text-black truncate dark:text-white">
+                            {k.webhookPublicKey as string}
+                          </span>
+                          <button
+                            onClick={() =>
+                              copyToClipboard(k.webhookPublicKey as string)
+                            }
+                            className="border-2 border-black px-2 py-0.5 font-mono text-xs font-bold text-black uppercase transition-all hover:bg-black hover:text-white dark:border-white dark:text-white dark:hover:bg-white dark:hover:text-black shrink-0"
+                          >
+                            COPY
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  ) : !k.revoked ? (
+                    <div className="border-t-2 border-black px-4 py-2 dark:border-white">
+                      <button
+                        onClick={() => {
+                          setEditingWebhook(keyId)
+                          setEditUrl("")
+                        }}
+                        className="border-2 border-black px-2 py-0.5 font-mono text-xs font-bold text-black uppercase transition-all hover:bg-black hover:text-white dark:border-white dark:text-white dark:hover:bg-white dark:hover:text-black"
+                      >
+                        + ADD WEBHOOK
+                      </button>
+                    </div>
+                  ) : null}
+                </CardContent>
+              </Card>
+            )
+          })}
         </div>
       )}
+
+      <ConfirmDialog
+        open={confirmRevoke !== null}
+        title="Revoke API Key"
+        message="This will permanently revoke the API key. Any services using this key will immediately lose access."
+        confirmText="REVOKE"
+        matchValue={keys.find((k) => k.id === confirmRevoke)?.name as string ?? ""}
+        onConfirm={() => {
+          if (confirmRevoke) handleRevoke(confirmRevoke)
+          setConfirmRevoke(null)
+        }}
+        onCancel={() => setConfirmRevoke(null)}
+        loading={revoking !== null}
+      />
     </div>
   )
 }

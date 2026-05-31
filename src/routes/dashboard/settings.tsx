@@ -16,6 +16,7 @@ import {
 } from "@/lib/useCache"
 import { ExpressionBuilder } from "@/components/ExpressionBuilder"
 import { Button } from "@/components/ui/button"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { useTheme } from "@/lib/theme-provider"
 
 export const Route = createFileRoute("/dashboard/settings")({
@@ -40,7 +41,9 @@ function SettingsPage() {
   const [tagError, setTagError] = useState("")
   const [creatingTag, setCreatingTag] = useState(false)
   const [deletingTag, setDeletingTag] = useState<string | null>(null)
+  const [confirmDeleteTag, setConfirmDeleteTag] = useState<string | null>(null)
   const [deletingExpr, setDeletingExpr] = useState<string | null>(null)
+  const [confirmDeleteExpr, setConfirmDeleteExpr] = useState<string | null>(null)
 
   const refreshAll = useCallback(() => {
     invalidateCache("tags")
@@ -180,7 +183,7 @@ function SettingsPage() {
                 </span>
                 <button
                   type="button"
-                  onClick={() => handleDeleteTag(key)}
+                  onClick={() => setConfirmDeleteTag(key)}
                   disabled={deleting}
                   className="bg-black px-2 py-1 text-xs font-bold text-white transition-colors hover:bg-red-600 disabled:opacity-50 dark:bg-white dark:text-black dark:hover:bg-red-600 dark:hover:text-white"
                 >
@@ -225,7 +228,7 @@ function SettingsPage() {
                 <span>{e}</span>
                 <button
                   type="button"
-                  onClick={() => handleDeleteExpr(e)}
+                  onClick={() => setConfirmDeleteExpr(e)}
                   disabled={deleting}
                   className="bg-black px-2 py-1 text-xs font-bold text-white transition-colors hover:bg-red-600 disabled:opacity-50 dark:bg-white dark:text-black dark:hover:bg-red-600 dark:hover:text-white"
                 >
@@ -241,6 +244,34 @@ function SettingsPage() {
           )}
         </div>
       </section>
+
+      <ConfirmDialog
+        open={confirmDeleteTag !== null}
+        title="Delete Tag"
+        message="This will permanently delete this tag and its associated data."
+        confirmText="DELETE"
+        matchValue={confirmDeleteTag ?? ""}
+        onConfirm={() => {
+          if (confirmDeleteTag) handleDeleteTag(confirmDeleteTag)
+          setConfirmDeleteTag(null)
+        }}
+        onCancel={() => setConfirmDeleteTag(null)}
+        loading={deletingTag !== null}
+      />
+
+      <ConfirmDialog
+        open={confirmDeleteExpr !== null}
+        title="Delete Expression"
+        message="This will permanently delete this expression."
+        confirmText="DELETE"
+        matchValue={confirmDeleteExpr ?? ""}
+        onConfirm={() => {
+          if (confirmDeleteExpr) handleDeleteExpr(confirmDeleteExpr)
+          setConfirmDeleteExpr(null)
+        }}
+        onCancel={() => setConfirmDeleteExpr(null)}
+        loading={deletingExpr !== null}
+      />
     </div>
   )
 }

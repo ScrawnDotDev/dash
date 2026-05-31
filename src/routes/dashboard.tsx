@@ -44,11 +44,13 @@ function DashboardLayout() {
 
   useEffect(() => {
     if (!session || isPending) return
-    getBackendConfig().then((res) => {
-      if (!res.configured) {
-        navigate({ to: "/onboarding", replace: true })
-      }
-    })
+    getBackendConfig()
+      .then((res) => {
+        if (!res.configured) {
+          navigate({ to: "/onboarding", replace: true })
+        }
+      })
+      .catch(() => {})
   }, [session, isPending])
 
   // Re-fetch all data when browser comes back online
@@ -205,24 +207,15 @@ function DashboardLayout() {
 
           <div className="relative z-10">
             {!online && (
-              <div className="-mx-6 -mt-6 mb-6 flex items-center gap-2 border-b-2 border-black bg-red-500 px-6 py-2.5 font-mono text-sm font-black text-white uppercase shadow-[0_4px_0_0_rgba(0,0,0,1)] dark:border-white dark:shadow-[0_4px_0_0_rgba(255,255,255,1)]">
-                <svg
-                  className="h-4 w-4 shrink-0"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={2}
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"
-                  />
-                </svg>
+              <div className="mb-4 flex items-center gap-3 border-2 border-black bg-red-500 px-4 py-2.5 font-mono text-xs font-black text-white uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-75" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-white" />
+                </span>
                 <span>
                   {hasAnyCachedData()
-                    ? "SYSTEM OFFLINE /// USING CACHE /// RECONNECTING..."
-                    : "SYSTEM OFFLINE /// NO CACHE /// GOOD LUCK"}
+                    ? "Offline — Using Cache — Reconnecting..."
+                    : "Offline — No Cache"}
                 </span>
               </div>
             )}

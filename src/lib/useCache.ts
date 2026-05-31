@@ -182,9 +182,11 @@ export function useCachedData<T>(
   const doFetch = useCallback(
     async (background: boolean) => {
       const id = ++fetchId.current
+      let didStartRefresh = false
       if (background) {
         setRefreshing(true)
         startBackgroundRefresh()
+        didStartRefresh = true
       } else {
         setLoading(true)
       }
@@ -204,10 +206,10 @@ export function useCachedData<T>(
           setError(err instanceof Error ? err.message : "Request failed")
         }
       } finally {
+        if (didStartRefresh) endBackgroundRefresh()
         if (id !== fetchId.current) return
         setLoading(false)
         setRefreshing(false)
-        endBackgroundRefresh()
       }
     },
     [key, fetcher, ttl]
