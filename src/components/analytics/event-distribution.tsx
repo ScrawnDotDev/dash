@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo } from "react"
+import { useMemo, useState, useEffect } from "react"
 import { Pie, PieChart } from "recharts"
 
 import type { AggregationRow } from "@scrawn/core"
@@ -27,6 +27,13 @@ const COLORS = [
 ]
 
 export function EventDistribution({ data }: { data: Array<AggregationRow> }) {
+  const [animate, setAnimate] = useState(true)
+
+  useEffect(() => {
+    const timer = setTimeout(() => setAnimate(false), 1500)
+    return () => clearTimeout(timer)
+  }, [])
+
   const { chartData, chartConfig, total } = useMemo(() => {
     const items = data.map((d, i) => ({
       name: d.groupValue ?? "unknown",
@@ -80,6 +87,7 @@ export function EventDistribution({ data }: { data: Array<AggregationRow> }) {
               nameKey="name"
               innerRadius={60}
               strokeWidth={5}
+              isAnimationActive={animate}
             />
           </PieChart>
         </ChartContainer>

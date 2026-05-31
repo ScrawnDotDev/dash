@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts"
 
 import type { AggregationRow } from "@scrawn/core"
@@ -25,6 +26,13 @@ const chartConfig = {
 } satisfies ChartConfig
 
 export function TopUsers({ data }: { data: Array<AggregationRow> }) {
+  const [animate, setAnimate] = useState(true)
+
+  useEffect(() => {
+    const timer = setTimeout(() => setAnimate(false), 1500)
+    return () => clearTimeout(timer)
+  }, [])
+
   const chartData = data.map((d) => ({
     user: d.groupValue?.slice(0, 12) ?? "unknown",
     amount: Number(d.aggValue) / 100,
@@ -80,6 +88,7 @@ export function TopUsers({ data }: { data: Array<AggregationRow> }) {
               fill="var(--color-amount)"
               radius={0}
               barSize={16}
+              isAnimationActive={animate}
             />
           </BarChart>
         </ChartContainer>

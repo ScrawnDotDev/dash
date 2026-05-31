@@ -1,4 +1,4 @@
-import { count as analyticsCount, desc, sum } from "@scrawn/analytics"
+import { and, count as analyticsCount, desc, eq, sum } from "@scrawn/analytics"
 import { createServerFn } from "@tanstack/react-start"
 import { createAnalytics } from "./scrawn"
 import { db } from "./db"
@@ -217,6 +217,69 @@ export const getRecentEvents = createServerFn({ method: "GET" }).handler(
     return result.rows
   }
 )
+
+export const getFilteredEvents = createServerFn({ method: "GET" })
+  .inputValidator(
+    validator<{
+      apiKeyId?: string
+      userId?: string
+      eventType?: string
+      limit?: number
+      offset?: number
+    }>()
+  )
+  .handler(async (ctx) => {
+    const analytics = createAnalytics()
+    const f = analytics.query.sdkEvent.fields
+    const conditions = []
+    if (ctx.data.apiKeyId) conditions.push(eq(f.apiKeyId, ctx.data.apiKeyId))
+    if (ctx.data.userId) conditions.push(eq(f.userId, ctx.data.userId))
+    if (ctx.data.eventType) conditions.push(eq(f.eventType, ctx.data.eventType))
+
+    let query = analytics.query.sdkEvent
+      .orderBy(desc(f.ingestedTimestamp))
+      .limit(ctx.data.limit ?? 10)
+      .offset(ctx.data.offset ?? 0)
+
+    if (conditions.length > 0) {
+      query = query.where(and(...conditions))
+    }
+
+    const result = await query.execute()
+    return { rows: result.rows, total: result.total }
+  })
+
+export const getApiKeySummary = createServerFn({ method: "GET" })
+  .inputValidator(validator<{ apiKeyId: string }>())
+  .handler(async (ctx) => {
+    const analytics = createAnalytics()
+    const f = analytics.query.sdkEvent.fields
+    const filter = eq(f.apiKeyId, ctx.data.apiKeyId)
+
+    const [totalDebit, eventCount] = await Promise.all([
+      analytics.query.sdkEvent
+        .where(filter)
+        .aggregate(sum(f.debitAmount))
+        .execute(),
+      analytics.query.sdkEvent
+        .where(filter)
+        .aggregate(analyticsCount())
+        .execute(),
+    ])
+
+    const [creditResult] = await Promise.all([
+      analytics.query.payment
+        .where(eq(analytics.query.payment.fields.apiKeyId, ctx.data.apiKeyId))
+        .aggregate(sum(analytics.query.payment.fields.creditAmount))
+        .execute(),
+    ])
+
+    return {
+      totalRevenue: totalDebit.rows[0]?.aggValue ?? "0",
+      totalEvents: eventCount.rows[0]?.aggValue ?? "0",
+      totalCredits: creditResult.rows[0]?.aggValue ?? "0",
+    }
+  })
 
 export const getDashboardSummary = createServerFn({ method: "GET" }).handler(
   async () => {
