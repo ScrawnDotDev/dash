@@ -12,6 +12,7 @@ export const Route = createFileRoute("/dashboard/webhooks")({
 function WebhooksPage() {
   const [filters, setFilters] = useState<WebhookFiltersValue>({})
   const [page, setPage] = useState(0)
+  const [mode, setMode] = useState<string | undefined>(undefined)
 
   const keys = useCachedData("webhooks-page-keys", listApiKeys, TTL.API_KEYS)
   const allTypes = useCachedData(
@@ -20,8 +21,8 @@ function WebhooksPage() {
     TTL.DASHBOARD_SUMMARY
   )
   const { data: deliveriesData, loading, refresh } = useCachedData(
-    `webhook-deliveries:apiKeyId=${filters.apiKeyId ?? ""}:eventType=${filters.eventType ?? ""}:status=${filters.status ?? ""}:page=${page}`,
-    () => listDeliveries({ data: { apiKeyId: filters.apiKeyId, eventType: filters.eventType, status: filters.status, limit: 20, offset: page * 20 } }),
+    `webhook-deliveries:mode=${mode ?? "all"}:apiKeyId=${filters.apiKeyId ?? ""}:eventType=${filters.eventType ?? ""}:status=${filters.status ?? ""}:page=${page}`,
+    () => listDeliveries({ data: { apiKeyId: filters.apiKeyId, eventType: filters.eventType, status: filters.status, role: mode, limit: 20, offset: page * 20 } }),
     TTL.WEBHOOK_DELIVERIES
   )
   const deliveries =
@@ -53,9 +54,26 @@ function WebhooksPage() {
         <h1 className="font-mono text-2xl font-black tracking-widest text-black uppercase dark:text-white">
           Webhooks
         </h1>
-        <Button size="sm" variant="secondary" onClick={refresh} disabled={loading}>
-          REFRESH
-        </Button>
+        <div className="flex items-center gap-3">
+          <div className="flex border-2 border-black bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:bg-black dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">
+            {(["all", "test", "production"] as const).map((m) => (
+              <button
+                key={m}
+                onClick={() => setMode(m === "all" ? undefined : m)}
+                className={`px-3 py-1.5 font-mono text-xs font-black uppercase transition-colors ${
+                  (mode ?? "all") === m
+                    ? "bg-yellow-400 text-black dark:bg-yellow-500"
+                    : "text-gray-500 hover:bg-gray-100 hover:text-black dark:hover:bg-gray-800 dark:hover:text-white"
+                }`}
+              >
+                {m}
+              </button>
+            ))}
+          </div>
+          <Button size="sm" variant="secondary" onClick={refresh} disabled={loading}>
+            REFRESH
+          </Button>
+        </div>
       </div>
 
       <div className="border-2 border-black bg-white p-4 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:bg-black dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">
