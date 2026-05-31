@@ -86,8 +86,8 @@ export const submitOnboarding = createServerFn({ method: "POST" })
 export const getUsageOverTime = createServerFn({ method: "GET" }).handler(
   async () => {
     const analytics = createAnalytics()
-    const f = analytics.query.sdkEvent.fields
-    const result = await analytics.query.sdkEvent
+    const f = analytics.query.basicUsage.fields
+    const result = await analytics.query.basicUsage
       .aggregate(sum(f.debitAmount))
       .groupBy(f.ingestedTimestamp)
       .orderBy(desc(f.ingestedTimestamp))
@@ -103,8 +103,8 @@ export const getUsageOverTime = createServerFn({ method: "GET" }).handler(
 export const getTopUsers = createServerFn({ method: "GET" }).handler(
   async () => {
     const analytics = createAnalytics()
-    const f = analytics.query.sdkEvent.fields
-    const result = await analytics.query.sdkEvent
+    const f = analytics.query.basicUsage.fields
+    const result = await analytics.query.basicUsage
       .aggregate(sum(f.debitAmount))
       .groupBy(f.userId)
       .orderBy(desc(f.debitAmount))
@@ -121,8 +121,8 @@ export const getEventTypeDistribution = createServerFn({
   method: "GET",
 }).handler(async () => {
   const analytics = createAnalytics()
-  const f = analytics.query.sdkEvent.fields
-  const result = await analytics.query.sdkEvent
+  const f = analytics.query.basicUsage.fields
+  const result = await analytics.query.basicUsage
     .aggregate(analyticsCount())
     .groupBy(f.eventType)
     .execute()
@@ -209,8 +209,8 @@ export const getPaymentHistory = createServerFn({ method: "GET" }).handler(
 export const getRecentEvents = createServerFn({ method: "GET" }).handler(
   async () => {
     const analytics = createAnalytics()
-    const f = analytics.query.sdkEvent.fields
-    const result = await analytics.query.sdkEvent
+    const f = analytics.query.basicUsage.fields
+    const result = await analytics.query.basicUsage
       .orderBy(desc(f.ingestedTimestamp))
       .limit(10)
       .execute()
@@ -230,13 +230,13 @@ export const getFilteredEvents = createServerFn({ method: "GET" })
   )
   .handler(async (ctx) => {
     const analytics = createAnalytics()
-    const f = analytics.query.sdkEvent.fields
+    const f = analytics.query.basicUsage.fields
     const conditions = []
     if (ctx.data.apiKeyId) conditions.push(eq(f.apiKeyId, ctx.data.apiKeyId))
     if (ctx.data.userId) conditions.push(eq(f.userId, ctx.data.userId))
     if (ctx.data.eventType) conditions.push(eq(f.eventType, ctx.data.eventType))
 
-    let query = analytics.query.sdkEvent
+    let query = analytics.query.basicUsage
       .orderBy(desc(f.ingestedTimestamp))
       .limit(ctx.data.limit ?? 10)
       .offset(ctx.data.offset ?? 0)
@@ -253,9 +253,9 @@ export const getApiKeySummary = createServerFn({ method: "GET" })
   .inputValidator(validator<{ apiKeyId: string }>())
   .handler(async (ctx) => {
     const analytics = createAnalytics()
-    const sf = analytics.query.sdkEvent.fields
+    const sf = analytics.query.basicUsage.fields
 
-    const result = await analytics.query.sdkEvent
+    const result = await analytics.query.basicUsage
       .where(and(eq(sf.apiKeyId, ctx.data.apiKeyId)))
       .orderBy(desc(sf.ingestedTimestamp))
       .limit(1000)
@@ -278,12 +278,12 @@ export const getApiKeySummary = createServerFn({ method: "GET" })
 export const getDashboardSummary = createServerFn({ method: "GET" }).handler(
   async () => {
     const analytics = createAnalytics()
-    const sf = analytics.query.sdkEvent.fields
+    const sf = analytics.query.basicUsage.fields
     const pf = analytics.query.payment.fields
 
     const [totalDebit, eventCount, totalCredits] = await Promise.all([
-      analytics.query.sdkEvent.aggregate(sum(sf.debitAmount)).execute(),
-      analytics.query.sdkEvent.aggregate(analyticsCount()).execute(),
+      analytics.query.basicUsage.aggregate(sum(sf.debitAmount)).execute(),
+      analytics.query.basicUsage.aggregate(analyticsCount()).execute(),
       analytics.query.payment.aggregate(sum(pf.creditAmount)).execute(),
     ])
 
