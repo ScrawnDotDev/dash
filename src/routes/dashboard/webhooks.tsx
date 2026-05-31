@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { createFileRoute } from "@tanstack/react-router"
-import { listDeliveries, listApiKeys, getEventTypeDistribution } from "@/lib/scrawn-server"
+import { listDeliveries, listApiKeys } from "@/lib/scrawn-server"
 import { useCachedData, TTL } from "@/lib/useCache"
 import { WebhookFilters, type WebhookFiltersValue } from "@/components/webhooks/WebhookFilters"
 import { Button } from "@/components/ui/button"
@@ -14,7 +14,11 @@ function WebhooksPage() {
   const [page, setPage] = useState(0)
 
   const keys = useCachedData("webhooks-page-keys", listApiKeys, TTL.API_KEYS)
-  const types = useCachedData("webhooks-page-types", getEventTypeDistribution, TTL.DASHBOARD_SUMMARY)
+  const allTypes = useCachedData(
+    "webhooks-event-types",
+    () => listDeliveries({ data: { limit: 100 } }),
+    TTL.DASHBOARD_SUMMARY
+  )
   const { data: deliveriesData, loading, refresh } = useCachedData(
     `webhook-deliveries:apiKeyId=${filters.apiKeyId ?? ""}:eventType=${filters.eventType ?? ""}:status=${filters.status ?? ""}:page=${page}`,
     () => listDeliveries({ data: { apiKeyId: filters.apiKeyId, eventType: filters.eventType, status: filters.status, limit: 20, offset: page * 20 } }),
@@ -30,8 +34,9 @@ function WebhooksPage() {
     value: k.id as string,
     label: k.name as string,
   }))
-  const typesData = (types.data as Array<{ groupValue: string }>) ?? []
-  const eventTypeOptions = [...new Set(typesData.map((t) => t.groupValue).filter(Boolean))]
+  const allDeliveries =
+    ((allTypes.data as { deliveries: Array<Record<string, unknown>> } | null)?.deliveries ?? [])
+  const eventTypeOptions = [...new Set(allDeliveries.map((d) => String(d.eventType ?? "")).filter(Boolean))]
 
   function toggleExpand(id: string) {
     setExpanded((prev) => {
