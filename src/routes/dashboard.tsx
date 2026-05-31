@@ -106,7 +106,9 @@ function DashboardLayout() {
           <nav className="mt-4 flex flex-col gap-2 px-2">
             {navItems.map((item) => {
               const Icon = item.icon
-              const isActive = location.pathname === item.path
+              const isActive = item.path === "/dashboard"
+                ? location.pathname === "/dashboard" || location.pathname === "/dashboard/events"
+                : location.pathname === item.path || location.pathname.startsWith(item.path + "/")
               return (
                 <button
                   key={item.path}

@@ -1,4 +1,4 @@
-interface WebhookFiltersValue {
+export interface WebhookFiltersValue {
   apiKeyId?: string
   eventType?: string
   status?: string
