@@ -63,7 +63,8 @@ function ApiKeyDetailPage() {
     navigator.clipboard.writeText(text)
   }
 
-  if (!key && !keys.loading) {
+  if (keys.loading) return null
+  if (!key) {
     return (
       <div className="flex flex-col gap-6">
         <p className="font-mono text-sm font-bold text-red-500 uppercase">Key Not Found</p>
