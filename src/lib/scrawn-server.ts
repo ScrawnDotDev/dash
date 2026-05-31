@@ -254,24 +254,33 @@ export const getApiKeySummary = createServerFn({ method: "GET" })
   .handler(async (ctx) => {
     const analytics = createAnalytics()
     const sf = analytics.query.basicUsage.fields
+    const af = analytics.query.aiToken.fields
+    const pf = analytics.query.payment.fields
+    const filter = and(eq(sf.apiKeyId, ctx.data.apiKeyId))
 
-    const result = await analytics.query.basicUsage
-      .where(and(eq(sf.apiKeyId, ctx.data.apiKeyId)))
-      .orderBy(desc(sf.ingestedTimestamp))
-      .limit(1000)
-      .execute()
+    const [basicDebit, basicCount, aiInput, aiOutput, aiCache, aiCount, creditSum] = await Promise.all([
+      analytics.query.basicUsage.where(filter).aggregate(sum(sf.debitAmount)).execute(),
+      analytics.query.basicUsage.where(filter).aggregate(analyticsCount()).execute(),
+      analytics.query.aiToken.where(and(eq(af.apiKeyId, ctx.data.apiKeyId))).aggregate(sum(af.inputDebitAmount)).execute(),
+      analytics.query.aiToken.where(and(eq(af.apiKeyId, ctx.data.apiKeyId))).aggregate(sum(af.outputDebitAmount)).execute(),
+      analytics.query.aiToken.where(and(eq(af.apiKeyId, ctx.data.apiKeyId))).aggregate(sum(af.inputCacheDebitAmount)).execute(),
+      analytics.query.aiToken.where(and(eq(af.apiKeyId, ctx.data.apiKeyId))).aggregate(analyticsCount()).execute(),
+      analytics.query.payment.where(and(eq(pf.apiKeyId, ctx.data.apiKeyId))).aggregate(sum(pf.creditAmount)).execute(),
+    ])
 
-    let totalRevenue = 0
-    let hasEvents = false
-    for (const row of result.rows) {
-      hasEvents = true
-      totalRevenue += (row as { debitAmount?: number }).debitAmount ?? 0
-    }
+    const aiDebit =
+      Number(aiInput.rows[0]?.aggValue ?? 0) +
+      Number(aiOutput.rows[0]?.aggValue ?? 0) +
+      Number(aiCache.rows[0]?.aggValue ?? 0)
+    const totalRevenue =
+      (Number(basicDebit.rows[0]?.aggValue ?? 0) + aiDebit).toString()
+    const totalEvents =
+      (Number(basicCount.rows[0]?.aggValue ?? 0) + Number(aiCount.rows[0]?.aggValue ?? 0)).toString()
 
     return {
-      totalRevenue: String(totalRevenue),
-      totalEvents: String(result.total),
-      totalCredits: hasEvents ? "0" : "N/A",
+      totalRevenue,
+      totalEvents,
+      totalCredits: creditSum.rows[0]?.aggValue ?? "0",
     }
   })
 
