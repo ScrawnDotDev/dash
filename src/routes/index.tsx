@@ -15,4 +15,3 @@ function Home() {
   navigate({ to: "/sign-in", replace: true })
   return null
 }
-

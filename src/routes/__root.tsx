@@ -83,7 +83,13 @@ export const Route = createRootRoute({
 function RootDocument({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("/sw.js")
+      if (!import.meta.env.DEV) {
+        navigator.serviceWorker.register("/sw.js")
+      } else {
+        navigator.serviceWorker.getRegistrations().then((regs) =>
+          Promise.all(regs.map((r) => r.unregister()))
+        )
+      }
     }
   }, [])
 

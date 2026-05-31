@@ -40,7 +40,7 @@ export function FAQ() {
           viewport={{ once: true }}
           className="mb-20 lg:mb-24"
         >
-          <h2 className="text-6xl font-black uppercase leading-[0.85] tracking-tighter text-black md:text-8xl lg:text-[7rem] dark:text-white">
+          <h2 className="text-6xl leading-[0.85] font-black tracking-tighter text-black uppercase md:text-8xl lg:text-[7rem] dark:text-white">
             Questions you're <br className="hidden lg:block" />
             <span className="text-transparent [-webkit-text-stroke:2px_#000] lg:[-webkit-text-stroke:3px_#000] dark:[-webkit-text-stroke:2px_#fff] lg:dark:[-webkit-text-stroke:3px_#fff]">
               too embarrassed
@@ -58,15 +58,19 @@ export function FAQ() {
                 key={i}
                 className="border-4 border-black bg-white transition-all dark:border-white dark:bg-black"
                 style={{
-                  boxShadow: isOpen ? "12px 12px 0px 0px rgba(0,0,0,1)" : "6px 6px 0px 0px rgba(0,0,0,1)",
-                  transform: isOpen ? "translate(-4px, -4px)" : "translate(0px, 0px)"
+                  boxShadow: isOpen
+                    ? "12px 12px 0px 0px rgba(0,0,0,1)"
+                    : "6px 6px 0px 0px rgba(0,0,0,1)",
+                  transform: isOpen
+                    ? "translate(-4px, -4px)"
+                    : "translate(0px, 0px)",
                 }}
               >
                 <button
                   onClick={() => setOpen(isOpen ? null : i)}
                   className="flex w-full items-center justify-between p-6 text-left md:p-8"
                 >
-                  <span className="font-mono text-lg font-black uppercase tracking-widest text-black md:text-2xl dark:text-white">
+                  <span className="font-mono text-lg font-black tracking-widest text-black uppercase md:text-2xl dark:text-white">
                     {faq.q}
                   </span>
                   <span className="font-mono text-3xl font-black text-black md:text-4xl dark:text-white">
@@ -82,7 +86,7 @@ export function FAQ() {
                       transition={{ duration: 0.2 }}
                       className="overflow-hidden"
                     >
-                      <div className="border-t-4 border-black p-6 font-mono text-base font-bold leading-relaxed text-gray-600 md:p-8 md:text-lg dark:border-white dark:text-gray-400">
+                      <div className="border-t-4 border-black p-6 font-mono text-base leading-relaxed font-bold text-gray-600 md:p-8 md:text-lg dark:border-white dark:text-gray-400">
                         {faq.a}
                       </div>
                     </motion.div>

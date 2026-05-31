@@ -3,7 +3,7 @@
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts"
 
 import type { AggregationRow } from "@scrawn/core"
-import type {ChartConfig} from "@/components/ui/chart";
+import type { ChartConfig } from "@/components/ui/chart"
 import {
   Card,
   CardContent,
@@ -12,12 +12,11 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import {
-  
   ChartContainer,
   ChartLegend,
   ChartLegendContent,
   ChartTooltip,
-  ChartTooltipContent
+  ChartTooltipContent,
 } from "@/components/ui/chart"
 
 const chartConfig = {
@@ -40,10 +39,14 @@ export function AiTokenUsage({
   }
 }) {
   const inputMap = new Map(
-    data.input.map((d) => [d.groupValue, Number(d.aggValue) / 100])
+    data.input
+      .filter((d) => d.groupValue != null)
+      .map((d) => [d.groupValue!, Number(d.aggValue)])
   )
   const outputMap = new Map(
-    data.output.map((d) => [d.groupValue, Number(d.aggValue) / 100])
+    data.output
+      .filter((d) => d.groupValue != null)
+      .map((d) => [d.groupValue!, Number(d.aggValue)])
   )
   const allModels = [
     ...new Set([...inputMap.keys(), ...outputMap.keys()]),
@@ -57,23 +60,29 @@ export function AiTokenUsage({
 
   if (!chartData.length) {
     return (
-      <Card>
+      <Card className="shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">
         <CardHeader>
-          <CardTitle>AI Token Usage</CardTitle>
-          <CardDescription>Cost by model</CardDescription>
+          <CardTitle className="text-black dark:text-white">
+            AI TOKEN USAGE
+          </CardTitle>
+          <CardDescription>COST BY MODEL</CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground">No data available.</p>
+          <p className="text-sm text-red-500">
+            NO DATA LOGGED /// START METERING
+          </p>
         </CardContent>
       </Card>
     )
   }
 
   return (
-    <Card>
+    <Card className="shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">
       <CardHeader>
-        <CardTitle>AI Token Usage</CardTitle>
-        <CardDescription>Cost by model</CardDescription>
+        <CardTitle className="text-black dark:text-white">
+          AI TOKEN USAGE
+        </CardTitle>
+        <CardDescription>COST BY MODEL</CardDescription>
       </CardHeader>
       <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
         <ChartContainer
@@ -85,29 +94,46 @@ export function AiTokenUsage({
             data={chartData}
             margin={{ left: 12, right: 12 }}
           >
-            <CartesianGrid vertical={false} />
+            <CartesianGrid
+              vertical={false}
+              stroke="currentColor"
+              strokeDasharray="3 3"
+              className="opacity-20"
+            />
             <XAxis
               dataKey="model"
               tickLine={false}
               axisLine={false}
               tickMargin={8}
+              className="fill-current text-xs text-muted-foreground"
             />
             <ChartTooltip
               cursor={false}
-              content={<ChartTooltipContent indicator="dashed" />}
+              content={
+                <ChartTooltipContent
+                  indicator="dashed"
+                  className="rounded-none border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]"
+                />
+              }
             />
             <ChartLegend content={<ChartLegendContent />} />
             <Bar
               dataKey="inputCost"
-              fill="var(--color-inputCost)"
+              fill="#eab308"
+              stroke="currentColor"
+              strokeWidth={2}
               radius={0}
-              barSize={20}
+              barSize={30}
+              className="text-black dark:text-white"
             />
             <Bar
               dataKey="outputCost"
-              fill="var(--color-outputCost)"
+              fill="#ef4444"
+              stroke="currentColor"
+              strokeWidth={2}
               radius={0}
-              barSize={20}
+              barSize={30}
+              className="text-black dark:text-white"
             />
           </BarChart>
         </ChartContainer>

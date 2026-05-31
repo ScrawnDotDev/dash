@@ -18,7 +18,11 @@ type ExprNode =
   | { type: "token"; tokenName: TokenName }
 
 const FUNC_NAMES: FuncName[] = ["add", "sub", "mul", "div"]
-const TOKEN_NAMES: TokenName[] = ["inputTokens", "outputTokens", "outputCacheTokens"]
+const TOKEN_NAMES: TokenName[] = [
+  "inputTokens",
+  "outputTokens",
+  "outputCacheTokens",
+]
 
 const FUNC_DESCRIPTIONS: Record<string, string> = {
   add: "Sum of values",
@@ -45,13 +49,20 @@ function serialize(node: ExprNode): string {
     case "token":
       return `${node.tokenName}()`
     case "func": {
-      const args = node.args.filter(Boolean).map((a) => serialize(a!)).join(", ")
+      const args = node.args
+        .filter(Boolean)
+        .map((a) => serialize(a!))
+        .join(", ")
       return `${node.funcName}(${args})`
     }
   }
 }
 
-function validateNode(node: ExprNode | null, tags: string[], expressions: string[]): string | null {
+function validateNode(
+  node: ExprNode | null,
+  tags: string[],
+  expressions: string[]
+): string | null {
   if (!node) return "This value is missing"
 
   switch (node.type) {
@@ -59,14 +70,19 @@ function validateNode(node: ExprNode | null, tags: string[], expressions: string
     case "token":
       return null
     case "tag":
-      if (!tags.includes(node.tagName)) return `Tag "${node.tagName}" does not exist`
+      if (!tags.includes(node.tagName))
+        return `Tag "${node.tagName}" does not exist`
       return null
     case "expr":
-      if (!expressions.includes(node.exprKey)) return `Expression "${node.exprKey}" does not exist`
+      if (!expressions.includes(node.exprKey))
+        return `Expression "${node.exprKey}" does not exist`
       return null
     case "func": {
       if (node.args.length === 0) return "Need at least one value"
-      if ((node.funcName === "sub" || node.funcName === "div") && node.args.length !== 2)
+      if (
+        (node.funcName === "sub" || node.funcName === "div") &&
+        node.args.length !== 2
+      )
         return `${node.funcName}() needs exactly 2 values`
       for (let i = 0; i < node.args.length; i++) {
         const err = validateNode(node.args[i], tags, expressions)
@@ -91,7 +107,14 @@ interface ArgSlotProps {
   onRemove?: () => void
 }
 
-function ArgSlot({ node, onChange, tags, expressions, label, onRemove }: ArgSlotProps) {
+function ArgSlot({
+  node,
+  onChange,
+  tags,
+  expressions,
+  label,
+  onRemove,
+}: ArgSlotProps) {
   const type = node?.type ?? null
 
   const pickType = (t: "number" | "tag" | "expr" | "token" | "func") => {
@@ -116,27 +139,39 @@ function ArgSlot({ node, onChange, tags, expressions, label, onRemove }: ArgSlot
   }
 
   return (
-    <div className="rounded-lg border border-gray-700 bg-gray-900 p-3">
-      <div className="mb-2 flex items-center gap-2">
-        <span className="text-xs font-medium text-gray-400">{label}</span>
+    <div className="border-2 border-black bg-white p-4 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:bg-black dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">
+      <div className="mb-4 flex items-center gap-4">
+        <span className="bg-black px-2 py-1 font-mono text-xs font-black text-white uppercase dark:bg-white dark:text-black">
+          {label}
+        </span>
         {onRemove && (
-          <button type="button" onClick={onRemove} className="ml-auto text-xs text-red-500 hover:text-red-400">
-            Remove
+          <button
+            type="button"
+            onClick={onRemove}
+            className="ml-auto border-2 border-transparent px-2 py-1 font-mono text-xs font-black text-red-600 uppercase transition-colors hover:border-black hover:bg-red-600 hover:text-white dark:hover:border-white"
+          >
+            REMOVE
           </button>
         )}
       </div>
 
-      <div className="mb-2 flex flex-wrap gap-1">
+      <div className="mb-4 flex flex-wrap gap-2">
         {(["number", "tag", "expr", "token", "func"] as const).map((t) => (
           <button
             key={t}
             type="button"
             onClick={() => pickType(t)}
-            className={`rounded px-2 py-0.5 text-xs font-medium ${
-              type === t ? "bg-yellow-600 text-white" : "bg-gray-800 text-gray-400 hover:text-gray-200"
+            className={`border-2 border-black px-3 py-1 font-mono text-xs font-black uppercase transition-all dark:border-white ${
+              type === t
+                ? "bg-black text-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:bg-white dark:text-black dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]"
+                : "bg-white text-black hover:bg-gray-200 dark:bg-black dark:text-white dark:hover:bg-gray-800"
             }`}
           >
-            {t === "func" ? "Sub-op" : t === "expr" ? "Expr" : t.charAt(0).toUpperCase() + t.slice(1)}
+            {t === "func"
+              ? "Sub-op"
+              : t === "expr"
+                ? "Expr"
+                : t.charAt(0).toUpperCase() + t.slice(1)}
           </button>
         ))}
       </div>
@@ -145,8 +180,10 @@ function ArgSlot({ node, onChange, tags, expressions, label, onRemove }: ArgSlot
         <input
           type="number"
           value={(node as ExprNode & { type: "number" }).value}
-          onChange={(e) => onChange({ type: "number", value: parseInt(e.target.value) || 0 })}
-          className="w-full rounded border border-gray-700 bg-transparent px-2 py-1 text-sm"
+          onChange={(e) =>
+            onChange({ type: "number", value: parseInt(e.target.value) || 0 })
+          }
+          className="w-full border-2 border-black bg-white px-3 py-2 font-mono text-sm text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all outline-none focus:translate-x-[4px] focus:translate-y-[4px] focus:shadow-none dark:border-white"
         />
       )}
 
@@ -154,10 +191,14 @@ function ArgSlot({ node, onChange, tags, expressions, label, onRemove }: ArgSlot
         <select
           value={(node as ExprNode & { type: "tag" }).tagName}
           onChange={(e) => onChange({ type: "tag", tagName: e.target.value })}
-          className="w-full rounded border border-gray-700 bg-gray-800 px-2 py-1 text-sm"
+          className="w-full border-2 border-black bg-white px-3 py-2 font-mono text-sm text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] outline-none dark:border-white"
         >
           {tags.length === 0 && <option value="">No tags</option>}
-          {tags.map((t) => <option key={t} value={t}>{t}</option>)}
+          {tags.map((t) => (
+            <option key={t} value={t}>
+              {t}
+            </option>
+          ))}
         </select>
       )}
 
@@ -165,30 +206,42 @@ function ArgSlot({ node, onChange, tags, expressions, label, onRemove }: ArgSlot
         <select
           value={(node as ExprNode & { type: "expr" }).exprKey}
           onChange={(e) => onChange({ type: "expr", exprKey: e.target.value })}
-          className="w-full rounded border border-gray-700 bg-gray-800 px-2 py-1 text-sm"
+          className="w-full border-2 border-black bg-white px-3 py-2 font-mono text-sm text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] outline-none dark:border-white"
         >
           {expressions.length === 0 && <option value="">No expressions</option>}
-          {expressions.map((e) => <option key={e} value={e}>{e}</option>)}
+          {expressions.map((e) => (
+            <option key={e} value={e}>
+              {e}
+            </option>
+          ))}
         </select>
       )}
 
       {type === "token" && (
         <select
           value={(node as ExprNode & { type: "token" }).tokenName}
-          onChange={(e) => onChange({ type: "token", tokenName: e.target.value as TokenName })}
-          className="w-full rounded border border-gray-700 bg-gray-800 px-2 py-1 text-sm"
+          onChange={(e) =>
+            onChange({ type: "token", tokenName: e.target.value as TokenName })
+          }
+          className="w-full border-2 border-black bg-white px-3 py-2 font-mono text-sm text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] outline-none dark:border-white"
         >
-          {TOKEN_NAMES.map((t) => <option key={t} value={t}>{t}()</option>)}
+          {TOKEN_NAMES.map((t) => (
+            <option key={t} value={t}>
+              {t}()
+            </option>
+          ))}
         </select>
       )}
 
       {type === "func" && (
-        <FuncBuilder
-          node={node as FuncNode}
-          onChange={(n) => onChange(n)}
-          tags={tags}
-          expressions={expressions}
-        />
+        <div className="mt-4 border-t-2 border-dashed border-black pt-4 dark:border-white">
+          <FuncBuilder
+            node={node as FuncNode}
+            onChange={(n) => onChange(n)}
+            tags={tags}
+            expressions={expressions}
+          />
+        </div>
       )}
     </div>
   )
@@ -205,18 +258,27 @@ function FuncBuilder({ node, onChange, tags, expressions }: FuncBuilderProps) {
   const labels = ARG_LABELS[node.funcName]
 
   return (
-    <div className="flex flex-col gap-2">
-      <div className="flex flex-wrap gap-1.5">
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-wrap gap-2">
         {FUNC_NAMES.map((f) => (
           <button
             key={f}
             type="button"
             onClick={() => {
-              const newArgs = f === "sub" || f === "div" ? [node.args[0] ?? null, node.args[1] ?? null] : node.args
-              onChange({ type: "func", funcName: f, args: newArgs.length > 0 ? newArgs : [null] })
+              const newArgs =
+                f === "sub" || f === "div"
+                  ? [node.args[0] ?? null, node.args[1] ?? null]
+                  : node.args
+              onChange({
+                type: "func",
+                funcName: f,
+                args: newArgs.length > 0 ? newArgs : [null],
+              })
             }}
-            className={`rounded px-2 py-0.5 text-xs font-mono font-medium ${
-              node.funcName === f ? "bg-yellow-600 text-white" : "bg-gray-800 text-gray-400 hover:text-gray-200"
+            className={`border-2 border-black px-3 py-1 font-mono text-xs font-black uppercase transition-all dark:border-white ${
+              node.funcName === f
+                ? "bg-black text-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:bg-white dark:text-black dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]"
+                : "bg-white text-black hover:bg-gray-200 dark:bg-black dark:text-white dark:hover:bg-gray-800"
             }`}
           >
             {f}
@@ -224,7 +286,9 @@ function FuncBuilder({ node, onChange, tags, expressions }: FuncBuilderProps) {
         ))}
       </div>
 
-      <p className="text-xs text-gray-500">{FUNC_DESCRIPTIONS[node.funcName]}</p>
+      <p className="text-xs text-gray-500 dark:text-gray-400">
+        {FUNC_DESCRIPTIONS[node.funcName]}
+      </p>
 
       {node.args.map((arg, i) => (
         <ArgSlot
@@ -239,8 +303,13 @@ function FuncBuilder({ node, onChange, tags, expressions }: FuncBuilderProps) {
           expressions={expressions}
           label={labels(i)}
           onRemove={
-            (node.funcName === "add" || node.funcName === "mul") && node.args.length > 1
-              ? () => onChange({ ...node, args: node.args.filter((_, idx) => idx !== i) })
+            (node.funcName === "add" || node.funcName === "mul") &&
+            node.args.length > 1
+              ? () =>
+                  onChange({
+                    ...node,
+                    args: node.args.filter((_, idx) => idx !== i),
+                  })
               : undefined
           }
         />
@@ -250,9 +319,9 @@ function FuncBuilder({ node, onChange, tags, expressions }: FuncBuilderProps) {
         <button
           type="button"
           onClick={() => onChange({ ...node, args: [...node.args, null] })}
-          className="self-start rounded border border-dashed border-gray-600 px-3 py-1 text-xs text-gray-400 hover:border-gray-500 hover:text-gray-200"
+          className="self-start border-2 border-dashed border-black px-4 py-2 font-mono text-xs font-black text-black uppercase transition-all hover:bg-black hover:text-white dark:border-white dark:text-white dark:hover:bg-white dark:hover:text-black"
         >
-          + Add Value
+          + ADD VALUE
         </button>
       )}
     </div>
@@ -265,20 +334,29 @@ interface SingleValueSelectorProps {
   onPick: (node: ExprNode) => void
 }
 
-function SingleValueSelector({ tags, expressions, onPick }: SingleValueSelectorProps) {
+function SingleValueSelector({
+  tags,
+  expressions,
+  onPick,
+}: SingleValueSelectorProps) {
   const [st, setSt] = useState<"number" | "tag" | "expr" | "token">("number")
   const [val, setVal] = useState<string | number>(0)
 
   return (
-    <div className="rounded-lg border border-gray-700 bg-gray-900 p-3">
-      <div className="mb-2 flex flex-wrap gap-1">
+    <div className="border-2 border-black bg-white p-4 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:bg-black dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">
+      <div className="mb-4 flex flex-wrap gap-2">
         {(["number", "tag", "expr", "token"] as const).map((t) => (
           <button
             key={t}
             type="button"
-            onClick={() => { setSt(t); setVal(t === "number" ? 0 : t === "token" ? "inputTokens" : "") }}
-            className={`rounded px-2 py-0.5 text-xs font-medium ${
-              st === t ? "bg-yellow-600 text-white" : "bg-gray-800 text-gray-400 hover:text-gray-200"
+            onClick={() => {
+              setSt(t)
+              setVal(t === "number" ? 0 : t === "token" ? "inputTokens" : "")
+            }}
+            className={`border-2 border-black px-3 py-1 font-mono text-xs font-black uppercase transition-all dark:border-white ${
+              st === t
+                ? "bg-black text-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:bg-white dark:text-black dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]"
+                : "bg-white text-black hover:bg-gray-200 dark:bg-black dark:text-white dark:hover:bg-gray-800"
             }`}
           >
             {t === "expr" ? "Expr" : t.charAt(0).toUpperCase() + t.slice(1)}
@@ -291,7 +369,7 @@ function SingleValueSelector({ tags, expressions, onPick }: SingleValueSelectorP
           type="number"
           value={val as number}
           onChange={(e) => setVal(parseInt(e.target.value) || 0)}
-          className="w-full rounded border border-gray-700 bg-transparent px-2 py-1 text-sm"
+          className="w-full border-2 border-black bg-white px-3 py-2 font-mono text-sm text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all outline-none focus:translate-x-[4px] focus:translate-y-[4px] focus:shadow-none dark:border-white"
         />
       )}
 
@@ -299,10 +377,14 @@ function SingleValueSelector({ tags, expressions, onPick }: SingleValueSelectorP
         <select
           value={val as string}
           onChange={(e) => setVal(e.target.value)}
-          className="w-full rounded border border-gray-700 bg-gray-800 px-2 py-1 text-sm"
+          className="w-full border-2 border-black bg-white px-3 py-2 font-mono text-sm text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] outline-none dark:border-white"
         >
           {tags.length === 0 && <option value="">No tags</option>}
-          {tags.map((t) => <option key={t} value={t}>{t}</option>)}
+          {tags.map((t) => (
+            <option key={t} value={t}>
+              {t}
+            </option>
+          ))}
         </select>
       )}
 
@@ -310,10 +392,14 @@ function SingleValueSelector({ tags, expressions, onPick }: SingleValueSelectorP
         <select
           value={val as string}
           onChange={(e) => setVal(e.target.value)}
-          className="w-full rounded border border-gray-700 bg-gray-800 px-2 py-1 text-sm"
+          className="w-full border-2 border-black bg-white px-3 py-2 font-mono text-sm text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] outline-none dark:border-white"
         >
           {expressions.length === 0 && <option value="">No expressions</option>}
-          {expressions.map((e) => <option key={e} value={e}>{e}</option>)}
+          {expressions.map((e) => (
+            <option key={e} value={e}>
+              {e}
+            </option>
+          ))}
         </select>
       )}
 
@@ -321,9 +407,13 @@ function SingleValueSelector({ tags, expressions, onPick }: SingleValueSelectorP
         <select
           value={val as string}
           onChange={(e) => setVal(e.target.value)}
-          className="w-full rounded border border-gray-700 bg-gray-800 px-2 py-1 text-sm"
+          className="w-full border-2 border-black bg-white px-3 py-2 font-mono text-sm text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] outline-none dark:border-white"
         >
-          {TOKEN_NAMES.map((t) => <option key={t} value={t}>{t}()</option>)}
+          {TOKEN_NAMES.map((t) => (
+            <option key={t} value={t}>
+              {t}()
+            </option>
+          ))}
         </select>
       )}
 
@@ -332,12 +422,13 @@ function SingleValueSelector({ tags, expressions, onPick }: SingleValueSelectorP
         onClick={() => {
           if (st === "number") onPick({ type: "number", value: val as number })
           else if (st === "tag") onPick({ type: "tag", tagName: val as string })
-          else if (st === "expr") onPick({ type: "expr", exprKey: val as string })
+          else if (st === "expr")
+            onPick({ type: "expr", exprKey: val as string })
           else onPick({ type: "token", tokenName: val as TokenName })
         }}
-        className="mt-2 rounded bg-yellow-600 px-3 py-1 text-xs font-medium text-white hover:bg-yellow-500"
+        className="mt-4 border-2 border-black bg-[#ff00ff] px-4 py-2 font-mono text-sm font-black text-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]"
       >
-        Use This
+        USE THIS
       </button>
     </div>
   )
@@ -351,7 +442,13 @@ interface ExpressionBuilderProps {
   onSaveExpression?: (key: string, expr: string) => void
 }
 
-export function ExpressionBuilder({ tags, expressions, onChange, onError, onSaveExpression }: ExpressionBuilderProps) {
+export function ExpressionBuilder({
+  tags,
+  expressions,
+  onChange,
+  onError,
+  onSaveExpression,
+}: ExpressionBuilderProps) {
   const [root, setRoot] = useState<ExprNode | null>(null)
   const [singleMode, setSingleMode] = useState(false)
   const [exprKey, setExprKey] = useState("")
@@ -381,27 +478,33 @@ export function ExpressionBuilder({ tags, expressions, onChange, onError, onSave
 
   if (!root && !singleMode) {
     return (
-      <div className="flex flex-col gap-3">
-        <p className="text-xs font-medium text-gray-500">Choose how to build your expression:</p>
-        <div className="flex flex-wrap gap-2">
+      <div className="flex flex-col gap-4">
+        <p className="font-mono text-sm font-black text-black uppercase dark:text-white">
+          Choose how to build your expression:
+        </p>
+        <div className="flex flex-wrap gap-4">
           {FUNC_NAMES.map((f) => (
             <button
               key={f}
               type="button"
               onClick={() => setRoot(newFunc(f))}
-              className="rounded-lg border border-gray-700 px-4 py-3 text-left hover:border-gray-600 hover:bg-gray-900"
+              className="border-2 border-black bg-white px-4 py-3 text-left shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:bg-black dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]"
             >
-              <span className="font-mono text-sm font-medium text-yellow-500">{f}()</span>
-              <p className="mt-0.5 text-xs text-gray-500">{FUNC_DESCRIPTIONS[f]}</p>
+              <span className="font-mono text-lg font-black text-black dark:text-white">
+                {f}()
+              </span>
+              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                {FUNC_DESCRIPTIONS[f]}
+              </p>
             </button>
           ))}
         </div>
         <button
           type="button"
           onClick={() => setSingleMode(true)}
-          className="self-start text-xs text-gray-500 hover:text-gray-300 underline underline-offset-2"
+          className="w-max border-b-2 border-black pb-0.5 font-mono text-xs font-black text-black uppercase transition-colors hover:bg-black hover:text-white dark:border-white dark:text-white dark:hover:bg-white dark:hover:text-black"
         >
-          Or use a single value (number, tag, expression, token)
+          OR USE A SINGLE VALUE (NUMBER, TAG, EXPRESSION, TOKEN)
         </button>
       </div>
     )
@@ -409,18 +512,21 @@ export function ExpressionBuilder({ tags, expressions, onChange, onError, onSave
 
   if (singleMode && !root) {
     return (
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-4">
         <SingleValueSelector
           tags={tags}
           expressions={expressions}
-          onPick={(n) => { setRoot(n); setSingleMode(false) }}
+          onPick={(n) => {
+            setRoot(n)
+            setSingleMode(false)
+          }}
         />
         <button
           type="button"
           onClick={() => setSingleMode(false)}
-          className="self-start text-xs text-gray-500 hover:text-gray-300 underline underline-offset-2"
+          className="w-max border-b-2 border-black pb-0.5 font-mono text-xs font-black text-black uppercase transition-colors hover:bg-black hover:text-white dark:border-white dark:text-white dark:hover:bg-white dark:hover:text-black"
         >
-          Back to function builder
+          BACK TO FUNCTION BUILDER
         </button>
       </div>
     )
@@ -429,9 +535,9 @@ export function ExpressionBuilder({ tags, expressions, onChange, onError, onSave
   const r = root!
 
   return (
-    <div className="flex flex-col gap-3">
-      <div className="rounded bg-gray-950 px-3 py-2 font-mono text-xs text-gray-400">
-        Result: {result}
+    <div className="flex flex-col gap-6">
+      <div className="border-2 border-black bg-[#ff00ff] px-4 py-3 font-mono text-sm font-black text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">
+        RESULT: {result}
       </div>
 
       {r.type === "func" ? (
@@ -442,50 +548,103 @@ export function ExpressionBuilder({ tags, expressions, onChange, onError, onSave
           expressions={expressions}
         />
       ) : (
-        <div className="rounded-lg border border-gray-700 bg-gray-900 p-3">
-          <div className="mb-2 flex items-center gap-2">
-            <span className="text-xs font-medium text-gray-400">Single value</span>
-            <button type="button" onClick={() => setRoot(null)} className="ml-auto text-xs text-red-500 hover:text-red-400">
-              Remove
+        <div className="border-2 border-black bg-white p-4 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:bg-black dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">
+          <div className="mb-4 flex items-center gap-4">
+            <span className="bg-black px-2 py-1 font-mono text-xs font-black text-white uppercase dark:bg-white dark:text-black">
+              SINGLE VALUE
+            </span>
+            <button
+              type="button"
+              onClick={() => setRoot(null)}
+              className="ml-auto border-2 border-transparent px-2 py-1 font-mono text-xs font-black text-red-600 uppercase transition-colors hover:border-black hover:bg-red-600 hover:text-white dark:hover:border-white"
+            >
+              REMOVE
             </button>
           </div>
           {r.type === "number" && (
-            <input type="number" value={r.value} onChange={(e) => setRoot({ type: "number", value: parseInt(e.target.value) || 0 })} className="w-full rounded border border-gray-700 bg-transparent px-2 py-1 text-sm" />
+            <input
+              type="number"
+              value={r.value}
+              onChange={(e) =>
+                setRoot({
+                  type: "number",
+                  value: parseInt(e.target.value) || 0,
+                })
+              }
+              className="w-full border-2 border-black bg-white px-3 py-2 font-mono text-sm text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all outline-none focus:translate-x-[4px] focus:translate-y-[4px] focus:shadow-none dark:border-white"
+            />
           )}
           {r.type === "tag" && (
-            <select value={r.tagName} onChange={(e) => setRoot({ type: "tag", tagName: e.target.value })} className="w-full rounded border border-gray-700 bg-gray-800 px-2 py-1 text-sm">
-              {tags.map((t) => <option key={t} value={t}>{t}</option>)}
+            <select
+              value={r.tagName}
+              onChange={(e) =>
+                setRoot({ type: "tag", tagName: e.target.value })
+              }
+              className="w-full border-2 border-black bg-white px-3 py-2 font-mono text-sm text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] outline-none dark:border-white"
+            >
+              {tags.map((t) => (
+                <option key={t} value={t}>
+                  {t}
+                </option>
+              ))}
             </select>
           )}
           {r.type === "expr" && (
-            <select value={r.exprKey} onChange={(e) => setRoot({ type: "expr", exprKey: e.target.value })} className="w-full rounded border border-gray-700 bg-gray-800 px-2 py-1 text-sm">
-              {expressions.map((e) => <option key={e} value={e}>{e}</option>)}
+            <select
+              value={r.exprKey}
+              onChange={(e) =>
+                setRoot({ type: "expr", exprKey: e.target.value })
+              }
+              className="w-full border-2 border-black bg-white px-3 py-2 font-mono text-sm text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] outline-none dark:border-white"
+            >
+              {expressions.map((e) => (
+                <option key={e} value={e}>
+                  {e}
+                </option>
+              ))}
             </select>
           )}
           {r.type === "token" && (
-            <select value={r.tokenName} onChange={(e) => setRoot({ type: "token", tokenName: e.target.value as TokenName })} className="w-full rounded border border-gray-700 bg-gray-800 px-2 py-1 text-sm">
-              {TOKEN_NAMES.map((t) => <option key={t} value={t}>{t}()</option>)}
+            <select
+              value={r.tokenName}
+              onChange={(e) =>
+                setRoot({
+                  type: "token",
+                  tokenName: e.target.value as TokenName,
+                })
+              }
+              className="w-full border-2 border-black bg-white px-3 py-2 font-mono text-sm text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] outline-none dark:border-white"
+            >
+              {TOKEN_NAMES.map((t) => (
+                <option key={t} value={t}>
+                  {t}()
+                </option>
+              ))}
             </select>
           )}
         </div>
       )}
 
       {onSaveExpression && (
-        <div className="flex gap-2">
+        <div className="flex gap-4">
           <input
             value={exprKey}
-            onChange={(e) => setExprKey(e.target.value.toUpperCase().replace(/[^A-Z0-9_]/g, ""))}
+            onChange={(e) =>
+              setExprKey(
+                e.target.value.toUpperCase().replace(/[^A-Z0-9_]/g, "")
+              )
+            }
             placeholder="EXPR_NAME"
             required
-            className="w-40 rounded-lg border border-gray-700 bg-transparent px-3 py-2 text-sm font-mono"
+            className="w-48 border-2 border-black bg-white px-3 py-2 font-mono text-sm text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all outline-none focus:translate-x-[4px] focus:translate-y-[4px] focus:shadow-none dark:border-white"
           />
           <button
             type="button"
             onClick={handleSave}
             disabled={!exprKey || !!validateNode(r, tags, expressions)}
-            className="rounded-lg bg-yellow-600 px-4 py-2 text-sm font-medium text-white hover:bg-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="border-2 border-black bg-black px-6 py-2 font-mono text-sm font-black text-white uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] disabled:cursor-not-allowed disabled:opacity-50 dark:border-white dark:bg-white dark:text-black dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]"
           >
-            Save Expression
+            SAVE EXPRESSION
           </button>
         </div>
       )}

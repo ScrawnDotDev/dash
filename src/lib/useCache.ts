@@ -1,4 +1,11 @@
-import { useState, useEffect, useRef, useCallback, createContext, useContext } from "react"
+import {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  createContext,
+  useContext,
+} from "react"
 
 const CACHE_PREFIX = "scrawn:cache:"
 
@@ -257,7 +264,7 @@ export function useCachedData<T>(
   const refresh = useCallback(async () => {
     invalidateCache(key)
     await doFetch(false)
-  }, [key]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [key, doFetch])
 
   return { data, loading, refreshing, offline, error, refresh }
 }

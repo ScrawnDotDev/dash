@@ -3,7 +3,7 @@
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts"
 
 import type { AggregationRow } from "@scrawn/core"
-import type {ChartConfig} from "@/components/ui/chart";
+import type { ChartConfig } from "@/components/ui/chart"
 import {
   Card,
   CardContent,
@@ -12,10 +12,9 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import {
-  
   ChartContainer,
   ChartTooltip,
-  ChartTooltipContent
+  ChartTooltipContent,
 } from "@/components/ui/chart"
 
 const chartConfig = {
@@ -26,30 +25,40 @@ const chartConfig = {
 } satisfies ChartConfig
 
 export function UsageOverTime({ data }: { data: Array<AggregationRow> }) {
-  const chartData = data.map((d) => ({
-    date: d.groupValue,
-    amount: Number(d.aggValue) / 100,
-  }))
+  const chartData = data
+    .filter((d) => d.groupValue != null)
+    .map((d) => ({
+      date: d.groupValue!,
+      amount: Number(d.aggValue),
+    }))
 
   if (!chartData.length) {
     return (
-      <Card>
+      <Card className="shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">
         <CardHeader>
-          <CardTitle>Usage Over Time</CardTitle>
-          <CardDescription>Revenue from SDK events</CardDescription>
+          <CardTitle className="text-black dark:text-white">
+            USAGE OVER TIME
+          </CardTitle>
+          <CardDescription>
+            REVENUE FROM SDK EVENTS (SMALLEST CURRENCY UNIT)
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground">No data available.</p>
+          <p className="text-sm text-red-500">
+            NO DATA LOGGED /// START METERING
+          </p>
         </CardContent>
       </Card>
     )
   }
 
   return (
-    <Card>
+    <Card className="shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">
       <CardHeader>
-        <CardTitle>Usage Over Time</CardTitle>
-        <CardDescription>Revenue from SDK events</CardDescription>
+        <CardTitle className="text-black dark:text-white">
+          USAGE OVER TIME
+        </CardTitle>
+        <CardDescription>REVENUE FROM SDK EVENTS</CardDescription>
       </CardHeader>
       <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
         <ChartContainer
@@ -61,24 +70,37 @@ export function UsageOverTime({ data }: { data: Array<AggregationRow> }) {
             data={chartData}
             margin={{ left: 12, right: 12 }}
           >
-            <CartesianGrid vertical={false} />
+            <CartesianGrid
+              vertical={false}
+              stroke="currentColor"
+              strokeDasharray="3 3"
+              className="opacity-20"
+            />
             <XAxis
               dataKey="date"
               tickLine={false}
               axisLine={false}
               tickMargin={8}
               tickFormatter={(v) => v?.slice(0, 10) ?? ""}
+              className="fill-current text-xs text-muted-foreground"
             />
             <ChartTooltip
               cursor={false}
-              content={<ChartTooltipContent indicator="line" />}
+              content={
+                <ChartTooltipContent
+                  indicator="line"
+                  className="rounded-none border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]"
+                />
+              }
             />
             <Area
               dataKey="amount"
-              type="natural"
-              fill="var(--color-amount)"
-              fillOpacity={0.4}
-              stroke="var(--color-amount)"
+              type="monotone"
+              fill="currentColor"
+              fillOpacity={0.1}
+              stroke="currentColor"
+              strokeWidth={2}
+              className="text-black dark:text-white"
             />
           </AreaChart>
         </ChartContainer>
