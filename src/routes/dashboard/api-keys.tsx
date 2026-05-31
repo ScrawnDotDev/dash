@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { createFileRoute, useNavigate } from "@tanstack/react-router"
+import { createFileRoute, useNavigate, Outlet, useLocation } from "@tanstack/react-router"
 import {
   listApiKeys,
   createApiKey,
@@ -18,6 +18,7 @@ const CACHE_KEY = "api-keys"
 
 function ApiKeysPage() {
   const navigate = useNavigate()
+  const location = useLocation()
   const {
     data: keysData,
     loading,
@@ -191,13 +192,16 @@ function ApiKeysPage() {
         <div className="flex flex-col gap-3">
           {keys.map((k: Record<string, unknown>) => {
             const keyId = k.id as string
-            return (
-              <button
-                key={keyId}
-                onClick={() => navigate({ to: "/dashboard/api-keys/$keyId", params: { keyId } })}
-                className="w-full text-left"
-              >
-                <Card className="cursor-pointer shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] dark:hover:shadow-none">
+  if (location.pathname !== "/dashboard/api-keys") {
+    return <Outlet />
+  }
+
+  return (
+              <div key={keyId} className="w-full">
+                <Card
+                  className="cursor-pointer shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] dark:hover:shadow-none"
+                  onClick={() => navigate({ to: "/dashboard/api-keys/$keyId", params: { keyId } })}
+                >
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between gap-4">
                       <div className="min-w-0 flex-1">
@@ -239,7 +243,7 @@ function ApiKeysPage() {
                     </div>
                   </CardContent>
                 </Card>
-              </button>
+              </div>
             )
           })}
         </div>
