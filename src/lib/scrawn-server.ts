@@ -258,18 +258,20 @@ export const getApiKeySummary = createServerFn({ method: "GET" })
     const result = await analytics.query.sdkEvent
       .where(and(eq(sf.apiKeyId, ctx.data.apiKeyId)))
       .orderBy(desc(sf.ingestedTimestamp))
-      .limit(10000)
+      .limit(1000)
       .execute()
 
     let totalRevenue = 0
+    let hasEvents = false
     for (const row of result.rows) {
+      hasEvents = true
       totalRevenue += (row as { debitAmount?: number }).debitAmount ?? 0
     }
 
     return {
       totalRevenue: String(totalRevenue),
       totalEvents: String(result.total),
-      totalCredits: "0",
+      totalCredits: hasEvents ? "0" : "N/A",
     }
   })
 
