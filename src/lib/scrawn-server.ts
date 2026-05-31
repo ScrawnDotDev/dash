@@ -253,13 +253,14 @@ export const getApiKeySummary = createServerFn({ method: "GET" })
   .inputValidator(validator<{ apiKeyId: string }>())
   .handler(async (ctx) => {
     const analytics = createAnalytics()
-    const f = analytics.query.sdkEvent.fields
-    const filter = eq(f.apiKeyId, ctx.data.apiKeyId)
+    const sf = analytics.query.sdkEvent.fields
+    const pf = analytics.query.payment.fields
+    const filter = and(eq(sf.apiKeyId, ctx.data.apiKeyId))
 
     const [totalDebit, eventCount] = await Promise.all([
       analytics.query.sdkEvent
         .where(filter)
-        .aggregate(sum(f.debitAmount))
+        .aggregate(sum(sf.debitAmount))
         .execute(),
       analytics.query.sdkEvent
         .where(filter)
@@ -269,8 +270,8 @@ export const getApiKeySummary = createServerFn({ method: "GET" })
 
     const [creditResult] = await Promise.all([
       analytics.query.payment
-        .where(eq(analytics.query.payment.fields.apiKeyId, ctx.data.apiKeyId))
-        .aggregate(sum(analytics.query.payment.fields.creditAmount))
+        .where(and(eq(pf.apiKeyId, ctx.data.apiKeyId)))
+        .aggregate(sum(pf.creditAmount))
         .execute(),
     ])
 
