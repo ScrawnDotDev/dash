@@ -12,9 +12,13 @@ self.addEventListener("activate", (e) => {
   e.waitUntil(
     Promise.all([
       clients.claim(),
-      caches.keys().then((keys) =>
-        Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))
-      ),
+      caches
+        .keys()
+        .then((keys) =>
+          Promise.all(
+            keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))
+          )
+        ),
     ])
   )
 })
@@ -44,14 +48,13 @@ async function handleNavigationOrAsset(e) {
   const cache = await caches.open(CACHE)
 
   if (e.request.mode === "navigate") {
-    const cached = await cache.match(e.request)
-    if (cached) return cached
-
     try {
       const res = await fetch(e.request)
       if (res.ok) cache.put(e.request, res.clone())
       return res
     } catch {
+      const cached = await cache.match(e.request)
+      if (cached) return cached
       const fallback = await findCachedNavigation(cache)
       if (fallback) return fallback
 

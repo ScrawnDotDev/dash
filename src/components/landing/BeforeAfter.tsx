@@ -12,10 +12,10 @@ export function BeforeAfter() {
 
       <div className="relative z-10 mx-auto max-w-[1400px] px-6 lg:px-12">
         <div className="mb-16">
-          <h2 className="text-6xl font-black uppercase leading-[0.85] tracking-tighter text-black md:text-8xl lg:text-[7rem] dark:text-white">
+          <h2 className="text-6xl leading-[0.85] font-black tracking-tighter text-black uppercase md:text-8xl lg:text-[7rem] dark:text-white">
             The Scrawn Way.
           </h2>
-          <p className="mt-6 font-mono text-base font-bold uppercase tracking-widest text-gray-500">
+          <p className="mt-6 font-mono text-base font-bold tracking-widest text-gray-500 uppercase">
             Same endpoint. One is 40 lines of pain. The other is Scrawn.
           </p>
         </div>
@@ -24,20 +24,20 @@ export function BeforeAfter() {
         <div className="mb-12 flex flex-wrap gap-4">
           <button
             onClick={() => setShowScrawn(false)}
-            className={`border-4 border-black px-8 py-4 font-mono text-lg font-black uppercase tracking-widest transition-all dark:border-white ${
+            className={`border-4 border-black px-8 py-4 font-mono text-lg font-black tracking-widest uppercase transition-all dark:border-white ${
               !showScrawn
-                ? "translate-y-[4px] translate-x-[4px] bg-black text-white shadow-none dark:bg-white dark:text-black"
-                : "bg-white text-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:-translate-x-1 hover:bg-yellow-400 hover:shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] dark:bg-black dark:text-white dark:shadow-[6px_6px_0px_0px_rgba(255,255,255,1)] dark:hover:bg-yellow-400 dark:hover:text-black dark:hover:shadow-[10px_10px_0px_0px_rgba(255,255,255,1)]"
+                ? "translate-x-[4px] translate-y-[4px] bg-black text-white shadow-none dark:bg-white dark:text-black"
+                : "bg-white text-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:-translate-x-1 hover:-translate-y-1 hover:bg-yellow-400 hover:shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] dark:bg-black dark:text-white dark:shadow-[6px_6px_0px_0px_rgba(255,255,255,1)] dark:hover:bg-yellow-400 dark:hover:text-black dark:hover:shadow-[10px_10px_0px_0px_rgba(255,255,255,1)]"
             }`}
           >
             Without Scrawn
           </button>
           <button
             onClick={() => setShowScrawn(true)}
-            className={`border-4 border-black px-8 py-4 font-mono text-lg font-black uppercase tracking-widest transition-all dark:border-white ${
+            className={`border-4 border-black px-8 py-4 font-mono text-lg font-black tracking-widest uppercase transition-all dark:border-white ${
               showScrawn
-                ? "translate-y-[4px] translate-x-[4px] bg-black text-white shadow-none dark:bg-white dark:text-black"
-                : "bg-white text-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:-translate-x-1 hover:bg-yellow-400 hover:shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] dark:bg-black dark:text-white dark:shadow-[6px_6px_0px_0px_rgba(255,255,255,1)] dark:hover:bg-yellow-400 dark:hover:text-black dark:hover:shadow-[10px_10px_0px_0px_rgba(255,255,255,1)]"
+                ? "translate-x-[4px] translate-y-[4px] bg-black text-white shadow-none dark:bg-white dark:text-black"
+                : "bg-white text-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:-translate-x-1 hover:-translate-y-1 hover:bg-yellow-400 hover:shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] dark:bg-black dark:text-white dark:shadow-[6px_6px_0px_0px_rgba(255,255,255,1)] dark:hover:bg-yellow-400 dark:hover:text-black dark:hover:shadow-[10px_10px_0px_0px_rgba(255,255,255,1)]"
             }`}
           >
             With Scrawn
@@ -59,18 +59,30 @@ export function BeforeAfter() {
                   <div className="h-4 w-4 border-2 border-black bg-white" />
                   <div className="h-4 w-4 border-2 border-black bg-black" />
                 </div>
-                <span className="font-mono text-xs font-black uppercase tracking-widest text-black">
+                <span className="font-mono text-xs font-black tracking-widest text-black uppercase">
                   40_lines_of_pain.ts
                 </span>
                 <IconTerminal2 className="h-6 w-6 text-black" />
               </div>
-              <pre className="overflow-x-auto p-8 font-mono text-[15px] font-bold leading-relaxed sm:text-lg">
+              <pre className="overflow-x-auto p-8 font-mono text-[15px] leading-relaxed font-bold sm:text-lg">
                 <span className="text-gray-500 dark:text-gray-400">
                   {"// 1. Check Dodo sub"}
                 </span>
                 <br />
                 <span>
-                  <span className="text-purple-600 dark:text-purple-400">const</span> customer = <span className="text-purple-600 dark:text-purple-400">await</span> <span className="text-blue-600 dark:text-blue-400">dodo</span>.customers.<span className="text-yellow-600 dark:text-yellow-400">retrieve</span>(user.dodoId);
+                  <span className="text-purple-600 dark:text-purple-400">
+                    const
+                  </span>{" "}
+                  customer ={" "}
+                  <span className="text-purple-600 dark:text-purple-400">
+                    await
+                  </span>{" "}
+                  <span className="text-blue-600 dark:text-blue-400">dodo</span>
+                  .customers.
+                  <span className="text-yellow-600 dark:text-yellow-400">
+                    retrieve
+                  </span>
+                  (user.dodoId);
                 </span>
                 <br />
                 <br />
@@ -78,21 +90,59 @@ export function BeforeAfter() {
                   {"// 2. Count usage manually"}
                 </span>
                 <br />
-                <span><span className="text-purple-600 dark:text-purple-400">const</span> usage = <span className="text-purple-600 dark:text-purple-400">await</span> <span className="text-blue-600 dark:text-blue-400">db</span>.<span className="text-yellow-600 dark:text-yellow-400">query</span>({"{"}{"}"});</span>
+                <span>
+                  <span className="text-purple-600 dark:text-purple-400">
+                    const
+                  </span>{" "}
+                  usage ={" "}
+                  <span className="text-purple-600 dark:text-purple-400">
+                    await
+                  </span>{" "}
+                  <span className="text-blue-600 dark:text-blue-400">db</span>.
+                  <span className="text-yellow-600 dark:text-yellow-400">
+                    query
+                  </span>
+                  ({"{"}
+                  {"}"});
+                </span>
                 <br />
                 <br />
                 <span className="text-gray-500 dark:text-gray-400">
                   {"// 3. Calculate price yourself"}
                 </span>
                 <br />
-                <span><span className="text-purple-600 dark:text-purple-400">const</span> price = usage * <span className="text-orange-600 dark:text-orange-400">0.05</span>;</span>
+                <span>
+                  <span className="text-purple-600 dark:text-purple-400">
+                    const
+                  </span>{" "}
+                  price = usage *{" "}
+                  <span className="text-orange-600 dark:text-orange-400">
+                    0.05
+                  </span>
+                  ;
+                </span>
                 <br />
                 <br />
                 <span className="text-gray-500 dark:text-gray-400">
                   {"// 4. Create Dodo checkout"}
                 </span>
                 <br />
-                <span><span className="text-purple-600 dark:text-purple-400">const</span> checkout = <span className="text-purple-600 dark:text-purple-400">await</span> <span className="text-blue-600 dark:text-blue-400">dodo</span>.checkouts.<span className="text-yellow-600 dark:text-yellow-400">create</span>({"{"}{"}"});</span>
+                <span>
+                  <span className="text-purple-600 dark:text-purple-400">
+                    const
+                  </span>{" "}
+                  checkout ={" "}
+                  <span className="text-purple-600 dark:text-purple-400">
+                    await
+                  </span>{" "}
+                  <span className="text-blue-600 dark:text-blue-400">dodo</span>
+                  .checkouts.
+                  <span className="text-yellow-600 dark:text-yellow-400">
+                    create
+                  </span>
+                  ({"{"}
+                  {"}"});
+                </span>
                 <br />
                 <br />
                 <span className="text-gray-500 dark:text-gray-400">
@@ -123,37 +173,92 @@ export function BeforeAfter() {
                   <div className="h-4 w-4 border-2 border-black bg-white" />
                   <div className="h-4 w-4 border-2 border-black bg-black" />
                 </div>
-                <span className="font-mono text-xs font-black uppercase tracking-widest text-black">
+                <span className="font-mono text-xs font-black tracking-widest text-black uppercase">
                   scrawn_way.ts
                 </span>
                 <IconTerminal2 className="h-6 w-6 text-black" />
               </div>
-              <pre className="overflow-x-auto p-8 font-mono text-[15px] font-bold leading-relaxed sm:text-lg">
+              <pre className="overflow-x-auto p-8 font-mono text-[15px] leading-relaxed font-bold sm:text-lg">
                 <span>
-                  <span className="text-purple-600 dark:text-purple-400">import</span> {"{"} Scrawn {"}"} <span className="text-purple-600 dark:text-purple-400">from</span> <span className="text-green-600 dark:text-green-400">"@scrawn/core"</span>;
+                  <span className="text-purple-600 dark:text-purple-400">
+                    import
+                  </span>{" "}
+                  {"{"} Scrawn {"}"}{" "}
+                  <span className="text-purple-600 dark:text-purple-400">
+                    from
+                  </span>{" "}
+                  <span className="text-green-600 dark:text-green-400">
+                    "@scrawn/core"
+                  </span>
+                  ;
                 </span>
                 <br />
                 <span>
-                  <span className="text-purple-600 dark:text-purple-400">const</span> scrawn = <span className="text-purple-600 dark:text-purple-400">new</span> <span className="text-yellow-600 dark:text-yellow-400">Scrawn</span>({"{"} apiKey: env.SCRAWN_KEY {"}"});
+                  <span className="text-purple-600 dark:text-purple-400">
+                    const
+                  </span>{" "}
+                  scrawn ={" "}
+                  <span className="text-purple-600 dark:text-purple-400">
+                    new
+                  </span>{" "}
+                  <span className="text-yellow-600 dark:text-yellow-400">
+                    Scrawn
+                  </span>
+                  ({"{"} apiKey: env.SCRAWN_KEY {"}"});
                 </span>
                 <br />
                 <br />
-                <span><span className="text-purple-600 dark:text-purple-400">export async function</span> <span className="text-yellow-600 dark:text-yellow-400">POST</span>(req) {"{"}</span>
+                <span>
+                  <span className="text-purple-600 dark:text-purple-400">
+                    export async function
+                  </span>{" "}
+                  <span className="text-yellow-600 dark:text-yellow-400">
+                    POST
+                  </span>
+                  (req) {"{"}
+                </span>
                 <br />
                 <span className="ml-4 text-gray-500 dark:text-gray-400">
                   {"// We handle limits, metering & checkout"}
                 </span>
                 <br />
-                <span className="ml-4"><span className="text-purple-600 dark:text-purple-400">await</span> <span className="text-blue-600 dark:text-blue-400">scrawn</span>.<span className="text-yellow-600 dark:text-yellow-400">basicUsageEventConsumer</span>({"{"}</span>
+                <span className="ml-4">
+                  <span className="text-purple-600 dark:text-purple-400">
+                    await
+                  </span>{" "}
+                  <span className="text-blue-600 dark:text-blue-400">
+                    scrawn
+                  </span>
+                  .
+                  <span className="text-yellow-600 dark:text-yellow-400">
+                    basicUsageEventConsumer
+                  </span>
+                  ({"{"}
+                </span>
                 <br />
                 <span className="ml-8">userId: req.user.id,</span>
                 <br />
-                <span className="ml-8">debitAmount: <span className="text-orange-600 dark:text-orange-400">50</span>,</span>
+                <span className="ml-8">
+                  debitAmount:{" "}
+                  <span className="text-orange-600 dark:text-orange-400">
+                    50
+                  </span>
+                  ,
+                </span>
                 <br />
                 <span className="ml-4">{"}"});</span>
                 <br />
                 <br />
-                <span className="ml-4"><span className="text-purple-600 dark:text-purple-400">return</span> Response.<span className="text-yellow-600 dark:text-yellow-400">json</span>(result);</span>
+                <span className="ml-4">
+                  <span className="text-purple-600 dark:text-purple-400">
+                    return
+                  </span>{" "}
+                  Response.
+                  <span className="text-yellow-600 dark:text-yellow-400">
+                    json
+                  </span>
+                  (result);
+                </span>
                 <br />
                 <span>{"}"}</span>
               </pre>

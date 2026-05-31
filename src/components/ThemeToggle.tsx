@@ -3,7 +3,13 @@ import { useTheme } from "@/lib/theme-provider"
 import { motion } from "framer-motion"
 
 export function ThemeToggle() {
-  const { theme, toggle } = useTheme()
+  const { theme, setTheme } = useTheme()
+
+  const toggle = () => {
+    if (theme === "light") setTheme("dark")
+    else if (theme === "dark") setTheme("system")
+    else setTheme("light")
+  }
 
   return (
     <motion.button
@@ -19,7 +25,11 @@ export function ThemeToggle() {
         exit={{ rotate: 90, opacity: 0, scale: 0.5 }}
         transition={{ duration: 0.2 }}
       >
-        {theme === "light" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+        {theme === "light" ? (
+          <Moon className="h-4 w-4" />
+        ) : (
+          <Sun className="h-4 w-4" />
+        )}
       </motion.div>
     </motion.button>
   )

@@ -4,7 +4,7 @@ import { useMemo } from "react"
 import { Pie, PieChart } from "recharts"
 
 import type { AggregationRow } from "@scrawn/core"
-import type {ChartConfig} from "@/components/ui/chart";
+import type { ChartConfig } from "@/components/ui/chart"
 import {
   Card,
   CardContent,
@@ -13,10 +13,9 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import {
-  
   ChartContainer,
   ChartTooltip,
-  ChartTooltipContent
+  ChartTooltipContent,
 } from "@/components/ui/chart"
 
 const COLORS = [

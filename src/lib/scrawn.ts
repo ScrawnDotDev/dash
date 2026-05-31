@@ -7,4 +7,7 @@ export const biller = new Scrawn({
   secure: false,
 })
 
-export const analytics = new Analytics(biller)
+/** Create a fresh Analytics instance per call so builders don't share state */
+export function createAnalytics(): Analytics {
+  return new Analytics(biller)
+}

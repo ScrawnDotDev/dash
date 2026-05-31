@@ -1,6 +1,6 @@
 import { count as analyticsCount, desc, sum } from "@scrawn/analytics"
 import { createServerFn } from "@tanstack/react-start"
-import { analytics } from "./scrawn"
+import { createAnalytics } from "./scrawn"
 import { db } from "./db"
 import { user } from "@/db/schema"
 import { count } from "drizzle-orm"
@@ -12,30 +12,45 @@ function validator<T>(): { (): T; (value: unknown): T } {
   return ((input: unknown) => input as T) as { (): T; (value: unknown): T }
 }
 
-export const checkUsersExist = createServerFn({ method: "GET" }).handler(async () => {
-  const [result] = await db.select({ count: count() }).from(user)
-  return { exists: (result?.count ?? 0) > 0 }
-})
+export const checkUsersExist = createServerFn({ method: "GET" }).handler(
+  async () => {
+    const [result] = await db.select({ count: count() }).from(user)
+    return { exists: (result?.count ?? 0) > 0 }
+  }
+)
 
 export const createAdminUser = createServerFn({ method: "POST" })
-  .inputValidator(validator<{ name: string; email: string; password: string }>())
+  .inputValidator(
+    validator<{ name: string; email: string; password: string }>()
+  )
   .handler(async (ctx) => {
     const existing = await db.select({ count: count() }).from(user)
     if ((existing[0]?.count ?? 0) > 0) {
       return { error: "An admin user already exists" }
     }
     const { auth } = await import("./auth")
-    await auth.api.signUpEmail({ body: { name: ctx.data.name, email: ctx.data.email, password: ctx.data.password } })
+    await auth.api.signUpEmail({
+      body: {
+        name: ctx.data.name,
+        email: ctx.data.email,
+        password: ctx.data.password,
+      },
+    })
     return { success: true }
   })
 
-export const getBackendConfig = createServerFn({ method: "GET" }).handler(async () => {
-  const res = await fetch(`${SCRAWN_HTTP_URL}/api/v1/internals/config`, {
-    headers: { Authorization: `Bearer ${SCRAWN_KEY}` },
-  })
-  if (!res.ok) return { configured: false }
-  return res.json() as Promise<{ configured: boolean; dodo_product_id?: string }>
-})
+export const getBackendConfig = createServerFn({ method: "GET" }).handler(
+  async () => {
+    const res = await fetch(`${SCRAWN_HTTP_URL}/api/v1/internals/config`, {
+      headers: { Authorization: `Bearer ${SCRAWN_KEY}` },
+    })
+    if (!res.ok) return { configured: false }
+    return res.json() as Promise<{
+      configured: boolean
+      dodo_product_id?: string
+    }>
+  }
+)
 
 export const submitOnboarding = createServerFn({ method: "POST" })
   .inputValidator(
@@ -70,21 +85,24 @@ export const submitOnboarding = createServerFn({ method: "POST" })
 
 export const getUsageOverTime = createServerFn({ method: "GET" }).handler(
   async () => {
+    const analytics = createAnalytics()
     const f = analytics.query.sdkEvent.fields
     const result = await analytics.query.sdkEvent
       .aggregate(sum(f.debitAmount))
-      .groupBy(f.reportedTimestamp)
-      .orderBy(desc(f.reportedTimestamp))
+      .groupBy(f.ingestedTimestamp)
+      .orderBy(desc(f.ingestedTimestamp))
       .limit(30)
       .execute()
     return result.rows
       .reverse()
-      .map((r) => ({ groupValue: r.groupValue, aggValue: r.aggValue }))
+      .filter((r) => r.groupValue != null)
+      .map((r) => ({ groupValue: r.groupValue!, aggValue: r.aggValue }))
   }
 )
 
 export const getTopUsers = createServerFn({ method: "GET" }).handler(
   async () => {
+    const analytics = createAnalytics()
     const f = analytics.query.sdkEvent.fields
     const result = await analytics.query.sdkEvent
       .aggregate(sum(f.debitAmount))
@@ -102,6 +120,7 @@ export const getTopUsers = createServerFn({ method: "GET" }).handler(
 export const getEventTypeDistribution = createServerFn({
   method: "GET",
 }).handler(async () => {
+  const analytics = createAnalytics()
   const f = analytics.query.sdkEvent.fields
   const result = await analytics.query.sdkEvent
     .aggregate(analyticsCount())
@@ -115,13 +134,14 @@ export const getEventTypeDistribution = createServerFn({
 
 export const getAiTokenUsage = createServerFn({ method: "GET" }).handler(
   async () => {
+    const analytics = createAnalytics()
     const f = analytics.query.aiToken.fields
     const input = await analytics.query.aiToken
-      .aggregate(sum(f.inputDebitAmount))
+      .aggregate(sum(f.inputTokens))
       .groupBy(f.model)
       .execute()
     const output = await analytics.query.aiToken
-      .aggregate(sum(f.outputDebitAmount))
+      .aggregate(sum(f.outputTokens))
       .groupBy(f.model)
       .execute()
     return {
@@ -137,23 +157,70 @@ export const getAiTokenUsage = createServerFn({ method: "GET" }).handler(
   }
 )
 
+export const getAiTokenUsageOverTime = createServerFn({ method: "GET" }).handler(
+  async () => {
+    const analytics = createAnalytics()
+    const f = analytics.query.aiToken.fields
+    const result = await analytics.query.aiToken
+      .orderBy(desc(f.ingestedTimestamp))
+      .limit(500)
+      .execute()
+
+    const groups = new Map<string, Map<string, { input: number; output: number }>>()
+    for (const row of result.rows) {
+      const date = (row.ingestedTimestamp ?? "").slice(0, 10)
+      const model = row.model ?? "unknown"
+      if (!groups.has(date)) groups.set(date, new Map())
+      const modelMap = groups.get(date)!
+      if (!modelMap.has(model)) modelMap.set(model, { input: 0, output: 0 })
+      const acc = modelMap.get(model)!
+      acc.input += row.inputTokens ?? 0
+      acc.output += row.outputTokens ?? 0
+    }
+
+    const flat: Array<{ date: string; model: string; inputTokens: number; outputTokens: number }> = []
+    for (const [date, modelMap] of groups) {
+      for (const [model, counts] of modelMap) {
+        flat.push({ date, model, inputTokens: counts.input, outputTokens: counts.output })
+      }
+    }
+
+    return flat.sort((a, b) => a.date.localeCompare(b.date))
+  }
+)
+
 export const getPaymentHistory = createServerFn({ method: "GET" }).handler(
   async () => {
+    const analytics = createAnalytics()
     const f = analytics.query.payment.fields
     const result = await analytics.query.payment
       .aggregate(sum(f.creditAmount))
-      .groupBy(f.reportedTimestamp)
-      .orderBy(desc(f.reportedTimestamp))
+      .groupBy(f.ingestedTimestamp)
+      .orderBy(desc(f.ingestedTimestamp))
       .limit(30)
       .execute()
     return result.rows
       .reverse()
-      .map((r) => ({ groupValue: r.groupValue, aggValue: r.aggValue }))
+      .filter((r) => r.groupValue != null)
+      .map((r) => ({ groupValue: r.groupValue!, aggValue: r.aggValue }))
+  }
+)
+
+export const getRecentEvents = createServerFn({ method: "GET" }).handler(
+  async () => {
+    const analytics = createAnalytics()
+    const f = analytics.query.sdkEvent.fields
+    const result = await analytics.query.sdkEvent
+      .orderBy(desc(f.ingestedTimestamp))
+      .limit(10)
+      .execute()
+    return result.rows
   }
 )
 
 export const getDashboardSummary = createServerFn({ method: "GET" }).handler(
   async () => {
+    const analytics = createAnalytics()
     const sf = analytics.query.sdkEvent.fields
     const pf = analytics.query.payment.fields
 
@@ -185,7 +252,10 @@ async function apiGet(path: string) {
 async function apiPost(path: string, body: unknown) {
   const res = await fetch(`${SCRAWN_HTTP_URL}${path}`, {
     method: "POST",
-    headers: { Authorization: `Bearer ${SCRAWN_KEY}`, "Content-Type": "application/json" },
+    headers: {
+      Authorization: `Bearer ${SCRAWN_KEY}`,
+      "Content-Type": "application/json",
+    },
     body: JSON.stringify(body),
   })
   if (!res.ok) {
@@ -208,10 +278,19 @@ async function apiDelete(path: string) {
 }
 
 // API Keys
-export const listApiKeys = createServerFn({ method: "GET" }).handler(async () => apiGet("/api/v1/api-keys"))
+export const listApiKeys = createServerFn({ method: "GET" }).handler(async () =>
+  apiGet("/api/v1/api-keys")
+)
 
 export const createApiKey = createServerFn({ method: "POST" })
-  .inputValidator(validator<{ name: string; role: "test" | "production"; expiresIn: number; webhookUrl: string }>())
+  .inputValidator(
+    validator<{
+      name: string
+      role: "test" | "production"
+      expiresIn: number
+      webhookUrl: string
+    }>()
+  )
   .handler(async (ctx) => apiPost("/api/v1/api-keys", ctx.data))
 
 export const revokeApiKey = createServerFn({ method: "POST" })
@@ -219,7 +298,9 @@ export const revokeApiKey = createServerFn({ method: "POST" })
   .handler(async (ctx) => apiDelete(`/api/v1/api-keys/${ctx.data.id}`))
 
 // Tags
-export const listTags = createServerFn({ method: "GET" }).handler(async () => apiGet("/api/v1/tags"))
+export const listTags = createServerFn({ method: "GET" }).handler(async () =>
+  apiGet("/api/v1/tags")
+)
 
 export const createTag = createServerFn({ method: "POST" })
   .inputValidator(validator<{ key: string; amount: number }>())
@@ -230,7 +311,9 @@ export const deleteTag = createServerFn({ method: "POST" })
   .handler(async (ctx) => apiDelete(`/api/v1/tags/${ctx.data.key}`))
 
 // Expressions
-export const listExpressions = createServerFn({ method: "GET" }).handler(async () => apiGet("/api/v1/expressions"))
+export const listExpressions = createServerFn({ method: "GET" }).handler(
+  async () => apiGet("/api/v1/expressions")
+)
 
 export const createExpression = createServerFn({ method: "POST" })
   .inputValidator(validator<{ key: string; expr: string }>())
@@ -242,7 +325,9 @@ export const deleteExpression = createServerFn({ method: "POST" })
 
 // Webhook deliveries
 export const listDeliveries = createServerFn({ method: "GET" })
-  .inputValidator(validator<{ apiKeyId?: string; limit?: number; offset?: number }>())
+  .inputValidator(
+    validator<{ apiKeyId?: string; limit?: number; offset?: number }>()
+  )
   .handler(async (ctx) => {
     const params = new URLSearchParams()
     if (ctx.data.apiKeyId) params.set("apiKeyId", ctx.data.apiKeyId)
@@ -254,9 +339,13 @@ export const listDeliveries = createServerFn({ method: "GET" })
 // Send test webhook
 export const sendTestWebhook = createServerFn({ method: "POST" })
   .inputValidator(validator<{ apiKeyId: string }>())
-  .handler(async (ctx) => apiPost("/api/v1/internals/webhook-endpoint/send-test", ctx.data))
+  .handler(async (ctx) =>
+    apiPost("/api/v1/internals/webhook-endpoint/send-test", ctx.data)
+  )
 
 // Set webhook URL for an API key (dashboard key can set for any key)
 export const setWebhookUrl = createServerFn({ method: "POST" })
   .inputValidator(validator<{ apiKeyId: string; url: string }>())
-  .handler(async (ctx) => apiPost("/api/v1/internals/webhook-endpoint", ctx.data))
+  .handler(async (ctx) =>
+    apiPost("/api/v1/internals/webhook-endpoint", ctx.data)
+  )

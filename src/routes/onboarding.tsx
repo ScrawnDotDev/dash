@@ -39,7 +39,14 @@ function Onboarding() {
     setLoading(true)
     setError("")
     const res = await submitOnboarding({
-      data: { dodoLiveApiKey, dodoTestApiKey, dodoProductId, dodoWebhookSecret, currency, redirectUrl },
+      data: {
+        dodoLiveApiKey,
+        dodoTestApiKey,
+        dodoProductId,
+        dodoWebhookSecret,
+        currency,
+        redirectUrl,
+      },
     })
     if (res.error) {
       setError(res.error)
@@ -50,64 +57,118 @@ function Onboarding() {
   }
 
   return (
-    <div className="mx-auto max-w-lg px-6 py-16">
-      <h1 className="mb-2 text-3xl font-medium">Configure Scrawn</h1>
-      <p className="mb-8 text-sm text-gray-400">
-        Connect your Dodo Payments account to get started.
-      </p>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <label className="text-sm font-medium">Dodo Live API Key</label>
-        <input
-          type="password" value={dodoLiveApiKey} onChange={(e) => setDodoLiveApiKey(e.target.value)}
-          placeholder="scrn_live_..." required
-          className="rounded-lg border border-gray-700 bg-transparent px-4 py-2 text-sm"
-        />
+    <div className="relative flex min-h-svh flex-col items-center justify-center p-6">
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-[url('/potentialbackground.png')] bg-[length:1200px_auto] bg-top opacity-90 md:bg-cover md:bg-center md:bg-no-repeat dark:opacity-10" />
+      <div className="pointer-events-none absolute top-10 left-10 hidden font-mono text-xl font-black text-gray-200 md:block dark:text-gray-800">
+        +
+      </div>
+      <div className="pointer-events-none absolute top-10 right-10 hidden font-mono text-xl font-black text-gray-200 md:block dark:text-gray-800">
+        +
+      </div>
+      <div className="pointer-events-none absolute bottom-10 left-10 hidden font-mono text-xl font-black text-gray-200 md:block dark:text-gray-800">
+        +
+      </div>
+      <div className="pointer-events-none absolute right-10 bottom-10 hidden font-mono text-xl font-black text-gray-200 md:block dark:text-gray-800">
+        +
+      </div>
 
-        <label className="text-sm font-medium">Dodo Test API Key</label>
-        <input
-          type="password" value={dodoTestApiKey} onChange={(e) => setDodoTestApiKey(e.target.value)}
-          placeholder="scrn_test_..." required
-          className="rounded-lg border border-gray-700 bg-transparent px-4 py-2 text-sm"
-        />
+      <div className="z-10 w-full max-w-lg border-2 border-black bg-white p-8 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:bg-black dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
+        <h1 className="mb-2 w-max border-2 border-black bg-yellow-400 px-4 py-2 font-mono text-3xl font-black tracking-widest text-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:bg-yellow-500">
+          CONFIGURE SCRAWN
+        </h1>
+        <p className="mb-8 text-xs text-gray-500">
+          CONNECT YOUR DODO PAYMENTS ACCOUNT /// GET PAID.
+        </p>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <label className="text-sm font-medium text-black dark:text-white">
+            DODO LIVE API KEY
+          </label>
+          <input
+            type="password"
+            value={dodoLiveApiKey}
+            onChange={(e) => setDodoLiveApiKey(e.target.value)}
+            placeholder="scrn_live_..."
+            required
+            className="border-2 border-black bg-white px-4 py-2 text-sm font-medium text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all outline-none focus:translate-x-[2px] focus:translate-y-[2px] focus:shadow-none dark:bg-black dark:text-white dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] dark:border-white"
+          />
 
-        <label className="text-sm font-medium">Dodo Product ID</label>
-        <input
-          type="text" value={dodoProductId} onChange={(e) => setDodoProductId(e.target.value)}
-          placeholder="pdt_..." required
-          className="rounded-lg border border-gray-700 bg-transparent px-4 py-2 text-sm"
-        />
+          <label className="mt-2 text-sm font-medium text-black dark:text-white">
+            DODO TEST API KEY
+          </label>
+          <input
+            type="password"
+            value={dodoTestApiKey}
+            onChange={(e) => setDodoTestApiKey(e.target.value)}
+            placeholder="scrn_test_..."
+            required
+            className="border-2 border-black bg-white px-4 py-2 text-sm font-medium text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all outline-none focus:translate-x-[2px] focus:translate-y-[2px] focus:shadow-none dark:bg-black dark:text-white dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] dark:border-white"
+          />
 
-        <label className="text-sm font-medium">Dodo Webhook Secret</label>
-        <input
-          type="password" value={dodoWebhookSecret} onChange={(e) => setDodoWebhookSecret(e.target.value)}
-          placeholder="whsec_..." required
-          className="rounded-lg border border-gray-700 bg-transparent px-4 py-2 text-sm"
-        />
+          <label className="mt-2 text-sm font-medium text-black dark:text-white">
+            DODO PRODUCT ID
+          </label>
+          <input
+            type="text"
+            value={dodoProductId}
+            onChange={(e) => setDodoProductId(e.target.value)}
+            placeholder="pdt_..."
+            required
+            className="border-2 border-black bg-white px-4 py-2 text-sm font-medium text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all outline-none focus:translate-x-[2px] focus:translate-y-[2px] focus:shadow-none dark:bg-black dark:text-white dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] dark:border-white"
+          />
 
-        <label className="text-sm font-medium">Currency</label>
-        <select
-          value={currency} onChange={(e) => setCurrency(e.target.value)}
-          className="rounded-lg border border-gray-700 bg-transparent px-4 py-2 text-sm"
-        >
-          <option value="usd">USD</option>
-          <option value="eur">EUR</option>
-          <option value="gbp">GBP</option>
-          <option value="inr">INR</option>
-          <option value="jpy">JPY</option>
-        </select>
+          <label className="mt-2 text-sm font-medium text-black dark:text-white">
+            DODO WEBHOOK SECRET
+          </label>
+          <input
+            type="password"
+            value={dodoWebhookSecret}
+            onChange={(e) => setDodoWebhookSecret(e.target.value)}
+            placeholder="whsec_..."
+            required
+            className="border-2 border-black bg-white px-4 py-2 text-sm font-medium text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all outline-none focus:translate-x-[2px] focus:translate-y-[2px] focus:shadow-none dark:bg-black dark:text-white dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] dark:border-white"
+          />
 
-        <label className="text-sm font-medium">Redirect URL</label>
-        <input
-          type="url" value={redirectUrl} onChange={(e) => setRedirectUrl(e.target.value)}
-          placeholder="https://app.scrawn.dev" required
-          className="rounded-lg border border-gray-700 bg-transparent px-4 py-2 text-sm"
-        />
+          <label className="mt-2 text-sm font-medium text-black dark:text-white">
+            CURRENCY
+          </label>
+          <select
+            value={currency}
+            onChange={(e) => setCurrency(e.target.value)}
+            className="border-2 border-black bg-white px-4 py-2 text-sm font-medium text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all outline-none focus:translate-x-[2px] focus:translate-y-[2px] focus:shadow-none dark:bg-black dark:text-white dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] dark:border-white"
+          >
+            <option value="usd">USD</option>
+            <option value="eur">EUR</option>
+            <option value="gbp">GBP</option>
+            <option value="inr">INR</option>
+            <option value="jpy">JPY</option>
+          </select>
 
-        {error && <p className="text-sm text-red-400">{error}</p>}
-        <Button type="submit" disabled={loading} className="mt-2">
-          {loading ? "Saving..." : "Save & Continue"}
-        </Button>
-      </form>
+          <label className="mt-2 text-sm font-medium text-black dark:text-white">
+            REDIRECT URL
+          </label>
+          <input
+            type="url"
+            value={redirectUrl}
+            onChange={(e) => setRedirectUrl(e.target.value)}
+            placeholder="https://app.scrawn.dev"
+            required
+            className="border-2 border-black bg-white px-4 py-2 text-sm font-medium text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all outline-none focus:translate-x-[2px] focus:translate-y-[2px] focus:shadow-none dark:bg-black dark:text-white dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] dark:border-white"
+          />
+
+          {error && (
+            <p className="w-max bg-black px-2 py-1 font-mono text-sm font-bold text-red-600">
+              {error}
+            </p>
+          )}
+          <Button
+            type="submit"
+            disabled={loading}
+            className="mt-6 border-4 bg-[#ff00ff] py-6 text-xl hover:bg-black hover:text-[#ff00ff]"
+          >
+            {loading ? "SAVING..." : "SAVE & CONTINUE"}
+          </Button>
+        </form>
+      </div>
     </div>
   )
 }
