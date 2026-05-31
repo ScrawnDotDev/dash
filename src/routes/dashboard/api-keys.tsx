@@ -11,14 +11,23 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 
 export const Route = createFileRoute("/dashboard/api-keys")({
-  component: ApiKeysPage,
+  component: ApiKeysLayout,
 })
 
 const CACHE_KEY = "api-keys"
 
-function ApiKeysPage() {
-  const navigate = useNavigate()
+function ApiKeysLayout() {
   const location = useLocation()
+
+  if (location.pathname !== "/dashboard/api-keys") {
+    return <Outlet />
+  }
+
+  return <ApiKeysList />
+}
+
+function ApiKeysList() {
+  const navigate = useNavigate()
   const {
     data: keysData,
     loading,
@@ -192,11 +201,7 @@ function ApiKeysPage() {
         <div className="flex flex-col gap-3">
           {keys.map((k: Record<string, unknown>) => {
             const keyId = k.id as string
-  if (location.pathname !== "/dashboard/api-keys") {
-    return <Outlet />
-  }
-
-  return (
+            return (
               <div key={keyId} className="w-full">
                 <Card
                   className="cursor-pointer shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] dark:hover:shadow-none"
