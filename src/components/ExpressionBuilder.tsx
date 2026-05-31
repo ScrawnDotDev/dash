@@ -2,7 +2,7 @@ import { useState, useEffect } from "react"
 
 type FuncName = "add" | "sub" | "mul" | "div"
 
-type TokenName = "inputTokens" | "outputTokens" | "outputCacheTokens"
+type TokenName = "inputTokens" | "outputTokens" | "inputCacheTokens" | "outputCacheTokens"
 
 interface FuncNode {
   type: "func"
@@ -21,6 +21,7 @@ const FUNC_NAMES: FuncName[] = ["add", "sub", "mul", "div"]
 const TOKEN_NAMES: TokenName[] = [
   "inputTokens",
   "outputTokens",
+  "inputCacheTokens",
   "outputCacheTokens",
 ]
 
@@ -426,7 +427,7 @@ function SingleValueSelector({
             onPick({ type: "expr", exprKey: val as string })
           else onPick({ type: "token", tokenName: val as TokenName })
         }}
-        className="mt-4 border-2 border-black bg-[#ff00ff] px-4 py-2 font-mono text-sm font-black text-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]"
+        className="mt-4 border-2 border-black bg-yellow-400 px-4 py-2 font-mono text-sm font-black text-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]"
       >
         USE THIS
       </button>
@@ -536,7 +537,7 @@ export function ExpressionBuilder({
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="border-2 border-black bg-[#ff00ff] px-4 py-3 font-mono text-sm font-black text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">
+      <div className="border-2 border-black bg-yellow-400 px-4 py-3 font-mono text-sm font-black text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">
         RESULT: {result}
       </div>
 

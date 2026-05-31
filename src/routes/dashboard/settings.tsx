@@ -164,7 +164,7 @@ function SettingsPage() {
           </Button>
         </form>
         {tagError && (
-          <p className="mb-4 w-max bg-black px-2 py-1 font-mono text-sm font-bold text-red-600">
+          <p className="mb-4 border-2 border-red-500 bg-white px-2 py-1 font-mono text-sm font-bold text-red-600 dark:bg-black">
             {tagError}
           </p>
         )}
@@ -213,7 +213,7 @@ function SettingsPage() {
           />
         </div>
         {exprError && (
-          <p className="mb-4 w-max bg-black px-2 py-1 font-mono text-sm font-bold text-red-600">
+          <p className="mb-4 border-2 border-red-500 bg-white px-2 py-1 font-mono text-sm font-bold text-red-600 dark:bg-black">
             {exprError}
           </p>
         )}
@@ -223,7 +223,7 @@ function SettingsPage() {
             return (
               <div
                 key={e}
-                className="flex items-center gap-3 border-2 border-black bg-[#ff00ff] py-1 pr-1 pl-3 font-mono text-sm font-bold text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:border-white"
+                className="flex items-center gap-3 border-2 border-black bg-yellow-400 py-1 pr-1 pl-3 font-mono text-sm font-bold text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:border-white"
               >
                 <span>{e}</span>
                 <button
