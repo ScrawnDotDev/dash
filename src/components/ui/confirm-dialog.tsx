@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "./button"
 
 interface ConfirmDialogProps {
@@ -23,6 +23,10 @@ export function ConfirmDialog({
   loading,
 }: ConfirmDialogProps) {
   const [input, setInput] = useState("")
+
+  useEffect(() => {
+    if (!open) setInput("")
+  }, [open])
 
   if (!open) return null
 

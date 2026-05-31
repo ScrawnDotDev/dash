@@ -171,10 +171,9 @@ function DashboardLayout() {
             </button>
 
             <button
-              onClick={() => {
-                window.location.href = "/sign-in"
-                authClient.signOut()
-              }}
+              onClick={() =>
+                authClient.signOut().then(() => navigate({ to: "/sign-in" }))
+              }
               className="mt-2 group flex h-10 w-full shrink-0 items-center overflow-hidden border-2 border-black bg-red-500 text-xs font-bold text-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none active:translate-x-[2px] active:translate-y-[2px] dark:border-white dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] dark:hover:shadow-none"
             >
               <div className="flex w-11 shrink-0 items-center justify-center">
