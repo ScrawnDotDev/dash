@@ -16,8 +16,10 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as DashboardWebhooksRouteImport } from './routes/dashboard/webhooks'
 import { Route as DashboardSettingsRouteImport } from './routes/dashboard/settings'
+import { Route as DashboardEventsRouteImport } from './routes/dashboard/events'
 import { Route as DashboardApiKeysRouteImport } from './routes/dashboard/api-keys'
 import { Route as ApiOgRouteImport } from './routes/api/og'
+import { Route as DashboardApiKeysKeyIdRouteImport } from './routes/dashboard/api-keys.$keyId'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
 const SignInRoute = SignInRouteImport.update({
@@ -55,6 +57,11 @@ const DashboardSettingsRoute = DashboardSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardEventsRoute = DashboardEventsRouteImport.update({
+  id: '/events',
+  path: '/events',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const DashboardApiKeysRoute = DashboardApiKeysRouteImport.update({
   id: '/api-keys',
   path: '/api-keys',
@@ -64,6 +71,11 @@ const ApiOgRoute = ApiOgRouteImport.update({
   id: '/api/og',
   path: '/api/og',
   getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardApiKeysKeyIdRoute = DashboardApiKeysKeyIdRouteImport.update({
+  id: '/$keyId',
+  path: '/$keyId',
+  getParentRoute: () => DashboardApiKeysRoute,
 } as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
@@ -77,22 +89,26 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof OnboardingRoute
   '/sign-in': typeof SignInRoute
   '/api/og': typeof ApiOgRoute
-  '/dashboard/api-keys': typeof DashboardApiKeysRoute
+  '/dashboard/api-keys': typeof DashboardApiKeysRouteWithChildren
+  '/dashboard/events': typeof DashboardEventsRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/dashboard/webhooks': typeof DashboardWebhooksRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/dashboard/api-keys/$keyId': typeof DashboardApiKeysKeyIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/onboarding': typeof OnboardingRoute
   '/sign-in': typeof SignInRoute
   '/api/og': typeof ApiOgRoute
-  '/dashboard/api-keys': typeof DashboardApiKeysRoute
+  '/dashboard/api-keys': typeof DashboardApiKeysRouteWithChildren
+  '/dashboard/events': typeof DashboardEventsRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/dashboard/webhooks': typeof DashboardWebhooksRoute
   '/dashboard': typeof DashboardIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/dashboard/api-keys/$keyId': typeof DashboardApiKeysKeyIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -101,11 +117,13 @@ export interface FileRoutesById {
   '/onboarding': typeof OnboardingRoute
   '/sign-in': typeof SignInRoute
   '/api/og': typeof ApiOgRoute
-  '/dashboard/api-keys': typeof DashboardApiKeysRoute
+  '/dashboard/api-keys': typeof DashboardApiKeysRouteWithChildren
+  '/dashboard/events': typeof DashboardEventsRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/dashboard/webhooks': typeof DashboardWebhooksRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/dashboard/api-keys/$keyId': typeof DashboardApiKeysKeyIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -116,10 +134,12 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/api/og'
     | '/dashboard/api-keys'
+    | '/dashboard/events'
     | '/dashboard/settings'
     | '/dashboard/webhooks'
     | '/dashboard/'
     | '/api/auth/$'
+    | '/dashboard/api-keys/$keyId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -127,10 +147,12 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/api/og'
     | '/dashboard/api-keys'
+    | '/dashboard/events'
     | '/dashboard/settings'
     | '/dashboard/webhooks'
     | '/dashboard'
     | '/api/auth/$'
+    | '/dashboard/api-keys/$keyId'
   id:
     | '__root__'
     | '/'
@@ -139,10 +161,12 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/api/og'
     | '/dashboard/api-keys'
+    | '/dashboard/events'
     | '/dashboard/settings'
     | '/dashboard/webhooks'
     | '/dashboard/'
     | '/api/auth/$'
+    | '/dashboard/api-keys/$keyId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -205,6 +229,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardSettingsRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/events': {
+      id: '/dashboard/events'
+      path: '/events'
+      fullPath: '/dashboard/events'
+      preLoaderRoute: typeof DashboardEventsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/dashboard/api-keys': {
       id: '/dashboard/api-keys'
       path: '/api-keys'
@@ -219,6 +250,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiOgRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard/api-keys/$keyId': {
+      id: '/dashboard/api-keys/$keyId'
+      path: '/$keyId'
+      fullPath: '/dashboard/api-keys/$keyId'
+      preLoaderRoute: typeof DashboardApiKeysKeyIdRouteImport
+      parentRoute: typeof DashboardApiKeysRoute
+    }
     '/api/auth/$': {
       id: '/api/auth/$'
       path: '/api/auth/$'
@@ -229,15 +267,28 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface DashboardApiKeysRouteChildren {
+  DashboardApiKeysKeyIdRoute: typeof DashboardApiKeysKeyIdRoute
+}
+
+const DashboardApiKeysRouteChildren: DashboardApiKeysRouteChildren = {
+  DashboardApiKeysKeyIdRoute: DashboardApiKeysKeyIdRoute,
+}
+
+const DashboardApiKeysRouteWithChildren =
+  DashboardApiKeysRoute._addFileChildren(DashboardApiKeysRouteChildren)
+
 interface DashboardRouteChildren {
-  DashboardApiKeysRoute: typeof DashboardApiKeysRoute
+  DashboardApiKeysRoute: typeof DashboardApiKeysRouteWithChildren
+  DashboardEventsRoute: typeof DashboardEventsRoute
   DashboardSettingsRoute: typeof DashboardSettingsRoute
   DashboardWebhooksRoute: typeof DashboardWebhooksRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
-  DashboardApiKeysRoute: DashboardApiKeysRoute,
+  DashboardApiKeysRoute: DashboardApiKeysRouteWithChildren,
+  DashboardEventsRoute: DashboardEventsRoute,
   DashboardSettingsRoute: DashboardSettingsRoute,
   DashboardWebhooksRoute: DashboardWebhooksRoute,
   DashboardIndexRoute: DashboardIndexRoute,

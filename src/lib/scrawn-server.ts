@@ -1,4 +1,4 @@
-import { count as analyticsCount, desc, sum } from "@scrawn/analytics"
+import { and, count as analyticsCount, desc, eq, sum } from "@scrawn/analytics"
 import { createServerFn } from "@tanstack/react-start"
 import { createAnalytics } from "./scrawn"
 import { db } from "./db"
@@ -83,16 +83,20 @@ export const submitOnboarding = createServerFn({ method: "POST" })
     return { success: true }
   })
 
-export const getUsageOverTime = createServerFn({ method: "GET" }).handler(
-  async () => {
+export const getUsageOverTime = createServerFn({ method: "GET" })
+  .inputValidator(validator<{ mode?: string }>())
+  .handler(async (ctx) => {
     const analytics = createAnalytics()
-    const f = analytics.query.sdkEvent.fields
-    const result = await analytics.query.sdkEvent
+    const f = analytics.query.basicUsage.fields
+    let q = analytics.query.basicUsage
       .aggregate(sum(f.debitAmount))
       .groupBy(f.ingestedTimestamp)
       .orderBy(desc(f.ingestedTimestamp))
       .limit(30)
-      .execute()
+    if (ctx.data.mode) {
+      q = q.where(and(eq(f.mode, ctx.data.mode)))
+    }
+    const result = await q.execute()
     return result.rows
       .reverse()
       .filter((r) => r.groupValue != null)
@@ -103,8 +107,8 @@ export const getUsageOverTime = createServerFn({ method: "GET" }).handler(
 export const getTopUsers = createServerFn({ method: "GET" }).handler(
   async () => {
     const analytics = createAnalytics()
-    const f = analytics.query.sdkEvent.fields
-    const result = await analytics.query.sdkEvent
+    const f = analytics.query.basicUsage.fields
+    const result = await analytics.query.basicUsage
       .aggregate(sum(f.debitAmount))
       .groupBy(f.userId)
       .orderBy(desc(f.debitAmount))
@@ -121,8 +125,8 @@ export const getEventTypeDistribution = createServerFn({
   method: "GET",
 }).handler(async () => {
   const analytics = createAnalytics()
-  const f = analytics.query.sdkEvent.fields
-  const result = await analytics.query.sdkEvent
+  const f = analytics.query.basicUsage.fields
+  const result = await analytics.query.basicUsage
     .aggregate(analyticsCount())
     .groupBy(f.eventType)
     .execute()
@@ -132,18 +136,25 @@ export const getEventTypeDistribution = createServerFn({
   }))
 })
 
-export const getAiTokenUsage = createServerFn({ method: "GET" }).handler(
-  async () => {
+export const getAiTokenUsage = createServerFn({ method: "GET" })
+  .inputValidator(validator<{ mode?: string }>())
+  .handler(async (ctx) => {
     const analytics = createAnalytics()
     const f = analytics.query.aiToken.fields
-    const input = await analytics.query.aiToken
-      .aggregate(sum(f.inputTokens))
-      .groupBy(f.model)
-      .execute()
-    const output = await analytics.query.aiToken
-      .aggregate(sum(f.outputTokens))
-      .groupBy(f.model)
-      .execute()
+    const mode = ctx.data.mode
+
+    const mkQ = () => {
+      let q = analytics.query.aiToken.aggregate(sum(f.inputTokens)).groupBy(f.model)
+      if (mode) q = q.where(and(eq(f.mode, mode)))
+      return q.execute()
+    }
+    const mkQ2 = () => {
+      let q = analytics.query.aiToken.aggregate(sum(f.outputTokens)).groupBy(f.model)
+      if (mode) q = q.where(and(eq(f.mode, mode)))
+      return q.execute()
+    }
+
+    const [input, output] = await Promise.all([mkQ(), mkQ2()])
     return {
       input: input.rows.map((r) => ({
         groupValue: r.groupValue,
@@ -154,8 +165,7 @@ export const getAiTokenUsage = createServerFn({ method: "GET" }).handler(
         aggValue: r.aggValue,
       })),
     }
-  }
-)
+  })
 
 export const getAiTokenUsageOverTime = createServerFn({ method: "GET" }).handler(
   async () => {
@@ -189,16 +199,19 @@ export const getAiTokenUsageOverTime = createServerFn({ method: "GET" }).handler
   }
 )
 
-export const getPaymentHistory = createServerFn({ method: "GET" }).handler(
-  async () => {
+export const getPaymentHistory = createServerFn({ method: "GET" })
+  .inputValidator(validator<{ mode?: string }>())
+  .handler(async (ctx) => {
     const analytics = createAnalytics()
     const f = analytics.query.payment.fields
-    const result = await analytics.query.payment
+    const mode = ctx.data.mode
+    let q = analytics.query.payment
       .aggregate(sum(f.creditAmount))
       .groupBy(f.ingestedTimestamp)
       .orderBy(desc(f.ingestedTimestamp))
       .limit(30)
-      .execute()
+    if (mode) q = q.where(and(eq(f.mode, mode)))
+    const result = await q.execute()
     return result.rows
       .reverse()
       .filter((r) => r.groupValue != null)
@@ -209,8 +222,8 @@ export const getPaymentHistory = createServerFn({ method: "GET" }).handler(
 export const getRecentEvents = createServerFn({ method: "GET" }).handler(
   async () => {
     const analytics = createAnalytics()
-    const f = analytics.query.sdkEvent.fields
-    const result = await analytics.query.sdkEvent
+    const f = analytics.query.basicUsage.fields
+    const result = await analytics.query.basicUsage
       .orderBy(desc(f.ingestedTimestamp))
       .limit(10)
       .execute()
@@ -218,25 +231,164 @@ export const getRecentEvents = createServerFn({ method: "GET" }).handler(
   }
 )
 
-export const getDashboardSummary = createServerFn({ method: "GET" }).handler(
-  async () => {
+export const getFilteredEvents = createServerFn({ method: "GET" })
+  .inputValidator(
+    validator<{
+      apiKeyId?: string
+      userId?: string
+      eventType?: string
+      mode?: string
+      model?: string
+      limit?: number
+      offset?: number
+    }>()
+  )
+  .handler(async (ctx) => {
     const analytics = createAnalytics()
-    const sf = analytics.query.sdkEvent.fields
-    const pf = analytics.query.payment.fields
+    const bf = analytics.query.basicUsage.fields
+    const af = analytics.query.aiToken.fields
+    const limit = ctx.data.limit ?? 10
+    const offset = ctx.data.offset ?? 0
+    const fetchLimit = 500
 
-    const [totalDebit, eventCount, totalCredits] = await Promise.all([
-      analytics.query.sdkEvent.aggregate(sum(sf.debitAmount)).execute(),
-      analytics.query.sdkEvent.aggregate(analyticsCount()).execute(),
-      analytics.query.payment.aggregate(sum(pf.creditAmount)).execute(),
-    ])
+    function mkBasicQuery() {
+      const conds: import("@scrawn/analytics").FilterCondition[] = []
+      if (ctx.data.apiKeyId) conds.push(eq(bf.apiKeyId, ctx.data.apiKeyId))
+      if (ctx.data.userId) conds.push(eq(bf.userId, ctx.data.userId))
+      if (ctx.data.mode) conds.push(eq(bf.mode, ctx.data.mode))
+      let q = analytics.query.basicUsage.orderBy(desc(bf.ingestedTimestamp)).limit(fetchLimit)
+      if (conds.length > 0) q = q.where(and(...conds))
+      return q.execute()
+    }
+
+    function mkAiQuery() {
+      const conds: import("@scrawn/analytics").FilterCondition[] = []
+      if (ctx.data.apiKeyId) conds.push(eq(af.apiKeyId, ctx.data.apiKeyId))
+      if (ctx.data.userId) conds.push(eq(af.userId, ctx.data.userId))
+      if (ctx.data.mode) conds.push(eq(af.mode, ctx.data.mode))
+      if (ctx.data.model) conds.push(eq(af.model, ctx.data.model))
+      let q = analytics.query.aiToken.orderBy(desc(af.ingestedTimestamp)).limit(fetchLimit)
+      if (conds.length > 0) q = q.where(and(...conds))
+      return q.execute()
+    }
+
+    const [basicResult, aiResult] = await Promise.all([mkBasicQuery(), mkAiQuery()])
+
+    const basicRows = basicResult.rows.map((r) => ({
+      eventId: (r as { eventId?: string }).eventId ?? "",
+      eventType: (r as { eventType?: string }).eventType ?? "",
+      userId: (r as { userId?: string }).userId ?? "",
+      reportedTimestamp: (r as { reportedTimestamp?: string }).reportedTimestamp ?? "",
+      ingestedTimestamp: (r as { ingestedTimestamp?: string }).ingestedTimestamp ?? "",
+      basicUsageType: (r as { basicUsageType?: string }).basicUsageType ?? "",
+      debitAmount: Number((r as { debitAmount?: number }).debitAmount ?? 0),
+    }))
+
+    const aiRows = aiResult.rows.map((r) => ({
+      eventId: (r as { eventId?: string }).eventId ?? "",
+      eventType: (r as { eventType?: string }).eventType ?? "",
+      userId: (r as { userId?: string }).userId ?? "",
+      reportedTimestamp: (r as { reportedTimestamp?: string }).reportedTimestamp ?? "",
+      ingestedTimestamp: (r as { ingestedTimestamp?: string }).ingestedTimestamp ?? "",
+      basicUsageType: "",
+      debitAmount: Number((r as { debitAmount?: number }).debitAmount ?? 0),
+    }))
+
+    const all = [...basicRows, ...aiRows].sort((a, b) =>
+      b.ingestedTimestamp.localeCompare(a.ingestedTimestamp)
+    )
+
+    const total = (basicResult.total ?? 0) + (aiResult.total ?? 0)
 
     return {
-      totalRevenue: totalDebit.rows[0]?.aggValue ?? "0",
-      totalEvents: eventCount.rows[0]?.aggValue ?? "0",
-      totalCredits: totalCredits.rows[0]?.aggValue ?? "0",
+      rows: all.slice(offset, offset + limit),
+      total,
     }
-  }
-)
+  })
+
+export const getApiKeySummary = createServerFn({ method: "GET" })
+  .inputValidator(validator<{ apiKeyId: string }>())
+  .handler(async (ctx) => {
+    const analytics = createAnalytics()
+    const sf = analytics.query.basicUsage.fields
+    const af = analytics.query.aiToken.fields
+    const pf = analytics.query.payment.fields
+    const filter = and(eq(sf.apiKeyId, ctx.data.apiKeyId))
+
+    const [basicDebit, basicCount, aiInput, aiOutput, aiCache, aiCount, creditSum] = await Promise.all([
+      analytics.query.basicUsage.where(filter).aggregate(sum(sf.debitAmount)).execute(),
+      analytics.query.basicUsage.where(filter).aggregate(analyticsCount()).execute(),
+      analytics.query.aiToken.where(and(eq(af.apiKeyId, ctx.data.apiKeyId))).aggregate(sum(af.inputDebitAmount)).execute(),
+      analytics.query.aiToken.where(and(eq(af.apiKeyId, ctx.data.apiKeyId))).aggregate(sum(af.outputDebitAmount)).execute(),
+      analytics.query.aiToken.where(and(eq(af.apiKeyId, ctx.data.apiKeyId))).aggregate(sum(af.inputCacheDebitAmount)).execute(),
+      analytics.query.aiToken.where(and(eq(af.apiKeyId, ctx.data.apiKeyId))).aggregate(analyticsCount()).execute(),
+      analytics.query.payment.where(and(eq(pf.apiKeyId, ctx.data.apiKeyId))).aggregate(sum(pf.creditAmount)).execute(),
+    ])
+
+    const aiDebit =
+      Number(aiInput.rows[0]?.aggValue ?? 0) +
+      Number(aiOutput.rows[0]?.aggValue ?? 0) +
+      Number(aiCache.rows[0]?.aggValue ?? 0)
+    const totalRevenue =
+      (Number(basicDebit.rows[0]?.aggValue ?? 0) + aiDebit).toString()
+    const totalEvents =
+      (Number(basicCount.rows[0]?.aggValue ?? 0) + Number(aiCount.rows[0]?.aggValue ?? 0)).toString()
+
+    return {
+      totalRevenue,
+      totalEvents,
+      totalCredits: creditSum.rows[0]?.aggValue ?? "0",
+    }
+  })
+
+export const getDashboardSummary = createServerFn({ method: "GET" })
+  .inputValidator(validator<{ mode?: string }>())
+  .handler(async (ctx) => {
+    const analytics = createAnalytics()
+    const sf = analytics.query.basicUsage.fields
+    const af = analytics.query.aiToken.fields
+    const pf = analytics.query.payment.fields
+    const mode = ctx.data.mode
+
+    const [basicDebit, aiInput, aiOutput, aiCache, basicCount, aiCount, creditResult] = await Promise.all([
+      mode
+        ? await analytics.query.basicUsage.where(and(eq(sf.mode, mode))).aggregate(sum(sf.debitAmount)).execute()
+        : await analytics.query.basicUsage.aggregate(sum(sf.debitAmount)).execute(),
+      mode
+        ? await analytics.query.aiToken.where(and(eq(af.mode, mode))).aggregate(sum(af.inputDebitAmount)).execute()
+        : await analytics.query.aiToken.aggregate(sum(af.inputDebitAmount)).execute(),
+      mode
+        ? await analytics.query.aiToken.where(and(eq(af.mode, mode))).aggregate(sum(af.outputDebitAmount)).execute()
+        : await analytics.query.aiToken.aggregate(sum(af.outputDebitAmount)).execute(),
+      mode
+        ? await analytics.query.aiToken.where(and(eq(af.mode, mode))).aggregate(sum(af.inputCacheDebitAmount)).execute()
+        : await analytics.query.aiToken.aggregate(sum(af.inputCacheDebitAmount)).execute(),
+      mode
+        ? await analytics.query.basicUsage.where(and(eq(sf.mode, mode))).aggregate(analyticsCount()).execute()
+        : await analytics.query.basicUsage.aggregate(analyticsCount()).execute(),
+      mode
+        ? await analytics.query.aiToken.where(and(eq(af.mode, mode))).aggregate(analyticsCount()).execute()
+        : await analytics.query.aiToken.aggregate(analyticsCount()).execute(),
+      mode
+        ? await analytics.query.payment.where(and(eq(pf.mode, mode))).aggregate(sum(pf.creditAmount)).execute()
+        : await analytics.query.payment.aggregate(sum(pf.creditAmount)).execute(),
+    ])
+
+    const aiDebit =
+      Number(aiInput.rows[0]?.aggValue ?? 0) +
+      Number(aiOutput.rows[0]?.aggValue ?? 0) +
+      Number(aiCache.rows[0]?.aggValue ?? 0)
+    const totalRevenue =
+      (Number(basicDebit.rows[0]?.aggValue ?? 0) + aiDebit).toString()
+    const totalEvents =
+      (Number(basicCount.rows[0]?.aggValue ?? 0) + Number(aiCount.rows[0]?.aggValue ?? 0)).toString()
+
+    return {
+      totalRevenue,
+      totalEvents,
+      totalCredits: creditResult.rows[0]?.aggValue ?? "0",
+    }
+  })
 
 async function apiGet(path: string) {
   const res = await fetch(`${SCRAWN_HTTP_URL}${path}`, {
@@ -326,11 +478,14 @@ export const deleteExpression = createServerFn({ method: "POST" })
 // Webhook deliveries
 export const listDeliveries = createServerFn({ method: "GET" })
   .inputValidator(
-    validator<{ apiKeyId?: string; limit?: number; offset?: number }>()
+    validator<{ apiKeyId?: string; eventType?: string; status?: string; role?: string; limit?: number; offset?: number }>()
   )
   .handler(async (ctx) => {
     const params = new URLSearchParams()
     if (ctx.data.apiKeyId) params.set("apiKeyId", ctx.data.apiKeyId)
+    if (ctx.data.eventType) params.set("eventType", ctx.data.eventType)
+    if (ctx.data.status) params.set("status", ctx.data.status)
+    if (ctx.data.role) params.set("role", ctx.data.role)
     if (ctx.data.limit) params.set("limit", String(ctx.data.limit))
     if (ctx.data.offset) params.set("offset", String(ctx.data.offset))
     return apiGet(`/api/v1/internals/webhook-deliveries?${params}`)

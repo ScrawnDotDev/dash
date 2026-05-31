@@ -1,0 +1,73 @@
+export interface WebhookFiltersValue {
+  apiKeyId?: string
+  eventType?: string
+  status?: string
+}
+
+interface WebhookFiltersProps {
+  value: WebhookFiltersValue
+  onChange: (filters: WebhookFiltersValue) => void
+  apiKeyOptions: { value: string; label: string }[]
+  eventTypeOptions: string[]
+  loading?: boolean
+}
+
+const STATUS_OPTIONS = [
+  { value: "", label: "All Status" },
+  { value: "delivered", label: "Delivered" },
+  { value: "failed", label: "Failed" },
+]
+
+export function WebhookFilters({
+  value,
+  onChange,
+  apiKeyOptions,
+  eventTypeOptions,
+  loading,
+}: WebhookFiltersProps) {
+  return (
+    <div className="flex flex-wrap items-end gap-3">
+      <div className="flex flex-col gap-1">
+        <label className="font-mono text-[10px] font-bold text-gray-400 uppercase">API Key</label>
+        <select
+          value={value.apiKeyId ?? ""}
+          onChange={(e) => onChange({ ...value, apiKeyId: e.target.value || undefined })}
+          disabled={loading}
+          className="border-2 border-black bg-white px-2 py-1.5 font-mono text-xs text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] outline-none disabled:opacity-50 dark:bg-black dark:text-white dark:border-white dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]"
+        >
+          <option value="">All Keys</option>
+          {apiKeyOptions.map((opt) => (
+            <option key={opt.value} value={opt.value}>{opt.label}</option>
+          ))}
+        </select>
+      </div>
+      <div className="flex flex-col gap-1">
+        <label className="font-mono text-[10px] font-bold text-gray-400 uppercase">Event Type</label>
+        <select
+          value={value.eventType ?? ""}
+          onChange={(e) => onChange({ ...value, eventType: e.target.value || undefined })}
+          disabled={loading}
+          className="border-2 border-black bg-white px-2 py-1.5 font-mono text-xs text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] outline-none disabled:opacity-50 dark:bg-black dark:text-white dark:border-white dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]"
+        >
+          <option value="">All Types</option>
+          {eventTypeOptions.map((t) => (
+            <option key={t} value={t}>{t}</option>
+          ))}
+        </select>
+      </div>
+      <div className="flex flex-col gap-1">
+        <label className="font-mono text-[10px] font-bold text-gray-400 uppercase">Status</label>
+        <select
+          value={value.status ?? ""}
+          onChange={(e) => onChange({ ...value, status: e.target.value || undefined })}
+          disabled={loading}
+          className="border-2 border-black bg-white px-2 py-1.5 font-mono text-xs text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] outline-none disabled:opacity-50 dark:bg-black dark:text-white dark:border-white dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]"
+        >
+          {STATUS_OPTIONS.map((opt) => (
+            <option key={opt.value} value={opt.value}>{opt.label}</option>
+          ))}
+        </select>
+      </div>
+    </div>
+  )
+}

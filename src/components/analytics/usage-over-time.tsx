@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts"
 
 import type { AggregationRow } from "@scrawn/core"
@@ -25,6 +26,13 @@ const chartConfig = {
 } satisfies ChartConfig
 
 export function UsageOverTime({ data }: { data: Array<AggregationRow> }) {
+  const [animate, setAnimate] = useState(true)
+
+  useEffect(() => {
+    const timer = setTimeout(() => setAnimate(false), 1500)
+    return () => clearTimeout(timer)
+  }, [])
+
   const chartData = data
     .filter((d) => d.groupValue != null)
     .map((d) => ({
@@ -101,6 +109,7 @@ export function UsageOverTime({ data }: { data: Array<AggregationRow> }) {
               stroke="currentColor"
               strokeWidth={2}
               className="text-black dark:text-white"
+              isAnimationActive={animate}
             />
           </AreaChart>
         </ChartContainer>

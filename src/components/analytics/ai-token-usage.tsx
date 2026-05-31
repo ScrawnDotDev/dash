@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts"
 
 import type { AggregationRow } from "@scrawn/core"
@@ -38,6 +39,12 @@ export function AiTokenUsage({
     output: Array<AggregationRow>
   }
 }) {
+  const [animate, setAnimate] = useState(true)
+
+  useEffect(() => {
+    const timer = setTimeout(() => setAnimate(false), 1500)
+    return () => clearTimeout(timer)
+  }, [])
   const inputMap = new Map(
     data.input
       .filter((d) => d.groupValue != null)
@@ -125,6 +132,7 @@ export function AiTokenUsage({
               radius={0}
               barSize={30}
               className="text-black dark:text-white"
+              isAnimationActive={animate}
             />
             <Bar
               dataKey="outputTokens"
@@ -134,6 +142,7 @@ export function AiTokenUsage({
               radius={0}
               barSize={30}
               className="text-black dark:text-white"
+              isAnimationActive={animate}
             />
           </BarChart>
         </ChartContainer>

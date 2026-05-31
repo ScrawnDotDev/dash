@@ -13,8 +13,8 @@
   },
   "dependencies": {
     "@fontsource-variable/jetbrains-mono": "^5.2.8",
-    "@scrawn/analytics": "^0.0.10",
-    "@scrawn/core": "^0.0.10",
+    "@scrawn/analytics": "0.0.14",
+    "@scrawn/core": "^0.0.12",
     "@tabler/icons-react": "^3.44.0",
     "@tailwindcss/vite": "^4.2.1",
     "@tanstack/react-devtools": "^0.10.5",
