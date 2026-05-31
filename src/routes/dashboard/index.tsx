@@ -129,7 +129,7 @@ function DashboardHome() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <WebhookList compact />
+        <WebhookList compact role={mode} />
         {payments.loading ? (
           <Skeleton className="h-[300px] w-full border-2 border-black dark:border-white rounded-none" />
         ) : (

@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { useNavigate } from "@tanstack/react-router"
 import { getFilteredEvents } from "@/lib/scrawn-server"
-import { Skeleton } from "@/components/ui/skeleton"
+import { useCachedData } from "@/lib/useCache"
 import { Pagination } from "@/components/ui/pagination"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
@@ -30,32 +30,16 @@ export function EventList({
 }: EventListProps) {
   const navigate = useNavigate()
   const [page, setPage] = useState(0)
-  const [data, setData] = useState<{ rows: Array<Record<string, unknown>>; total: number } | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    let cancelled = false
-    setLoading(true)
-    setError(null)
-    getFilteredEvents({ data: { apiKeyId, userId, mode, model, eventType, limit: pageSize, offset: page * pageSize } })
-      .then((res) => {
-        if (!cancelled) {
-          setData(res as unknown as { rows: Array<Record<string, unknown>>; total: number })
-          setLoading(false)
-        }
-      })
-      .catch((err) => {
-        if (!cancelled) {
-          setError(err instanceof Error ? err.message : "Failed to load events")
-          setLoading(false)
-        }
-      })
-    return () => { cancelled = true }
-  }, [apiKeyId, userId, eventType, mode, model, page, pageSize])
+  const { data, loading, error } = useCachedData(
+    `events-list:${apiKeyId ?? ""}:${userId ?? ""}:${eventType ?? ""}:${mode ?? ""}:${model ?? ""}:${page}`,
+    () => getFilteredEvents({ data: { apiKeyId, userId, eventType, mode, model, limit: pageSize, offset: page * pageSize } }),
+    30000
+  )
 
-  const totalPages = data ? Math.ceil(data.total / pageSize) : 0
-  const events = data?.rows ?? []
+  const events = (data as { rows: Array<Record<string, unknown>>; total: number } | null)?.rows ?? []
+  const total = (data as { rows: Array<Record<string, unknown>>; total: number } | null)?.total ?? 0
+  const totalPages = Math.ceil(total / pageSize)
 
   if (compact && !loading && !error && events.length === 0) return null
 
@@ -65,8 +49,8 @@ export function EventList({
         <CardTitle className="text-sm">{title ?? "Recent Events"}</CardTitle>
       </CardHeader>
       <CardContent>
-        {loading ? (
-          <Skeleton className={`w-full rounded-none ${compact ? "h-[160px]" : "h-[300px]"}`} />
+        {loading && !data ? (
+          <div className={`w-full rounded-none border-2 border-black dark:border-white ${compact ? "h-[160px]" : "h-[300px]"}`} />
         ) : error ? (
           <p className="font-mono text-xs font-bold text-red-500">{error}</p>
         ) : events.length === 0 ? (

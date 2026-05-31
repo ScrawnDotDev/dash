@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { listDeliveries } from "@/lib/scrawn-server"
-import { Skeleton } from "@/components/ui/skeleton"
+import { useCachedData } from "@/lib/useCache"
 import { Pagination } from "@/components/ui/pagination"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
@@ -8,6 +8,7 @@ interface WebhookListProps {
   apiKeyId?: string
   eventType?: string
   status?: string
+  role?: string
   compact?: boolean
   pageSize?: number
   title?: string
@@ -17,36 +18,20 @@ export function WebhookList({
   apiKeyId,
   eventType,
   status,
+  role,
   compact,
   pageSize = 8,
   title,
 }: WebhookListProps) {
   const [page, setPage] = useState(0)
-  const [data, setData] = useState<{ deliveries: Array<Record<string, unknown>> } | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    let cancelled = false
-    setLoading(true)
-    setError(null)
-    listDeliveries({ data: { apiKeyId, eventType, status, limit: pageSize, offset: page * pageSize } })
-      .then((res) => {
-        if (!cancelled) {
-          setData(res as unknown as { deliveries: Array<Record<string, unknown>> })
-          setLoading(false)
-        }
-      })
-      .catch((err) => {
-        if (!cancelled) {
-          setError(err instanceof Error ? err.message : "Failed to load deliveries")
-          setLoading(false)
-        }
-      })
-    return () => { cancelled = true }
-  }, [apiKeyId, eventType, status, page, pageSize])
+  const { data, loading, error } = useCachedData(
+    `webhooks-list:${apiKeyId ?? ""}:${eventType ?? ""}:${status ?? ""}:${role ?? ""}:${page}`,
+    () => listDeliveries({ data: { apiKeyId, eventType, status, role, limit: pageSize, offset: page * pageSize } }),
+    30000
+  )
 
-  const deliveries = data?.deliveries ?? []
+  const deliveries = (data as { deliveries: Array<Record<string, unknown>> } | null)?.deliveries ?? []
 
   if (compact && !loading && !error && deliveries.length === 0) return null
 
@@ -56,8 +41,8 @@ export function WebhookList({
         <CardTitle className="text-sm">{title ?? "Recent Webhooks"}</CardTitle>
       </CardHeader>
       <CardContent>
-        {loading ? (
-          <Skeleton className={`w-full rounded-none ${compact ? "h-[160px]" : "h-[300px]"}`} />
+        {loading && !data ? (
+          <div className={`w-full rounded-none border-2 border-black dark:border-white ${compact ? "h-[160px]" : "h-[300px]"}`} />
         ) : error ? (
           <p className="font-mono text-xs font-bold text-red-500">{error}</p>
         ) : deliveries.length === 0 ? (
