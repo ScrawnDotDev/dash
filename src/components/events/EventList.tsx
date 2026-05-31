@@ -9,6 +9,8 @@ interface EventListProps {
   apiKeyId?: string
   userId?: string
   eventType?: string
+  mode?: string
+  model?: string
   compact?: boolean
   showViewMore?: boolean
   pageSize?: number
@@ -19,6 +21,8 @@ export function EventList({
   apiKeyId,
   userId,
   eventType,
+  mode,
+  model,
   compact,
   showViewMore,
   pageSize = 8,
@@ -34,7 +38,7 @@ export function EventList({
     let cancelled = false
     setLoading(true)
     setError(null)
-    getFilteredEvents({ data: { apiKeyId, userId, eventType, limit: pageSize, offset: page * pageSize } })
+    getFilteredEvents({ data: { apiKeyId, userId, mode, model, eventType, limit: pageSize, offset: page * pageSize } })
       .then((res) => {
         if (!cancelled) {
           setData(res as unknown as { rows: Array<Record<string, unknown>>; total: number })
@@ -48,7 +52,7 @@ export function EventList({
         }
       })
     return () => { cancelled = true }
-  }, [apiKeyId, userId, eventType, page, pageSize])
+  }, [apiKeyId, userId, eventType, mode, model, page, pageSize])
 
   const totalPages = data ? Math.ceil(data.total / pageSize) : 0
   const events = data?.rows ?? []

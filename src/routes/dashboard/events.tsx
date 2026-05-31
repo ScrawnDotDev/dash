@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { createFileRoute } from "@tanstack/react-router"
 import { listApiKeys, getEventTypeDistribution } from "@/lib/scrawn-server"
-import { EventFilters } from "@/components/events/EventFilters"
+import { EventFilters, type EventFiltersValue } from "@/components/events/EventFilters"
 import { EventList } from "@/components/events/EventList"
 import { Button } from "@/components/ui/button"
 import { useCachedData, TTL } from "@/lib/useCache"
@@ -11,7 +11,7 @@ export const Route = createFileRoute("/dashboard/events")({
 })
 
 function EventsPage() {
-  const [filters, setFilters] = useState<{ apiKeyId?: string; userId?: string; eventType?: string }>({})
+  const [filters, setFilters] = useState<EventFiltersValue>({})
   const keys = useCachedData("events-page-keys", listApiKeys, TTL.API_KEYS)
   const types = useCachedData("events-page-types", getEventTypeDistribution, TTL.DASHBOARD_SUMMARY)
 
@@ -56,6 +56,7 @@ function EventsPage() {
         apiKeyId={filters.apiKeyId}
         userId={filters.userId}
         eventType={filters.eventType}
+        model={filters.model}
         pageSize={15}
         title="All Events"
       />

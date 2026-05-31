@@ -1,3 +1,4 @@
+import { useState } from "react"
 import { createFileRoute } from "@tanstack/react-router"
 import {
   getAiTokenUsage,
@@ -19,24 +20,26 @@ export const Route = createFileRoute("/dashboard/")({
 })
 
 function DashboardHome() {
+  const [mode, setMode] = useState<string | undefined>(undefined)
+
   const summary = useCachedData(
-    "summary",
-    getDashboardSummary,
+    `summary:${mode ?? "all"}`,
+    () => getDashboardSummary({ data: { mode } }),
     TTL.DASHBOARD_SUMMARY
   )
   const usage = useCachedData(
-    "usage-over-time",
-    getUsageOverTime,
+    `usage-over-time:${mode ?? "all"}`,
+    () => getUsageOverTime({ data: { mode } }),
     TTL.USAGE_OVER_TIME
   )
   const ai = useCachedData(
-    "ai-token-usage",
-    getAiTokenUsage,
+    `ai-token-usage:${mode ?? "all"}`,
+    () => getAiTokenUsage({ data: { mode } }),
     TTL.AI_TOKEN_USAGE
   )
   const payments = useCachedData(
-    "payment-history",
-    getPaymentHistory,
+    `payment-history:${mode ?? "all"}`,
+    () => getPaymentHistory({ data: { mode } }),
     TTL.PAYMENT_HISTORY
   )
 
@@ -46,6 +49,21 @@ function DashboardHome() {
         <h1 className="font-mono text-2xl font-black tracking-widest text-black uppercase dark:text-white">
           Overview
         </h1>
+        <div className="flex border-2 border-black bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:bg-black dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">
+          {(["all", "test", "production"] as const).map((m) => (
+            <button
+              key={m}
+              onClick={() => setMode(m === "all" ? undefined : m)}
+              className={`px-3 py-1.5 font-mono text-xs font-black uppercase transition-colors ${
+                (mode ?? "all") === m
+                  ? "bg-yellow-400 text-black dark:bg-yellow-500"
+                  : "text-gray-500 hover:bg-gray-100 hover:text-black dark:hover:bg-gray-800 dark:hover:text-white"
+              }`}
+            >
+              {m}
+            </button>
+          ))}
+        </div>
       </div>
 
       {summary.loading ? (
@@ -102,7 +120,7 @@ function DashboardHome() {
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <EventList compact showViewMore />
+        <EventList compact showViewMore mode={mode} />
         {ai.loading ? (
           <Skeleton className="h-[300px] w-full border-2 border-black dark:border-white rounded-none" />
         ) : (

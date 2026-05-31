@@ -83,16 +83,20 @@ export const submitOnboarding = createServerFn({ method: "POST" })
     return { success: true }
   })
 
-export const getUsageOverTime = createServerFn({ method: "GET" }).handler(
-  async () => {
+export const getUsageOverTime = createServerFn({ method: "GET" })
+  .inputValidator(validator<{ mode?: string }>())
+  .handler(async (ctx) => {
     const analytics = createAnalytics()
     const f = analytics.query.basicUsage.fields
-    const result = await analytics.query.basicUsage
+    let q = analytics.query.basicUsage
       .aggregate(sum(f.debitAmount))
       .groupBy(f.ingestedTimestamp)
       .orderBy(desc(f.ingestedTimestamp))
       .limit(30)
-      .execute()
+    if (ctx.data.mode) {
+      q = q.where(and(eq(f.mode, ctx.data.mode)))
+    }
+    const result = await q.execute()
     return result.rows
       .reverse()
       .filter((r) => r.groupValue != null)
@@ -132,18 +136,25 @@ export const getEventTypeDistribution = createServerFn({
   }))
 })
 
-export const getAiTokenUsage = createServerFn({ method: "GET" }).handler(
-  async () => {
+export const getAiTokenUsage = createServerFn({ method: "GET" })
+  .inputValidator(validator<{ mode?: string }>())
+  .handler(async (ctx) => {
     const analytics = createAnalytics()
     const f = analytics.query.aiToken.fields
-    const input = await analytics.query.aiToken
-      .aggregate(sum(f.inputTokens))
-      .groupBy(f.model)
-      .execute()
-    const output = await analytics.query.aiToken
-      .aggregate(sum(f.outputTokens))
-      .groupBy(f.model)
-      .execute()
+    const mode = ctx.data.mode
+
+    const mkQ = () => {
+      let q = analytics.query.aiToken.aggregate(sum(f.inputTokens)).groupBy(f.model)
+      if (mode) q = q.where(and(eq(f.mode, mode)))
+      return q.execute()
+    }
+    const mkQ2 = () => {
+      let q = analytics.query.aiToken.aggregate(sum(f.outputTokens)).groupBy(f.model)
+      if (mode) q = q.where(and(eq(f.mode, mode)))
+      return q.execute()
+    }
+
+    const [input, output] = await Promise.all([mkQ(), mkQ2()])
     return {
       input: input.rows.map((r) => ({
         groupValue: r.groupValue,
@@ -154,8 +165,7 @@ export const getAiTokenUsage = createServerFn({ method: "GET" }).handler(
         aggValue: r.aggValue,
       })),
     }
-  }
-)
+  })
 
 export const getAiTokenUsageOverTime = createServerFn({ method: "GET" }).handler(
   async () => {
@@ -189,16 +199,19 @@ export const getAiTokenUsageOverTime = createServerFn({ method: "GET" }).handler
   }
 )
 
-export const getPaymentHistory = createServerFn({ method: "GET" }).handler(
-  async () => {
+export const getPaymentHistory = createServerFn({ method: "GET" })
+  .inputValidator(validator<{ mode?: string }>())
+  .handler(async (ctx) => {
     const analytics = createAnalytics()
     const f = analytics.query.payment.fields
-    const result = await analytics.query.payment
+    const mode = ctx.data.mode
+    let q = analytics.query.payment
       .aggregate(sum(f.creditAmount))
       .groupBy(f.ingestedTimestamp)
       .orderBy(desc(f.ingestedTimestamp))
       .limit(30)
-      .execute()
+    if (mode) q = q.where(and(eq(f.mode, mode)))
+    const result = await q.execute()
     return result.rows
       .reverse()
       .filter((r) => r.groupValue != null)
@@ -224,6 +237,8 @@ export const getFilteredEvents = createServerFn({ method: "GET" })
       apiKeyId?: string
       userId?: string
       eventType?: string
+      mode?: string
+      model?: string
       limit?: number
       offset?: number
     }>()
@@ -240,6 +255,7 @@ export const getFilteredEvents = createServerFn({ method: "GET" })
       const conds: import("@scrawn/analytics").FilterCondition[] = []
       if (ctx.data.apiKeyId) conds.push(eq(bf.apiKeyId, ctx.data.apiKeyId))
       if (ctx.data.userId) conds.push(eq(bf.userId, ctx.data.userId))
+      if (ctx.data.mode) conds.push(eq(bf.mode, ctx.data.mode))
       let q = analytics.query.basicUsage.orderBy(desc(bf.ingestedTimestamp)).limit(fetchLimit)
       if (conds.length > 0) q = q.where(and(...conds))
       return q.execute()
@@ -249,6 +265,8 @@ export const getFilteredEvents = createServerFn({ method: "GET" })
       const conds: import("@scrawn/analytics").FilterCondition[] = []
       if (ctx.data.apiKeyId) conds.push(eq(af.apiKeyId, ctx.data.apiKeyId))
       if (ctx.data.userId) conds.push(eq(af.userId, ctx.data.userId))
+      if (ctx.data.mode) conds.push(eq(af.mode, ctx.data.mode))
+      if (ctx.data.model) conds.push(eq(af.model, ctx.data.model))
       let q = analytics.query.aiToken.orderBy(desc(af.ingestedTimestamp)).limit(fetchLimit)
       if (conds.length > 0) q = q.where(and(...conds))
       return q.execute()
@@ -323,21 +341,37 @@ export const getApiKeySummary = createServerFn({ method: "GET" })
     }
   })
 
-export const getDashboardSummary = createServerFn({ method: "GET" }).handler(
-  async () => {
+export const getDashboardSummary = createServerFn({ method: "GET" })
+  .inputValidator(validator<{ mode?: string }>())
+  .handler(async (ctx) => {
     const analytics = createAnalytics()
     const sf = analytics.query.basicUsage.fields
     const af = analytics.query.aiToken.fields
     const pf = analytics.query.payment.fields
+    const mode = ctx.data.mode
 
-    const [basicDebit, aiInput, aiOutput, aiCache, basicCount, aiCount, totalCredits] = await Promise.all([
-      analytics.query.basicUsage.aggregate(sum(sf.debitAmount)).execute(),
-      analytics.query.aiToken.aggregate(sum(af.inputDebitAmount)).execute(),
-      analytics.query.aiToken.aggregate(sum(af.outputDebitAmount)).execute(),
-      analytics.query.aiToken.aggregate(sum(af.inputCacheDebitAmount)).execute(),
-      analytics.query.basicUsage.aggregate(analyticsCount()).execute(),
-      analytics.query.aiToken.aggregate(analyticsCount()).execute(),
-      analytics.query.payment.aggregate(sum(pf.creditAmount)).execute(),
+    const [basicDebit, aiInput, aiOutput, aiCache, basicCount, aiCount, creditResult] = await Promise.all([
+      mode
+        ? await analytics.query.basicUsage.where(and(eq(sf.mode, mode))).aggregate(sum(sf.debitAmount)).execute()
+        : await analytics.query.basicUsage.aggregate(sum(sf.debitAmount)).execute(),
+      mode
+        ? await analytics.query.aiToken.where(and(eq(af.mode, mode))).aggregate(sum(af.inputDebitAmount)).execute()
+        : await analytics.query.aiToken.aggregate(sum(af.inputDebitAmount)).execute(),
+      mode
+        ? await analytics.query.aiToken.where(and(eq(af.mode, mode))).aggregate(sum(af.outputDebitAmount)).execute()
+        : await analytics.query.aiToken.aggregate(sum(af.outputDebitAmount)).execute(),
+      mode
+        ? await analytics.query.aiToken.where(and(eq(af.mode, mode))).aggregate(sum(af.inputCacheDebitAmount)).execute()
+        : await analytics.query.aiToken.aggregate(sum(af.inputCacheDebitAmount)).execute(),
+      mode
+        ? await analytics.query.basicUsage.where(and(eq(sf.mode, mode))).aggregate(analyticsCount()).execute()
+        : await analytics.query.basicUsage.aggregate(analyticsCount()).execute(),
+      mode
+        ? await analytics.query.aiToken.where(and(eq(af.mode, mode))).aggregate(analyticsCount()).execute()
+        : await analytics.query.aiToken.aggregate(analyticsCount()).execute(),
+      mode
+        ? await analytics.query.payment.where(and(eq(pf.mode, mode))).aggregate(sum(pf.creditAmount)).execute()
+        : await analytics.query.payment.aggregate(sum(pf.creditAmount)).execute(),
     ])
 
     const aiDebit =
@@ -352,10 +386,9 @@ export const getDashboardSummary = createServerFn({ method: "GET" }).handler(
     return {
       totalRevenue,
       totalEvents,
-      totalCredits: totalCredits.rows[0]?.aggValue ?? "0",
+      totalCredits: creditResult.rows[0]?.aggValue ?? "0",
     }
-  }
-)
+  })
 
 async function apiGet(path: string) {
   const res = await fetch(`${SCRAWN_HTTP_URL}${path}`, {
