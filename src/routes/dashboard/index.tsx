@@ -24,7 +24,7 @@ function StackedWrapper({ children, className = "", stretch = false }: { childre
   return (
     <div className={`relative ${stretch ? "flex flex-col h-full" : ""} ${className}`}>
       {/* Offset background panel */}
-      <div className={`absolute border-2 border-black bg-neutral-100 dark:border-white dark:bg-neutral-900 ${
+      <div className={`absolute border-2 border-black bg-neutral-100 dark:border-white dark:bg-black ${
         stretch 
           ? "-right-1.5 bottom-1.5 left-1.5 top-1.5" 
           : "-right-1.5 -bottom-1.5 left-1.5 top-1.5 h-full w-full"

@@ -81,7 +81,7 @@ function WebhooksPage() {
         </div>
       </div>
 
-      <div className="border-2 border-black bg-white p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:bg-black dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
+      <div className="border-2 border-black bg-white p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:bg-card dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
         <WebhookFilters
           value={filters}
           onChange={(v) => { setFilters(v); setPage(0) }}
@@ -102,7 +102,7 @@ function WebhooksPage() {
           {deliveries.map((d: Record<string, unknown>) => (
             <div
               key={d.id as string}
-              className={`border-2 border-black bg-white dark:bg-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] ${d.status === "delivered" ? "border-l-8 border-l-green-500" : "border-l-8 border-l-red-500"}`}
+              className={`border-2 border-black bg-white dark:bg-card shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] ${d.status === "delivered" ? "border-l-8 border-l-green-500" : "border-l-8 border-l-red-500"}`}
             >
               <div className="p-4">
                 <div className="flex items-start justify-between border-b-2 border-black pb-3 dark:border-white">
@@ -114,7 +114,7 @@ function WebhooksPage() {
                       <span className="font-mono text-sm font-black text-black uppercase dark:text-white">
                         {String(d.eventType ?? "")}
                       </span>
-                      <span className="text-xs text-gray-500">
+                      <span className="text-xs text-gray-500 dark:text-neutral-400">
                         {String(d.resource ?? "")}.{String(d.action ?? "")}
                       </span>
                       <span
@@ -123,14 +123,14 @@ function WebhooksPage() {
                         {String(d.apiKeyRole ?? "")}
                       </span>
                     </div>
-                    <div className="mt-2 space-y-1 text-xs text-gray-500">
+                    <div className="mt-2 space-y-1 text-xs text-gray-500 dark:text-neutral-400">
                       <p>ID: {String(d.eventId ?? "")}</p>
                       {!!d.endpointUrl && <p>ENDPOINT: <code className="font-bold break-all text-black dark:text-white">{String(d.endpointUrl)}</code></p>}
                       {!!d.apiKeyName && <p>KEY: <span className="font-bold text-black dark:text-white">{String(d.apiKeyName)}</span></p>}
                     </div>
                   </div>
                   <div className="flex flex-col items-end gap-2">
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-gray-500 dark:text-neutral-400">
                       {new Date(String(d.createdAt ?? "")).toLocaleString()}
                     </p>
                     {d.responseStatus != null && (
