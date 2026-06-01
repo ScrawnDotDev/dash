@@ -14,7 +14,6 @@ import {
   ShieldAlert,
   ArrowRight,
   ArrowLeft,
-  Check,
 } from "lucide-react"
 
 export const Route = createFileRoute("/onboarding")({ component: Onboarding })
@@ -65,7 +64,6 @@ function Onboarding() {
   const [redirectUrl, setRedirectUrl] = useState("http://localhost:3000")
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
-  const [isSuccess, setIsSuccess] = useState(false)
 
   const [showLiveApiKey, setShowLiveApiKey] = useState(false)
   const [showTestApiKey, setShowTestApiKey] = useState(false)
@@ -73,11 +71,6 @@ function Onboarding() {
 
   useEffect(() => {
     if (!session || isPending) return
-    const justFinished = typeof window !== "undefined" && window.sessionStorage?.getItem("onboarding_success") === "true"
-    if (justFinished) {
-      setIsSuccess(true)
-      return
-    }
     getBackendConfig().then((res) => {
       if (res.configured) {
         navigate({ to: "/dashboard", replace: true })
@@ -85,31 +78,13 @@ function Onboarding() {
     })
   }, [session, isPending, navigate])
 
-  useEffect(() => {
-    if (isSuccess) {
-      const timer = setTimeout(() => {
-        if (typeof window !== "undefined") {
-          window.sessionStorage?.removeItem("onboarding_success")
-        }
-        navigate({ to: "/dashboard", replace: true })
-      }, 3000)
-      return () => clearTimeout(timer)
-    }
-  }, [isSuccess, navigate])
-
   if (isPending) return null
   if (!session) {
     navigate({ to: "/sign-in", replace: true })
     return null
   }
 
-  const currentDetails = isSuccess
-    ? {
-        tag: "// GATEWAY DEPLOYED",
-        title: "SETUP COMPLETE.",
-        desc: "Your Scrawn console is now fully initialized and connected to DodoPayments. Stand by while we redirect you to your primary metrics control desk.",
-      }
-    : stepDetails[step]
+  const currentDetails = stepDetails[step]
 
   function handleNext(e: React.FormEvent) {
     e.preventDefault()
@@ -138,10 +113,7 @@ function Onboarding() {
       setLoading(false)
       return
     }
-    if (typeof window !== "undefined") {
-      window.sessionStorage?.setItem("onboarding_success", "true")
-    }
-    setIsSuccess(true)
+    navigate({ to: "/dashboard", replace: true })
   }
 
   return (
@@ -164,7 +136,7 @@ function Onboarding() {
         <div className="flex w-full flex-col justify-center items-start lg:w-[50%]">
           <AnimatePresence mode="wait">
             <motion.div
-              key={isSuccess ? "success" : step}
+              key={step}
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 10 }}
@@ -198,42 +170,11 @@ function Onboarding() {
           {/* Foreground Form Card */}
           <div className="relative z-10 w-full border-2 border-black bg-white p-8 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:bg-black dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
             
-            {isSuccess ? (
-              <div className="flex flex-col items-center justify-center py-12 text-center">
-                  <motion.div
-                    initial={{ scale: 0, rotate: -45 }}
-                    animate={{ scale: 1, rotate: [0, -10, 10, 0] }}
-                    transition={{ delay: 0.2, type: "spring", stiffness: 200, damping: 10 }}
-                    className="mb-6 flex h-20 w-20 items-center justify-center border-4 border-black bg-green-400 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:bg-green-500 dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]"
-                  >
-                    <Check className="h-10 w-10 text-black dark:text-white" />
-                  </motion.div>
-                  
-                  <div className="mb-2 inline-flex border-2 border-black bg-yellow-400 px-3 py-0.5 font-mono text-[10px] font-black uppercase tracking-widest text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:bg-yellow-500">
-                    SYSTEM INITIALIZED
-                  </div>
-                  
-                  <h2 className="font-mono text-2xl font-black tracking-wide text-black uppercase dark:text-white mt-2">
-                    YOU'RE ALL SET!
-                  </h2>
-                  
-                  <p className="mt-2 font-mono text-xs text-neutral-500 dark:text-neutral-400">
-                    WELCOME TO SCRAWN
-                  </p>
-
-                  <div className="mt-8 flex items-center gap-2 text-xs font-mono text-neutral-400">
-                    <span className="h-2 w-2 animate-ping bg-green-500 rounded-full" />
-                    <span>Redirecting to control desk...</span>
-                  </div>
-                </div>
-              ) : (
-                <form
-                  key="wizard-form"
-                  onSubmit={handleNext}
-                  className="flex flex-col gap-6"
-                >
-                  
-                  {/* Progress Indicator */}
+            <form
+              key="wizard-form"
+              onSubmit={handleNext}
+              className="flex flex-col gap-6"
+            >
                   <div className="flex flex-col gap-2">
                     <div className="flex justify-between items-center font-mono text-[10px] font-black text-neutral-500 uppercase tracking-widest">
                       <span>Configuration Progress</span>
@@ -475,7 +416,6 @@ function Onboarding() {
                     </Button>
                   </div>
                 </form>
-              )}
           </div>
         </div>
       </main>
