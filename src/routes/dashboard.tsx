@@ -78,128 +78,143 @@ function DashboardLayout() {
             />
           </div>
         )}
-        <motion.aside
-          initial={{ width: "4rem" }}
-          animate={{ width: expanded ? "14rem" : "4rem" }}
-          transition={{ duration: 0.2, ease: "easeInOut" }}
+        <div
           onMouseEnter={() => setExpanded(true)}
           onMouseLeave={() => setExpanded(false)}
-          className="sticky top-0 z-40 flex h-svh flex-col overflow-y-auto overflow-x-hidden border-r-2 border-black bg-white dark:border-white dark:bg-black"
+          className="sticky top-0 z-40 flex h-svh flex-col justify-center pl-3 py-3 overflow-visible bg-transparent animate-in fade-in duration-300"
         >
-          <div className="flex h-16 shrink-0 items-center px-4 gap-2">
-            <img
-              src="/Scrawn_Logo.png"
-              alt="Scrawn Logo"
-              className="h-8 w-8 shrink-0 object-contain border-2 border-black bg-white dark:bg-black p-0.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:border-white"
-            />
-            <motion.span
-              initial={{ opacity: 0, display: "none" }}
-              animate={{
-                opacity: expanded ? 1 : 0,
-                display: expanded ? "block" : "none",
-              }}
-              transition={{ duration: 0.2 }}
-              className="ml-1 border-2 border-black bg-yellow-400 px-2 py-0.5 font-mono text-sm font-black tracking-widest text-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] rotate-[-2deg] dark:border-white dark:bg-yellow-500 dark:text-black"
-            >
-              SCRAWN
-            </motion.span>
-          </div>
-          <nav className="mt-4 flex flex-col gap-2 px-2">
-            {navItems.map((item) => {
-              const Icon = item.icon
-              const isActive = item.path === "/dashboard"
-                ? location.pathname === "/dashboard" || location.pathname === "/dashboard/events"
-                : location.pathname === item.path || location.pathname.startsWith(item.path + "/")
-              return (
-                <button
-                  key={item.path}
-                  onClick={() => navigate({ to: item.path })}
-                  className={`group flex h-10 shrink-0 items-center overflow-hidden rounded-none text-left text-sm font-bold transition-all ${
-                    isActive
-                      ? "border-2 border-black bg-yellow-400 text-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:bg-yellow-500 dark:text-black dark:shadow-[3px_3px_0px_0px_rgba(255,255,255,1)] translate-x-[-1px] translate-y-[-1px]"
-                      : "border-2 border-transparent text-gray-500 hover:border-black hover:bg-neutral-100 hover:text-black hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] dark:hover:border-white dark:hover:bg-neutral-900 dark:hover:text-white dark:hover:shadow-[3px_3px_0px_0px_rgba(255,255,255,1)]"
-                  }`}
-                >
-                  <div className="flex w-11 shrink-0 items-center justify-center">
-                    <Icon className="h-5 w-5" />
-                  </div>
-                  <motion.span
-                    initial={{ opacity: 0, display: "none" }}
-                    animate={{
-                      opacity: expanded ? 1 : 0,
-                      display: expanded ? "block" : "none",
-                    }}
-                    transition={{ duration: 0.2 }}
-                    className="whitespace-nowrap"
+          <motion.aside
+            initial={{ width: "4rem" }}
+            animate={{ width: expanded ? "14rem" : "4rem" }}
+            transition={{ duration: 0.2, ease: "easeInOut" }}
+            className="flex h-full flex-col overflow-y-auto overflow-x-hidden border-2 border-black bg-white dark:border-white dark:bg-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]"
+          >
+            <div className="flex h-16 shrink-0 items-center px-4 gap-2">
+              <img
+                src="/Scrawn_Logo.png"
+                alt="Scrawn Logo"
+                className="h-8 w-8 shrink-0 object-contain border-2 border-black bg-white dark:bg-black p-0.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:border-white"
+              />
+              <motion.div
+                animate={{
+                  width: expanded ? "auto" : 0,
+                  opacity: expanded ? 1 : 0,
+                }}
+                transition={{ duration: 0.2 }}
+                className="overflow-hidden whitespace-nowrap ml-1"
+              >
+                <span className="border-2 border-black bg-yellow-400 px-2 py-0.5 font-mono text-sm font-black tracking-widest text-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] rotate-[-2deg] dark:border-white dark:bg-yellow-500 dark:text-black block">
+                  SCRAWN
+                </span>
+              </motion.div>
+            </div>
+            <nav className="mt-4 flex flex-col gap-2 px-2">
+              {navItems.map((item) => {
+                const Icon = item.icon
+                const isActive = item.path === "/dashboard"
+                  ? location.pathname === "/dashboard" || location.pathname === "/dashboard/events"
+                  : location.pathname === item.path || location.pathname.startsWith(item.path + "/")
+                return (
+                  <button
+                    key={item.path}
+                    onClick={() => navigate({ to: item.path })}
+                    className={`group relative flex h-10 shrink-0 items-center overflow-hidden rounded-none text-left text-sm font-bold transition-all ${
+                      isActive
+                        ? "border-2 border-black bg-yellow-400 text-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:bg-yellow-500 dark:text-black dark:shadow-[3px_3px_0px_0px_rgba(255,255,255,1)] translate-x-[-1px] translate-y-[-1px]"
+                        : "border-2 border-transparent text-gray-500 hover:border-black hover:bg-neutral-100 hover:text-black hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] dark:hover:border-white dark:hover:bg-neutral-900 dark:hover:text-white dark:hover:shadow-[3px_3px_0px_0px_rgba(255,255,255,1)]"
+                    }`}
                   >
-                    {item.label}
-                  </motion.span>
-                </button>
-              )
-            })}
-          </nav>
-          
-          <div className="mt-auto p-2">
-            <motion.div
-              initial={{ opacity: 0, display: "none" }}
-              animate={{
-                opacity: expanded ? 1 : 0,
-                display: expanded ? "block" : "none",
-              }}
-              transition={{ duration: 0.2 }}
-            >
-              <p className="mb-2 truncate px-2 text-[10px] font-bold text-gray-500">
-                {session?.user?.email}
-              </p>
-            </motion.div>
+                    <div className="flex w-11 shrink-0 items-center justify-center">
+                      <Icon className="h-5 w-5 transition-transform duration-200 group-hover:scale-110 group-hover:rotate-6" />
+                    </div>
+                    <motion.div
+                      animate={{
+                        width: expanded ? "auto" : 0,
+                        opacity: expanded ? 1 : 0,
+                      }}
+                      transition={{ duration: 0.2 }}
+                      className="overflow-hidden whitespace-nowrap flex-1"
+                    >
+                      <span>{item.label}</span>
+                    </motion.div>
+                  </button>
+                )
+              })}
+            </nav>
             
-            <button
-              onClick={() => setRefreshVersion((v) => v + 1)}
-              disabled={refreshing}
-              className="group flex h-10 w-full shrink-0 items-center overflow-hidden border-2 border-black bg-[#38bdf8] text-xs font-mono font-black uppercase tracking-widest text-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none disabled:opacity-50 dark:border-white dark:bg-[#38bdf8] dark:shadow-[3px_3px_0px_0px_rgba(255,255,255,1)]"
-            >
-              <div className="flex w-11 shrink-0 items-center justify-center">
-                <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin text-red-600" : ""}`} />
+            <div className="mt-auto p-2 flex flex-col gap-2">
+              {/* Session info profile widget */}
+              <div className={`flex items-center overflow-hidden transition-all duration-200 ${
+                expanded 
+                  ? "border-2 border-black dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50 p-1.5 gap-2 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-none justify-start" 
+                  : "border-2 border-transparent bg-transparent p-0 justify-center w-full"
+              }`}>
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center border-2 border-black bg-yellow-400 font-mono text-sm font-black uppercase text-black dark:border-white dark:bg-yellow-500">
+                  {session?.user?.email ? session.user.email.slice(0, 2) : "OP"}
+                </div>
+                <motion.div
+                  animate={{
+                    width: expanded ? "auto" : 0,
+                    opacity: expanded ? 1 : 0,
+                  }}
+                  transition={{ duration: 0.2 }}
+                  className="overflow-hidden whitespace-nowrap flex-1 flex flex-col min-w-0"
+                >
+                  <p className="truncate text-xs font-bold text-black dark:text-white leading-tight uppercase font-mono">
+                    {session?.user?.name || "Developer"}
+                  </p>
+                  <span className="truncate text-[9px] font-mono text-gray-400 leading-tight">
+                    {session?.user?.email}
+                  </span>
+                </motion.div>
               </div>
-              <motion.span
-                initial={{ opacity: 0, display: "none" }}
-                animate={{
-                  opacity: expanded ? 1 : 0,
-                  display: expanded ? "block" : "none",
-                }}
-                transition={{ duration: 0.2 }}
-                className="whitespace-nowrap"
+              
+              <button
+                onClick={() => setRefreshVersion((v) => v + 1)}
+                disabled={refreshing}
+                className="group flex h-10 w-full shrink-0 items-center overflow-hidden border-2 border-black bg-[#38bdf8] text-xs font-mono font-black uppercase tracking-widest text-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none disabled:opacity-50 dark:border-white dark:bg-[#38bdf8] dark:shadow-[3px_3px_0px_0px_rgba(255,255,255,1)]"
               >
-                REFRESH
-              </motion.span>
-            </button>
-            
-            <button
-              onClick={() => {
-                setSigningOut(true)
-                authClient.signOut().then(() => {
-                  window.location.href = "/sign-in"
-                })
-              }}
-              className="mt-2 group flex h-10 w-full shrink-0 items-center overflow-hidden border-2 border-black bg-red-500 text-xs font-mono font-black uppercase tracking-widest text-white shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none dark:border-white dark:shadow-[3px_3px_0px_0px_rgba(255,255,255,1)]"
-            >
-              <div className="flex w-11 shrink-0 items-center justify-center">
-                <LogOut className="h-4 w-4" />
-              </div>
-              <motion.span
-                initial={{ opacity: 0, display: "none" }}
-                animate={{
-                  opacity: expanded ? 1 : 0,
-                  display: expanded ? "block" : "none",
+                <div className="flex w-11 shrink-0 items-center justify-center">
+                  <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin text-red-600" : ""}`} />
+                </div>
+                <motion.div
+                  animate={{
+                    width: expanded ? "auto" : 0,
+                    opacity: expanded ? 1 : 0,
+                  }}
+                  transition={{ duration: 0.2 }}
+                  className="overflow-hidden whitespace-nowrap text-left pr-3"
+                >
+                  REFRESH
+                </motion.div>
+              </button>
+              
+              <button
+                onClick={() => {
+                  setSigningOut(true)
+                  authClient.signOut().then(() => {
+                    window.location.href = "/sign-in"
+                  })
                 }}
-                transition={{ duration: 0.2 }}
-                className="whitespace-nowrap"
+                className="mt-2 group flex h-10 w-full shrink-0 items-center overflow-hidden border-2 border-black bg-red-500 text-xs font-mono font-black uppercase tracking-widest text-white shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none dark:border-white dark:shadow-[3px_3px_0px_0px_rgba(255,255,255,1)]"
               >
-                NUKE SESSION
-              </motion.span>
-            </button>
-          </div>
-        </motion.aside>
+                <div className="flex w-11 shrink-0 items-center justify-center">
+                  <LogOut className="h-4 w-4" />
+                </div>
+                <motion.div
+                  animate={{
+                    width: expanded ? "auto" : 0,
+                    opacity: expanded ? 1 : 0,
+                  }}
+                  transition={{ duration: 0.2 }}
+                  className="overflow-hidden whitespace-nowrap text-left pr-3"
+                >
+                  NUKE SESSION
+                </motion.div>
+              </button>
+            </div>
+          </motion.aside>
+        </div>
         <main className="relative flex-1 overflow-auto p-6">
           <div className="pointer-events-none absolute inset-0 -z-10 bg-[url('/potentialbackground.png')] bg-[length:1200px_auto] bg-top opacity-[0.04] md:bg-cover md:bg-center md:bg-no-repeat dark:opacity-[0.08] dark:invert" />
           {/* Decorative Crosshairs */}
