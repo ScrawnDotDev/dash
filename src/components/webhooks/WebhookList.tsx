@@ -36,11 +36,11 @@ export function WebhookList({
   if (compact && !loading && !error && deliveries.length === 0) return null
 
   return (
-    <Card className="shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">
-      <CardHeader className="pb-3">
+    <Card className="border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
+      <CardHeader className="pb-3 border-b-2 border-black dark:border-white">
         <CardTitle className="text-sm">{title ?? "Recent Webhooks"}</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pt-4">
         {loading && !data ? (
           <div className={`w-full rounded-none border-2 border-black dark:border-white ${compact ? "h-[160px]" : "h-[300px]"}`} />
         ) : error ? (
@@ -48,32 +48,32 @@ export function WebhookList({
         ) : deliveries.length === 0 ? (
           <p className="font-mono text-xs font-bold text-red-500 uppercase">No Deliveries Yet</p>
         ) : (
-          <div className="flex flex-col">
-            {deliveries.map((d, i) => (
+          <div className="flex flex-col gap-2">
+            {deliveries.map((d) => (
               <div
                 key={d.id as string}
-                className={`flex items-center justify-between py-2 text-xs ${i > 0 ? "border-t-2 border-black dark:border-white" : ""}`}
+                className="flex items-center justify-between border-2 border-black bg-white dark:bg-black p-2.5 font-mono text-xs shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
               >
                 <div className="flex items-center gap-2 min-w-0">
                   <span
-                    className={`inline-block h-2 w-2 shrink-0 ${d.status === "delivered" ? "bg-green-500" : "bg-red-500 animate-pulse"}`}
+                    className={`inline-block h-2 w-2 shrink-0 border border-black ${d.status === "delivered" ? "bg-green-500" : "bg-red-500 animate-pulse"}`}
                   />
-                  <span className="font-mono font-bold text-black uppercase truncate dark:text-white">
+                  <span className="font-mono font-bold bg-neutral-100 dark:bg-neutral-900 text-black dark:text-white border border-neutral-300 dark:border-neutral-700 px-1.5 py-0.5 text-[10px] uppercase truncate">
                     {String(d.eventType ?? "")}
                   </span>
-                  <span className="text-gray-400 font-mono truncate max-w-[100px]">
+                  <span className="text-neutral-500 truncate max-w-[100px]">
                     {String(d.apiKeyName ?? "")}
                   </span>
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
                   {d.responseStatus != null && (
                     <span
-                      className={`font-mono font-black text-xs ${Number(d.responseStatus) < 300 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}
+                      className={`font-black text-[10px] border border-black px-1.5 py-0.5 ${Number(d.responseStatus) < 300 ? "bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300" : "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300"}`}
                     >
                       HTTP {String(d.responseStatus)}
                     </span>
                   )}
-                  <span className="text-gray-400 font-mono text-[10px]">
+                  <span className="text-neutral-400 text-[10px]">
                     {new Date(String(d.createdAt ?? "")).toLocaleDateString()}
                   </span>
                 </div>

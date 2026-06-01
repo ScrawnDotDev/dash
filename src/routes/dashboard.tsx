@@ -85,11 +85,11 @@ function DashboardLayout() {
           onMouseLeave={() => setExpanded(false)}
           className="sticky top-0 z-40 flex h-svh flex-col overflow-y-auto overflow-x-hidden border-r-2 border-black bg-white dark:border-white dark:bg-black"
         >
-          <div className="flex h-16 shrink-0 items-center px-4">
+          <div className="flex h-16 shrink-0 items-center px-4 gap-2">
             <img
               src="/Scrawn_Logo.png"
               alt="Scrawn Logo"
-              className="h-8 w-8 shrink-0 object-contain"
+              className="h-8 w-8 shrink-0 object-contain border-2 border-black bg-white dark:bg-black p-0.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:border-white"
             />
             <motion.span
               initial={{ opacity: 0, display: "none" }}
@@ -98,7 +98,7 @@ function DashboardLayout() {
                 display: expanded ? "block" : "none",
               }}
               transition={{ duration: 0.2 }}
-              className="ml-3 font-mono text-xl font-black tracking-widest text-black uppercase dark:text-white"
+              className="ml-1 border-2 border-black bg-yellow-400 px-2 py-0.5 font-mono text-sm font-black tracking-widest text-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] rotate-[-2deg] dark:border-white dark:bg-yellow-500 dark:text-black"
             >
               SCRAWN
             </motion.span>
@@ -113,10 +113,10 @@ function DashboardLayout() {
                 <button
                   key={item.path}
                   onClick={() => navigate({ to: item.path })}
-                  className={`group flex h-10 shrink-0 items-center overflow-hidden rounded-none text-left text-sm font-medium transition-all ${
+                  className={`group flex h-10 shrink-0 items-center overflow-hidden rounded-none text-left text-sm font-bold transition-all ${
                     isActive
-                      ? "border-2 border-black bg-yellow-400 text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]"
-                      : "border-2 border-transparent text-gray-500 hover:border-black hover:text-black dark:hover:border-white dark:hover:text-white"
+                      ? "border-2 border-black bg-yellow-400 text-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:bg-yellow-500 dark:text-black dark:shadow-[3px_3px_0px_0px_rgba(255,255,255,1)] translate-x-[-1px] translate-y-[-1px]"
+                      : "border-2 border-transparent text-gray-500 hover:border-black hover:bg-neutral-100 hover:text-black hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] dark:hover:border-white dark:hover:bg-neutral-900 dark:hover:text-white dark:hover:shadow-[3px_3px_0px_0px_rgba(255,255,255,1)]"
                   }`}
                 >
                   <div className="flex w-11 shrink-0 items-center justify-center">
@@ -155,10 +155,10 @@ function DashboardLayout() {
             <button
               onClick={() => setRefreshVersion((v) => v + 1)}
               disabled={refreshing}
-              className="group flex h-10 w-full shrink-0 items-center overflow-hidden border-2 border-black bg-white text-xs font-bold text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none active:translate-x-[2px] active:translate-y-[2px] disabled:opacity-50 dark:border-white dark:bg-black dark:text-white dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] dark:hover:shadow-none"
+              className="group flex h-10 w-full shrink-0 items-center overflow-hidden border-2 border-black bg-[#38bdf8] text-xs font-mono font-black uppercase tracking-widest text-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none disabled:opacity-50 dark:border-white dark:bg-[#38bdf8] dark:shadow-[3px_3px_0px_0px_rgba(255,255,255,1)]"
             >
               <div className="flex w-11 shrink-0 items-center justify-center">
-                <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin text-red-500" : ""}`} />
+                <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin text-red-600" : ""}`} />
               </div>
               <motion.span
                 initial={{ opacity: 0, display: "none" }}
@@ -172,7 +172,7 @@ function DashboardLayout() {
                 REFRESH
               </motion.span>
             </button>
-
+            
             <button
               onClick={() => {
                 setSigningOut(true)
@@ -180,7 +180,7 @@ function DashboardLayout() {
                   window.location.href = "/sign-in"
                 })
               }}
-              className="mt-2 group flex h-10 w-full shrink-0 items-center overflow-hidden border-2 border-black bg-red-500 text-xs font-bold text-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none active:translate-x-[2px] active:translate-y-[2px] dark:border-white dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] dark:hover:shadow-none"
+              className="mt-2 group flex h-10 w-full shrink-0 items-center overflow-hidden border-2 border-black bg-red-500 text-xs font-mono font-black uppercase tracking-widest text-white shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none dark:border-white dark:shadow-[3px_3px_0px_0px_rgba(255,255,255,1)]"
             >
               <div className="flex w-11 shrink-0 items-center justify-center">
                 <LogOut className="h-4 w-4" />
@@ -200,7 +200,7 @@ function DashboardLayout() {
           </div>
         </motion.aside>
         <main className="relative flex-1 overflow-auto p-6">
-          <div className="pointer-events-none absolute inset-0 -z-10 bg-[url('/potentialbackground.png')] bg-[length:1200px_auto] bg-top opacity-90 md:bg-cover md:bg-center md:bg-no-repeat dark:opacity-10" />
+          <div className="pointer-events-none absolute inset-0 -z-10 bg-[url('/potentialbackground.png')] bg-[length:1200px_auto] bg-top opacity-[0.04] md:bg-cover md:bg-center md:bg-no-repeat dark:opacity-[0.08] dark:invert" />
           {/* Decorative Crosshairs */}
           <div className="pointer-events-none absolute top-10 left-10 z-0 hidden font-mono text-xl font-black text-gray-200 md:block dark:text-gray-800">
             +

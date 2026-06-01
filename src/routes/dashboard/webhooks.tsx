@@ -51,11 +51,16 @@ function WebhooksPage() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
-        <h1 className="font-mono text-2xl font-black tracking-widest text-black uppercase dark:text-white">
-          Webhooks
-        </h1>
         <div className="flex items-center gap-3">
-          <div className="flex border-2 border-black bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:bg-black dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">
+          <h1 className="font-mono text-2xl font-black tracking-widest text-black uppercase dark:text-white">
+            Webhooks
+          </h1>
+          <span className="border-2 border-black bg-[#38bdf8] px-2 py-0.5 font-mono text-xs font-black uppercase text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] rotate-[1deg] dark:border-white dark:text-black">
+            Deliveries
+          </span>
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="flex border-2 border-black bg-white shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:bg-black dark:shadow-[3px_3px_0px_0px_rgba(255,255,255,1)]">
             {(["all", "test", "production"] as const).map((m) => (
               <button
                 key={m}
@@ -76,7 +81,7 @@ function WebhooksPage() {
         </div>
       </div>
 
-      <div className="border-2 border-black bg-white p-4 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:bg-black dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">
+      <div className="border-2 border-black bg-white p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:bg-black dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
         <WebhookFilters
           value={filters}
           onChange={(v) => { setFilters(v); setPage(0) }}
@@ -93,11 +98,11 @@ function WebhooksPage() {
           No Deliveries Found
         </p>
       ) : (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-3">
           {deliveries.map((d: Record<string, unknown>) => (
             <div
               key={d.id as string}
-              className="border-2 border-black bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:bg-black dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]"
+              className={`border-2 border-black bg-white dark:bg-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] ${d.status === "delivered" ? "border-l-8 border-l-green-500" : "border-l-8 border-l-red-500"}`}
             >
               <div className="p-4">
                 <div className="flex items-start justify-between border-b-2 border-black pb-3 dark:border-white">
@@ -156,7 +161,7 @@ function WebhooksPage() {
                       {expanded.has(d.id as string) ? "HIDE" : "SHOW"} PAYLOAD
                     </Button>
                     {expanded.has(d.id as string) && (
-                      <pre className="mt-2 overflow-x-auto border-2 border-black bg-gray-100 p-3 font-mono text-xs text-black shadow-[inset_4px_4px_0px_0px_rgba(0,0,0,0.1)] dark:border-white dark:bg-gray-900 dark:text-white dark:shadow-[inset_4px_4px_0px_0px_rgba(255,255,255,0.1)]">
+                      <pre className="mt-2 overflow-x-auto border-2 border-black bg-black p-3 font-mono text-xs text-green-400 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">
                         {JSON.stringify(d.requestBody, null, 2)}
                       </pre>
                     )}

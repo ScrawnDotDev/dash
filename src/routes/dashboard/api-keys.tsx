@@ -89,11 +89,16 @@ function ApiKeysList() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
-        <h1 className="font-mono text-2xl font-black tracking-widest text-black uppercase dark:text-white">
-          API Keys
-        </h1>
         <div className="flex items-center gap-3">
-          <Button onClick={() => setShowCreate(true)} disabled={creating}>
+          <h1 className="font-mono text-2xl font-black tracking-widest text-black uppercase dark:text-white">
+            API Keys
+          </h1>
+          <span className="border-2 border-black bg-[#ff00ff] px-2 py-0.5 font-mono text-xs font-black uppercase text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] rotate-[-1deg] dark:border-white dark:text-white">
+            Access Tokens
+          </span>
+        </div>
+        <div className="flex items-center gap-3">
+          <Button onClick={() => setShowCreate(true)} disabled={creating} variant="fuchsia">
             {creating ? "CREATING..." : "CREATE KEY"}
           </Button>
           <Button
@@ -130,17 +135,17 @@ function ApiKeysList() {
       )}
 
       {showCreate && (
-        <Card className="bg-yellow-400 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:bg-yellow-500 dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">
-          <CardHeader>
+        <Card className="border-3 border-black dark:border-white bg-yellow-400 dark:bg-yellow-500 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
+          <CardHeader className="border-b-2 border-black dark:border-black pb-3">
             <CardTitle className="text-black dark:text-black">New API Key</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-4">
             <form onSubmit={handleCreate} className="flex flex-col gap-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <input
                   type="text"
                   placeholder="Key name (e.g. Production Billing)"
-                  className="border-2 border-black bg-white px-3 py-2 text-sm text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all outline-none focus:translate-x-[2px] focus:translate-y-[2px] focus:shadow-none dark:bg-black dark:text-white dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] dark:border-white"
+                  className="border-2 border-black bg-white px-3 py-2 text-sm font-mono text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all outline-none focus:translate-x-[1px] focus:translate-y-[1px] focus:shadow-none dark:bg-black dark:text-white dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] dark:border-white"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required
@@ -158,7 +163,7 @@ function ApiKeysList() {
                 <input
                   type="url"
                   placeholder="Webhook URL (optional)"
-                  className="border-2 border-black bg-white px-3 py-2 text-sm text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all outline-none focus:translate-x-[2px] focus:translate-y-[2px] focus:shadow-none dark:bg-black dark:text-white dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] dark:border-white"
+                  className="border-2 border-black bg-white px-3 py-2 text-sm font-mono text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all outline-none focus:translate-x-[1px] focus:translate-y-[1px] focus:shadow-none dark:bg-black dark:text-white dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] dark:border-white"
                   value={webhookUrl}
                   onChange={(e) => setWebhookUrl(e.target.value)}
                 />
@@ -204,7 +209,7 @@ function ApiKeysList() {
             return (
               <div key={keyId} className="w-full">
                 <Card
-                  className="cursor-pointer shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] dark:hover:shadow-none"
+                  className="cursor-pointer border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] dark:hover:shadow-none"
                   onClick={() => navigate({ to: "/dashboard/api-keys/$keyId", params: { keyId } })}
                 >
                   <CardContent className="p-4">

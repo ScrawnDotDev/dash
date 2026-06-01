@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Area, AreaChart, CartesianGrid, XAxis } from "recharts"
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts"
 
 import type { AggregationRow } from "@scrawn/core"
 import type { ChartConfig } from "@/components/ui/chart"
@@ -25,6 +25,12 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
+const formatYAxis = (value: number) => {
+  if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1).replace(/\.0$/, "")}M`
+  if (value >= 1_000) return `${(value / 1_000).toFixed(1).replace(/\.0$/, "")}k`
+  return `${value}`
+}
+
 export function PaymentHistory({ data }: { data: Array<AggregationRow> }) {
   const [animate, setAnimate] = useState(true)
 
@@ -42,7 +48,7 @@ export function PaymentHistory({ data }: { data: Array<AggregationRow> }) {
 
   if (!chartData.length) {
     return (
-      <Card className="shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">
+      <Card className="h-full flex flex-col border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
         <CardHeader>
           <CardTitle className="text-black dark:text-white">
             PAYMENT HISTORY
@@ -51,8 +57,8 @@ export function PaymentHistory({ data }: { data: Array<AggregationRow> }) {
             CREDITS COLLECTED (SMALLEST CURRENCY UNIT)
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <p className="text-sm text-red-500">
+        <CardContent className="flex-grow flex items-center justify-center p-6">
+          <p className="text-sm font-mono text-red-500 uppercase">
             NO DATA LOGGED /// SECURE THE BAG
           </p>
         </CardContent>
@@ -61,22 +67,22 @@ export function PaymentHistory({ data }: { data: Array<AggregationRow> }) {
   }
 
   return (
-    <Card className="shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">
-      <CardHeader>
+    <Card className="h-full flex flex-col border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
+      <CardHeader className="border-b-2 border-black dark:border-white pb-3">
         <CardTitle className="text-black dark:text-white">
           PAYMENT HISTORY
         </CardTitle>
         <CardDescription>CREDITS COLLECTED (SMALLEST CURRENCY UNIT)</CardDescription>
       </CardHeader>
-      <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
+      <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6 flex-1 flex flex-col justify-between">
         <ChartContainer
           config={chartConfig}
-          className="aspect-auto h-[250px] w-full"
+          className="flex-1 min-h-[250px] w-full"
         >
           <AreaChart
             accessibilityLayer
             data={chartData}
-            margin={{ left: 12, right: 12 }}
+            margin={{ left: 0, right: 12, top: 12, bottom: 4 }}
           >
             <CartesianGrid
               vertical={false}
@@ -89,7 +95,14 @@ export function PaymentHistory({ data }: { data: Array<AggregationRow> }) {
               tickLine={false}
               axisLine={false}
               tickMargin={8}
-              tickFormatter={(v) => v?.slice(0, 10) ?? ""}
+              tickFormatter={(v) => v?.slice(5, 10) ?? ""}
+              className="fill-current text-xs text-muted-foreground"
+            />
+            <YAxis
+              tickLine={false}
+              axisLine={false}
+              tickMargin={8}
+              tickFormatter={formatYAxis}
               className="fill-current text-xs text-muted-foreground"
             />
             <ChartTooltip
