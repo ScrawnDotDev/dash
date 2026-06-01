@@ -162,9 +162,14 @@ function DashboardHome() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <StackedWrapper stretch>
           <EventList compact showViewMore mode={modeParam} />
-
+        </StackedWrapper>
+        <StackedWrapper stretch>
           <WebhookList compact role={modeParam} />
         </StackedWrapper>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div />
         {payments.loading ? (
           <StackedWrapper stretch>
             <Skeleton className="h-[300px] w-full border-2 border-black dark:border-white rounded-none" />
