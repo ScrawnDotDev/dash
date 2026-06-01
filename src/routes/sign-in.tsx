@@ -74,7 +74,7 @@ function SignIn() {
 
       <header className="relative z-20 flex w-full items-center justify-between border-b border-neutral-200 bg-white/80 px-6 py-4 backdrop-blur-md dark:border-neutral-800 dark:bg-black/80">
         <a href="https://www.scrawn.dev/" className="flex items-center gap-3 group">
-          <div className="border border-black bg-yellow-400 p-1.5 transition-transform group-hover:rotate-[-6deg] dark:border-white dark:bg-yellow-500">
+          <div className="border border-black bg-white p-1.5 transition-transform group-hover:rotate-[-6deg] dark:border-white dark:bg-black">
             <img
               src="/Scrawn_Logo.png"
               alt="Scrawn Logo"
