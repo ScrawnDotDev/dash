@@ -92,6 +92,7 @@ function DashboardLayout() {
           className="sticky top-0 z-40 flex h-svh flex-col justify-center pl-3 py-3 overflow-visible bg-transparent animate-in fade-in duration-300"
         >
           <motion.aside
+            layout
             initial={{ width: "4rem" }}
             animate={{ width: expanded ? "14rem" : "4rem" }}
             transition={{ duration: 0.2, ease: "easeInOut" }}
@@ -104,6 +105,7 @@ function DashboardLayout() {
                 className="h-8 w-8 shrink-0 object-contain border-2 border-black bg-white dark:bg-black p-0.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:border-white"
               />
               <motion.div
+                layout
                 animate={{
                   width: expanded ? "auto" : 0,
                   opacity: expanded ? 1 : 0,
