@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router"
-import { getDashboardSummary, getPaymentHistory, getUsageOverTime } from "@/lib/scrawn-server"
+import { getAiTokenUsage, getDashboardSummary, getPaymentHistory, getUsageOverTime } from "@/lib/scrawn-server"
 import { useCachedData, TTL } from "@/lib/useCache"
 import { useMode } from "@/lib/ModeContext"
 import { UsageOverTime } from "@/components/analytics/usage-over-time"
+import { AiTokenUsage } from "@/components/analytics/ai-token-usage"
 import { PaymentHistory } from "@/components/analytics/payment-history"
 import { EventList } from "@/components/events/EventList"
 import { WebhookList } from "@/components/webhooks/WebhookList"
@@ -53,6 +54,11 @@ function DashboardHome() {
     `payment-history:${mode}`,
     () => getPaymentHistory({ data: { mode: modeParam } }),
     TTL.PAYMENT_HISTORY
+  )
+  const ai = useCachedData(
+    `ai-token-usage:${mode}`,
+    () => getAiTokenUsage({ data: { mode: modeParam } }),
+    TTL.AI_TOKEN_USAGE
   )
 
   return (
@@ -163,13 +169,21 @@ function DashboardHome() {
         <StackedWrapper stretch>
           <EventList compact showViewMore mode={modeParam} />
         </StackedWrapper>
-        <StackedWrapper stretch>
-          <WebhookList compact role={modeParam} />
-        </StackedWrapper>
+        {ai.loading ? (
+          <StackedWrapper stretch>
+            <Skeleton className="h-[300px] w-full border-2 border-black dark:border-white rounded-none" />
+          </StackedWrapper>
+        ) : (
+          <StackedWrapper stretch>
+            <AiTokenUsage data={ai.data ?? { input: [], output: [] }} />
+          </StackedWrapper>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div />
+        <StackedWrapper stretch>
+          <WebhookList compact role={modeParam} />
+        </StackedWrapper>
         {payments.loading ? (
           <StackedWrapper stretch>
             <Skeleton className="h-[300px] w-full border-2 border-black dark:border-white rounded-none" />
