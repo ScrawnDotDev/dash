@@ -86,13 +86,11 @@ function DashboardLayout() {
             />
           </div>
         )}
-        <div
-          onMouseEnter={() => setExpanded(true)}
-          onMouseLeave={() => setExpanded(false)}
-          className="sticky top-0 z-40 flex h-svh flex-col justify-center pl-3 py-3 overflow-visible bg-transparent animate-in fade-in duration-300"
-        >
+        <div className="sticky top-0 z-40 flex h-svh flex-col justify-center pl-3 py-3 overflow-visible bg-transparent">
           <motion.aside
             layout
+            onMouseEnter={() => setExpanded(true)}
+            onMouseLeave={() => setExpanded(false)}
             initial={{ width: "4rem" }}
             animate={{ width: expanded ? "14rem" : "4rem" }}
             transition={{ duration: 0.2, ease: "easeInOut" }}

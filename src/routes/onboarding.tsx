@@ -199,13 +199,7 @@ function Onboarding() {
           <div className="relative z-10 w-full border-2 border-black bg-white p-8 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:bg-black dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
             
             {isSuccess ? (
-              <motion.div
-                key="success"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.3 }}
-                className="flex flex-col items-center justify-center py-12 text-center"
-              >
+              <div className="flex flex-col items-center justify-center py-12 text-center">
                   <motion.div
                     initial={{ scale: 0, rotate: -45 }}
                     animate={{ scale: 1, rotate: [0, -10, 10, 0] }}
@@ -231,7 +225,7 @@ function Onboarding() {
                     <span className="h-2 w-2 animate-ping bg-green-500 rounded-full" />
                     <span>Redirecting to control desk...</span>
                   </div>
-                </motion.div>
+                </div>
               ) : (
                 <form
                   key="wizard-form"
