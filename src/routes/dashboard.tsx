@@ -37,6 +37,7 @@ function DashboardLayout() {
   const refreshing = useIsRefreshing()
   const online = useOnlineStatus()
   const [signingOut, setSigningOut] = useState(false)
+  const [checkingConfig, setCheckingConfig] = useState(true)
 
   const triggerRefresh = useMemo(() => () => setRefreshVersion((v) => v + 1), [])
   const refreshValue = useMemo(
@@ -44,15 +45,22 @@ function DashboardLayout() {
     [refreshVersion, triggerRefresh],
   )
 
+  // Check onboarding before rendering dashboard
   useEffect(() => {
-    if (!session || isPending) return
+    if (isPending) return
+    if (!session) {
+      setCheckingConfig(false)
+      return
+    }
     getBackendConfig()
       .then((res) => {
         if (!res.configured) {
           navigate({ to: "/onboarding", replace: true })
+        } else {
+          setCheckingConfig(false)
         }
       })
-      .catch(() => {})
+      .catch(() => setCheckingConfig(false))
   }, [session, isPending])
 
   // Re-fetch all data when browser comes back online
@@ -61,7 +69,7 @@ function DashboardLayout() {
     return () => window.removeEventListener("online", triggerRefresh)
   }, [triggerRefresh])
 
-  if (isPending) return null
+  if (isPending || checkingConfig) return null
   if (!session && !signingOut) {
     navigate({ to: "/sign-in", replace: true })
     return null
