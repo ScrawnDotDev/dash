@@ -2,6 +2,7 @@ import { useState } from "react"
 import { createFileRoute } from "@tanstack/react-router"
 import { listDeliveries, listApiKeys } from "@/lib/scrawn-server"
 import { useCachedData, TTL } from "@/lib/useCache"
+import { useMode } from "@/lib/ModeContext"
 import { WebhookFilters, type WebhookFiltersValue } from "@/components/webhooks/WebhookFilters"
 import { Button } from "@/components/ui/button"
 
@@ -12,7 +13,9 @@ export const Route = createFileRoute("/dashboard/webhooks")({
 function WebhooksPage() {
   const [filters, setFilters] = useState<WebhookFiltersValue>({})
   const [page, setPage] = useState(0)
-  const [mode, setMode] = useState<string | undefined>(undefined)
+  const { mode, setMode } = useMode()
+
+  const roleParam = mode === "all" ? undefined : mode
 
   const keys = useCachedData("webhooks-page-keys", listApiKeys, TTL.API_KEYS)
   const allTypes = useCachedData(
@@ -21,8 +24,8 @@ function WebhooksPage() {
     TTL.DASHBOARD_SUMMARY
   )
   const { data: deliveriesData, loading, refresh } = useCachedData(
-    `webhook-deliveries:mode=${mode ?? "all"}:apiKeyId=${filters.apiKeyId ?? ""}:eventType=${filters.eventType ?? ""}:status=${filters.status ?? ""}:page=${page}`,
-    () => listDeliveries({ data: { apiKeyId: filters.apiKeyId, eventType: filters.eventType, status: filters.status, role: mode, limit: 20, offset: page * 20 } }),
+    `webhook-deliveries:mode=${mode}:apiKeyId=${filters.apiKeyId ?? ""}:eventType=${filters.eventType ?? ""}:status=${filters.status ?? ""}:page=${page}`,
+    () => listDeliveries({ data: { apiKeyId: filters.apiKeyId, eventType: filters.eventType, status: filters.status, role: roleParam, limit: 20, offset: page * 20 } }),
     TTL.WEBHOOK_DELIVERIES
   )
   const deliveries =
@@ -64,9 +67,9 @@ function WebhooksPage() {
             {(["all", "test", "production"] as const).map((m) => (
               <button
                 key={m}
-                onClick={() => setMode(m === "all" ? undefined : m)}
+                onClick={() => setMode(m)}
                 className={`px-3 py-1.5 font-mono text-xs font-black uppercase transition-colors ${
-                  (mode ?? "all") === m
+                  mode === m
                     ? "bg-yellow-400 text-black dark:bg-yellow-500"
                     : "text-gray-500 hover:bg-gray-100 hover:text-black dark:hover:bg-gray-800 dark:hover:text-white"
                 }`}

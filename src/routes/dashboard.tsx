@@ -15,6 +15,7 @@ import {
   useOnlineStatus,
   hasAnyCachedData,
 } from "@/lib/useCache"
+import { ModeProvider } from "@/lib/ModeContext"
 
 export const Route = createFileRoute("/dashboard")({
   component: DashboardLayout,
@@ -223,7 +224,9 @@ function DashboardLayout() {
                 </span>
               </div>
             )}
-            <Outlet />
+            <ModeProvider>
+              <Outlet />
+            </ModeProvider>
           </div>
         </main>
       </div>

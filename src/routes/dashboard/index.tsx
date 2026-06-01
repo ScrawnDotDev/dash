@@ -1,14 +1,8 @@
-import { useState } from "react"
 import { createFileRoute } from "@tanstack/react-router"
-import {
-  getAiTokenUsage,
-  getDashboardSummary,
-  getPaymentHistory,
-  getUsageOverTime,
-} from "@/lib/scrawn-server"
+import { getDashboardSummary, getPaymentHistory, getUsageOverTime } from "@/lib/scrawn-server"
 import { useCachedData, TTL } from "@/lib/useCache"
+import { useMode } from "@/lib/ModeContext"
 import { UsageOverTime } from "@/components/analytics/usage-over-time"
-import { AiTokenUsage } from "@/components/analytics/ai-token-usage"
 import { PaymentHistory } from "@/components/analytics/payment-history"
 import { EventList } from "@/components/events/EventList"
 import { WebhookList } from "@/components/webhooks/WebhookList"
@@ -41,26 +35,23 @@ function StackedWrapper({ children, className = "", stretch = false }: { childre
 }
 
 function DashboardHome() {
-  const [mode, setMode] = useState<string | undefined>(undefined)
+  const { mode, setMode } = useMode()
+
+  const modeParam = mode === "all" ? undefined : mode
 
   const summary = useCachedData(
-    `summary:${mode ?? "all"}`,
-    () => getDashboardSummary({ data: { mode } }),
+    `summary:${mode}`,
+    () => getDashboardSummary({ data: { mode: modeParam } }),
     TTL.DASHBOARD_SUMMARY
   )
   const usage = useCachedData(
-    `usage-over-time:${mode ?? "all"}`,
-    () => getUsageOverTime({ data: { mode } }),
+    `usage-over-time:${mode}`,
+    () => getUsageOverTime({ data: { mode: modeParam } }),
     TTL.USAGE_OVER_TIME
   )
-  const ai = useCachedData(
-    `ai-token-usage:${mode ?? "all"}`,
-    () => getAiTokenUsage({ data: { mode } }),
-    TTL.AI_TOKEN_USAGE
-  )
   const payments = useCachedData(
-    `payment-history:${mode ?? "all"}`,
-    () => getPaymentHistory({ data: { mode } }),
+    `payment-history:${mode}`,
+    () => getPaymentHistory({ data: { mode: modeParam } }),
     TTL.PAYMENT_HISTORY
   )
 
@@ -82,9 +73,9 @@ function DashboardHome() {
           {(["all", "test", "production"] as const).map((m) => (
             <button
               key={m}
-              onClick={() => setMode(m === "all" ? undefined : m)}
+              onClick={() => setMode(m)}
               className={`px-3 py-1.5 font-mono text-xs font-black uppercase transition-colors ${
-                (mode ?? "all") === m
+                mode === m
                   ? "bg-black text-white dark:bg-white dark:text-black"
                   : "text-gray-500 hover:bg-gray-100 hover:text-black dark:hover:bg-gray-800 dark:hover:text-white"
               }`}
@@ -170,22 +161,9 @@ function DashboardHome() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <StackedWrapper stretch>
-          <EventList compact showViewMore mode={mode} />
-        </StackedWrapper>
-        {ai.loading ? (
-          <StackedWrapper stretch>
-            <Skeleton className="h-[300px] w-full border-2 border-black dark:border-white rounded-none" />
-          </StackedWrapper>
-        ) : (
-          <StackedWrapper stretch>
-            <AiTokenUsage data={ai.data ?? { input: [], output: [] }} />
-          </StackedWrapper>
-        )}
-      </div>
+          <EventList compact showViewMore mode={modeParam} />
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <StackedWrapper stretch>
-          <WebhookList compact role={mode} />
+          <WebhookList compact role={modeParam} />
         </StackedWrapper>
         {payments.loading ? (
           <StackedWrapper stretch>
