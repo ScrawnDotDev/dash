@@ -20,6 +20,41 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { useTheme } from "@/lib/theme-provider"
 
 export const Route = createFileRoute("/dashboard/settings")({
+  head: () => ({
+    meta: [
+      {
+        title: "Console Settings | Scrawn Configuration",
+      },
+      {
+        name: "description",
+        content: "Configure subscription billing tags, develop custom pricing expressions, switch console theme aesthetics, and view workspace credentials.",
+      },
+      {
+        name: "og:title",
+        content: "Console Settings | Scrawn Configuration",
+      },
+      {
+        name: "og:description",
+        content: "Configure subscription billing tags, develop custom pricing expressions, switch console theme aesthetics, and view workspace credentials.",
+      },
+      {
+        name: "og:image",
+        content: "/og.svg",
+      },
+      {
+        name: "twitter:title",
+        content: "Console Settings | Scrawn Configuration",
+      },
+      {
+        name: "twitter:description",
+        content: "Configure subscription billing tags, develop custom pricing expressions, switch console theme aesthetics, and view workspace credentials.",
+      },
+      {
+        name: "twitter:image",
+        content: "/og.svg",
+      },
+    ],
+  }),
   component: SettingsPage,
 })
 

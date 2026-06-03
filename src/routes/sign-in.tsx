@@ -6,11 +6,48 @@ import { checkUsersExist, createAdminUser } from "@/lib/scrawn-server"
 import { Eye, EyeOff, Lock, Mail, User, ShieldAlert, ArrowRight } from "lucide-react"
 import { ThemeToggle } from "@/components/ThemeToggle"
 
-export const Route = createFileRoute("/sign-in")({ component: SignIn })
+export const Route = createFileRoute("/sign-in")({
+  head: () => ({
+    meta: [
+      {
+        title: "Sign In — Scrawn Developer Billing Console",
+      },
+      {
+        name: "description",
+        content: "Log in to your Scrawn console to manage developer api keys, monitor metered billing events, configure live webhooks, and scale your AI token pricing.",
+      },
+      {
+        name: "og:title",
+        content: "Sign In — Scrawn Developer Billing Console",
+      },
+      {
+        name: "og:description",
+        content: "Log in to your Scrawn console to manage developer api keys, monitor metered billing events, configure live webhooks, and scale your AI token pricing.",
+      },
+      {
+        name: "og:image",
+        content: "/og.svg",
+      },
+      {
+        name: "twitter:title",
+        content: "Sign In — Scrawn Developer Billing Console",
+      },
+      {
+        name: "twitter:description",
+        content: "Log in to your Scrawn console to manage developer api keys, monitor metered billing events, configure live webhooks, and scale your AI token pricing.",
+      },
+      {
+        name: "twitter:image",
+        content: "/og.svg",
+      },
+    ],
+  }),
+  component: SignIn,
+})
 
 function SignIn() {
   const navigate = useNavigate()
-  const { data: session, isPending } = authClient.useSession()
+  const { data: session } = authClient.useSession()
   const [mode, setMode] = useState<"loading" | "sign-in" | "setup">("loading")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")

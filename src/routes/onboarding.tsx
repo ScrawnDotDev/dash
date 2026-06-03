@@ -16,7 +16,44 @@ import {
   ArrowLeft,
 } from "lucide-react"
 
-export const Route = createFileRoute("/onboarding")({ component: Onboarding })
+export const Route = createFileRoute("/onboarding")({
+  head: () => ({
+    meta: [
+      {
+        title: "Initialize Gateway — Scrawn Onboarding Console",
+      },
+      {
+        name: "description",
+        content: "Configure your Scrawn billing gateway. Connect DodoPayments API credentials, webhook secrets, currency models, and redirection configurations.",
+      },
+      {
+        name: "og:title",
+        content: "Initialize Gateway — Scrawn Onboarding Console",
+      },
+      {
+        name: "og:description",
+        content: "Configure your Scrawn billing gateway. Connect DodoPayments API credentials, webhook secrets, currency models, and redirection configurations.",
+      },
+      {
+        name: "og:image",
+        content: "/og.svg",
+      },
+      {
+        name: "twitter:title",
+        content: "Initialize Gateway — Scrawn Onboarding Console",
+      },
+      {
+        name: "twitter:description",
+        content: "Configure your Scrawn billing gateway. Connect DodoPayments API credentials, webhook secrets, currency models, and redirection configurations.",
+      },
+      {
+        name: "twitter:image",
+        content: "/og.svg",
+      },
+    ],
+  }),
+  component: Onboarding,
+})
 
 const stepDetails = [
   {

@@ -11,6 +11,41 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 
 export const Route = createFileRoute("/dashboard/api-keys")({
+  head: () => ({
+    meta: [
+      {
+        title: "API Keys | Scrawn Access Tokens",
+      },
+      {
+        name: "description",
+        content: "Generate, inspect, and revoke secure API keys for production and development networks in your Scrawn billing console.",
+      },
+      {
+        name: "og:title",
+        content: "API Keys | Scrawn Access Tokens",
+      },
+      {
+        name: "og:description",
+        content: "Generate, inspect, and revoke secure API keys for production and development networks in your Scrawn billing console.",
+      },
+      {
+        name: "og:image",
+        content: "/og.svg",
+      },
+      {
+        name: "twitter:title",
+        content: "API Keys | Scrawn Access Tokens",
+      },
+      {
+        name: "twitter:description",
+        content: "Generate, inspect, and revoke secure API keys for production and development networks in your Scrawn billing console.",
+      },
+      {
+        name: "twitter:image",
+        content: "/og.svg",
+      },
+    ],
+  }),
   component: ApiKeysLayout,
 })
 

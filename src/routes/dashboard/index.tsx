@@ -11,6 +11,41 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 
 export const Route = createFileRoute("/dashboard/")({
+  head: () => ({
+    meta: [
+      {
+        title: "Dashboard Overview | Scrawn Usage-Based Billing",
+      },
+      {
+        name: "description",
+        content: "Inspect your live usage-based billing logs, track API token consumption metrics by model, analyze event history, and audit credits collected in real-time.",
+      },
+      {
+        name: "og:title",
+        content: "Dashboard Overview | Scrawn Usage-Based Billing",
+      },
+      {
+        name: "og:description",
+        content: "Inspect your live usage-based billing logs, track API token consumption metrics by model, analyze event history, and audit credits collected in real-time.",
+      },
+      {
+        name: "og:image",
+        content: "/og.svg",
+      },
+      {
+        name: "twitter:title",
+        content: "Dashboard Overview | Scrawn Usage-Based Billing",
+      },
+      {
+        name: "twitter:description",
+        content: "Inspect your live usage-based billing logs, track API token consumption metrics by model, analyze event history, and audit credits collected in real-time.",
+      },
+      {
+        name: "twitter:image",
+        content: "/og.svg",
+      },
+    ],
+  }),
   component: DashboardHome,
 })
 

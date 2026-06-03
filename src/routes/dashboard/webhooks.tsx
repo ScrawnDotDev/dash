@@ -7,6 +7,41 @@ import { WebhookFilters, type WebhookFiltersValue } from "@/components/webhooks/
 import { Button } from "@/components/ui/button"
 
 export const Route = createFileRoute("/dashboard/webhooks")({
+  head: () => ({
+    meta: [
+      {
+        title: "Webhooks Log | Scrawn Telemetry Deliveries",
+      },
+      {
+        name: "description",
+        content: "Monitor webhook deliveries, review HTTP response payloads, inspect error logs, and track events dispatched from DodoPayments in real-time.",
+      },
+      {
+        name: "og:title",
+        content: "Webhooks Log | Scrawn Telemetry Deliveries",
+      },
+      {
+        name: "og:description",
+        content: "Monitor webhook deliveries, review HTTP response payloads, inspect error logs, and track events dispatched from DodoPayments in real-time.",
+      },
+      {
+        name: "og:image",
+        content: "/og.svg",
+      },
+      {
+        name: "twitter:title",
+        content: "Webhooks Log | Scrawn Telemetry Deliveries",
+      },
+      {
+        name: "twitter:description",
+        content: "Monitor webhook deliveries, review HTTP response payloads, inspect error logs, and track events dispatched from DodoPayments in real-time.",
+      },
+      {
+        name: "twitter:image",
+        content: "/og.svg",
+      },
+    ],
+  }),
   component: WebhooksPage,
 })
 

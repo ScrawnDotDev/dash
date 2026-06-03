@@ -18,6 +18,41 @@ import {
 import { ModeProvider } from "@/lib/ModeContext"
 
 export const Route = createFileRoute("/dashboard")({
+  head: () => ({
+    meta: [
+      {
+        title: "Developer Console — Scrawn Usage-Based Metered Billing",
+      },
+      {
+        name: "description",
+        content: "Access your Scrawn billing console to view API event meters, manage developer access keys, configure webhooks, and track payment transactions.",
+      },
+      {
+        name: "og:title",
+        content: "Developer Console — Scrawn Usage-Based Metered Billing",
+      },
+      {
+        name: "og:description",
+        content: "Access your Scrawn billing console to view API event meters, manage developer access keys, configure webhooks, and track payment transactions.",
+      },
+      {
+        name: "og:image",
+        content: "/og.svg",
+      },
+      {
+        name: "twitter:title",
+        content: "Developer Console — Scrawn Usage-Based Metered Billing",
+      },
+      {
+        name: "twitter:description",
+        content: "Access your Scrawn billing console to view API event meters, manage developer access keys, configure webhooks, and track payment transactions.",
+      },
+      {
+        name: "twitter:image",
+        content: "/og.svg",
+      },
+    ],
+  }),
   component: DashboardLayout,
 })
 

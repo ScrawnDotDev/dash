@@ -32,11 +32,15 @@ export const Route = createRootRoute({
       },
       {
         name: "og:image",
-        content: "/og.png",
+        content: "/og.svg",
       },
       {
         name: "twitter:card",
         content: "summary_large_image",
+      },
+      {
+        name: "twitter:image",
+        content: "/og.svg",
       },
     ],
     links: [
