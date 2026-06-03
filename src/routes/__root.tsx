@@ -28,11 +28,11 @@ export const Route = createRootRoute({
       {
         name: "og:description",
         content:
-          "Bill your self-rolled abomination in one-ish line. Open-source usage-based billing that wraps DodoPayments.",
+          "Bill your self-rolled abomination in one-ish line. Open-source usage-based billing infrastructure for builders.",
       },
       {
         name: "og:image",
-        content: "/og.svg",
+        content: "/og.jpg",
       },
       {
         name: "twitter:card",
@@ -40,7 +40,7 @@ export const Route = createRootRoute({
       },
       {
         name: "twitter:image",
-        content: "/og.svg",
+        content: "/og.jpg",
       },
     ],
     links: [

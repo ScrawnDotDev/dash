@@ -36,7 +36,7 @@ export const Route = createFileRoute("/onboarding")({
       },
       {
         name: "og:image",
-        content: "/og.svg",
+        content: "/og.jpg",
       },
       {
         name: "twitter:title",
@@ -48,7 +48,7 @@ export const Route = createFileRoute("/onboarding")({
       },
       {
         name: "twitter:image",
-        content: "/og.svg",
+        content: "/og.jpg",
       },
     ],
   }),
