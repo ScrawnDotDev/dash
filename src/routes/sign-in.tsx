@@ -25,7 +25,6 @@ function SignIn() {
     })
   }, [])
 
-  if (isPending) return null
   if (session) {
     navigate({ to: "/dashboard", replace: true })
     return null
