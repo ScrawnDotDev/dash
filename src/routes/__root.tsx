@@ -32,7 +32,19 @@ export const Route = createRootRoute({
       },
       {
         name: "og:image",
-        content: "/og.jpg",
+        content: "https://app.scrawn.dev/og.jpg",
+      },
+      {
+        name: "og:image:width",
+        content: "1200",
+      },
+      {
+        name: "og:image:height",
+        content: "630",
+      },
+      {
+        name: "og:image:type",
+        content: "image/jpeg",
       },
       {
         name: "twitter:card",
@@ -40,7 +52,7 @@ export const Route = createRootRoute({
       },
       {
         name: "twitter:image",
-        content: "/og.jpg",
+        content: "https://app.scrawn.dev/og.jpg",
       },
     ],
     links: [
