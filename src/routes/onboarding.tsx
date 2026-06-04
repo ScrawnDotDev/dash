@@ -12,7 +12,8 @@ function Onboarding() {
 
   const [dodoLiveApiKey, setDodoLiveApiKey] = useState("")
   const [dodoTestApiKey, setDodoTestApiKey] = useState("")
-  const [dodoProductId, setDodoProductId] = useState("")
+  const [dodoLiveProductId, setDodoLiveProductId] = useState("")
+  const [dodoTestProductId, setDodoTestProductId] = useState("")
   const [dodoWebhookSecret, setDodoWebhookSecret] = useState("")
   const [currency, setCurrency] = useState("usd")
   const [redirectUrl, setRedirectUrl] = useState("http://localhost:3000")
@@ -42,7 +43,8 @@ function Onboarding() {
       data: {
         dodoLiveApiKey,
         dodoTestApiKey,
-        dodoProductId,
+        dodoLiveProductId,
+        dodoTestProductId,
         dodoWebhookSecret,
         currency,
         redirectUrl,
@@ -105,12 +107,24 @@ function Onboarding() {
           />
 
           <label className="mt-2 text-sm font-medium text-black dark:text-white">
-            DODO PRODUCT ID
+            DODO LIVE PRODUCT ID
           </label>
           <input
             type="text"
-            value={dodoProductId}
-            onChange={(e) => setDodoProductId(e.target.value)}
+            value={dodoLiveProductId}
+            onChange={(e) => setDodoLiveProductId(e.target.value)}
+            placeholder="pdt_..."
+            required
+            className="border-2 border-black bg-white px-4 py-2 text-sm font-medium text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all outline-none focus:translate-x-[2px] focus:translate-y-[2px] focus:shadow-none dark:bg-black dark:text-white dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] dark:border-white"
+          />
+
+          <label className="mt-2 text-sm font-medium text-black dark:text-white">
+            DODO TEST PRODUCT ID
+          </label>
+          <input
+            type="text"
+            value={dodoTestProductId}
+            onChange={(e) => setDodoTestProductId(e.target.value)}
             placeholder="pdt_..."
             required
             className="border-2 border-black bg-white px-4 py-2 text-sm font-medium text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all outline-none focus:translate-x-[2px] focus:translate-y-[2px] focus:shadow-none dark:bg-black dark:text-white dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] dark:border-white"
