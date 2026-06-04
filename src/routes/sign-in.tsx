@@ -62,10 +62,11 @@ function SignIn() {
     })
   }, [])
 
-  if (session) {
-    navigate({ to: "/dashboard", replace: true })
-    return null
-  }
+  useEffect(() => {
+    if (session) {
+      navigate({ to: "/dashboard", replace: true })
+    }
+  }, [session, navigate])
   if (mode === "loading") return null
 
   async function handleSignIn(e: React.FormEvent) {

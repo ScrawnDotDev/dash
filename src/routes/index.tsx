@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
+import { useEffect } from "react"
 import { authClient } from "@/lib/auth-client"
 
 export const Route = createFileRoute("/")({
@@ -44,11 +45,10 @@ function Home() {
   const navigate = useNavigate()
   const { data: session, isPending } = authClient.useSession()
 
-  if (isPending) return null
-  if (session) {
-    navigate({ to: "/dashboard", replace: true })
-    return null
-  }
-  navigate({ to: "/sign-in", replace: true })
+  useEffect(() => {
+    if (isPending) return
+    navigate({ to: session ? "/dashboard" : "/sign-in", replace: true })
+  }, [session, isPending, navigate])
+
   return null
 }

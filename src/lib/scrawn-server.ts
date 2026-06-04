@@ -47,7 +47,8 @@ export const getBackendConfig = createServerFn({ method: "GET" }).handler(
     if (!res.ok) return { configured: false }
     return res.json() as Promise<{
       configured: boolean
-      dodo_product_id?: string
+      dodo_live_product_id?: string
+      dodo_test_product_id?: string
     }>
   }
 )
@@ -57,7 +58,8 @@ export const submitOnboarding = createServerFn({ method: "POST" })
     validator<{
       dodoLiveApiKey: string
       dodoTestApiKey: string
-      dodoProductId: string
+      dodoLiveProductId: string
+      dodoTestProductId: string
       dodoWebhookSecret: string
       currency: string
       redirectUrl: string
