@@ -132,9 +132,11 @@ function WebhooksPage() {
       {loading ? (
         <p className="text-sm text-gray-500 font-mono">Loading logs...</p>
       ) : deliveries.length === 0 ? (
-        <p className="font-mono text-sm font-bold text-red-500 uppercase">
-          No Deliveries Found
-        </p>
+        <div className="flex flex-col items-center justify-center py-16 gap-3 border-2 border-black bg-white dark:bg-black dark:border-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
+          <span className="font-mono text-3xl text-neutral-300 dark:text-neutral-700">—</span>
+          <p className="font-mono text-xs font-bold text-neutral-400 uppercase">No Deliveries Yet</p>
+          <p className="font-mono text-[10px] text-neutral-400">Webhook deliveries will appear here</p>
+        </div>
       ) : (
         <div className="flex flex-col gap-3">
           {deliveries.map((d: Record<string, unknown>) => (

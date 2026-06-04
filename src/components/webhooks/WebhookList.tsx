@@ -33,8 +33,6 @@ export function WebhookList({
 
   const deliveries = (data as { deliveries: Array<Record<string, unknown>> } | null)?.deliveries ?? []
 
-  if (compact && !loading && !error && deliveries.length === 0) return null
-
   return (
     <Card className="border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
       <CardHeader className="pb-3 border-b-2 border-black dark:border-white">
@@ -46,7 +44,10 @@ export function WebhookList({
         ) : error ? (
           <p className="font-mono text-xs font-bold text-red-500">{error}</p>
         ) : deliveries.length === 0 ? (
-          <p className="font-mono text-xs font-bold text-red-500 uppercase">No Deliveries Yet</p>
+          <div className="flex flex-col items-center justify-center py-8 gap-2">
+            <span className="font-mono text-2xl text-neutral-300 dark:text-neutral-700">—</span>
+            <p className="font-mono text-xs font-bold text-neutral-400 uppercase">No Deliveries Yet</p>
+          </div>
         ) : (
           <div className="flex flex-col gap-2">
             {deliveries.map((d) => (
