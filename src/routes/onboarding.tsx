@@ -150,6 +150,18 @@ function Onboarding() {
       setLoading(false)
       return
     }
+
+    // Wait for the backend to confirm config before navigating
+    // Prevents a race where the dashboard mounts before the DB write propagates
+    for (let i = 0; i < 10; i++) {
+      const config = await getBackendConfig()
+      if (config.configured) {
+        navigate({ to: "/dashboard", replace: true })
+        return
+      }
+      await new Promise((r) => setTimeout(r, 500))
+    }
+
     navigate({ to: "/dashboard", replace: true })
   }
 

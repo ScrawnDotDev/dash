@@ -3,6 +3,7 @@ import {
   Outlet,
   useNavigate,
   useLocation,
+  useRouter,
 } from "@tanstack/react-router"
 import { useEffect, useMemo, useState } from "react"
 import { motion } from "framer-motion"
@@ -66,6 +67,7 @@ const navItems = [
 function DashboardLayout() {
   const navigate = useNavigate()
   const location = useLocation()
+  const router = useRouter()
   const { data: session, isPending } = authClient.useSession()
   const [refreshVersion, setRefreshVersion] = useState(0)
   const [expanded, setExpanded] = useState(false)
@@ -97,6 +99,13 @@ function DashboardLayout() {
       })
       .catch(() => setCheckingConfig(false))
   }, [session, isPending])
+
+  // Preload all sidebar routes once config confirms
+  useEffect(() => {
+    if (checkingConfig) return
+    const routes = ["/dashboard", "/dashboard/api-keys", "/dashboard/settings", "/dashboard/webhooks"]
+    routes.forEach((path) => router.preloadRoute({ to: path }))
+  }, [checkingConfig])
 
   // Re-fetch all data when browser comes back online
   useEffect(() => {
