@@ -44,11 +44,11 @@ export function EventList({
   if (compact && !loading && !error && events.length === 0) return null
 
   return (
-    <Card className="shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">
-      <CardHeader className="pb-3">
+    <Card className="border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
+      <CardHeader className="pb-3 border-b-2 border-black dark:border-white">
         <CardTitle className="text-sm">{title ?? "Recent Events"}</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pt-4">
         {loading && !data ? (
           <div className={`w-full rounded-none border-2 border-black dark:border-white ${compact ? "h-[160px]" : "h-[300px]"}`} />
         ) : error ? (
@@ -56,25 +56,25 @@ export function EventList({
         ) : events.length === 0 ? (
           <p className="font-mono text-xs font-bold text-red-500 uppercase">No Events Yet</p>
         ) : (
-          <div className="flex flex-col">
-            {events.map((evt, i) => (
+          <div className="flex flex-col gap-2">
+            {events.map((evt) => (
               <div
                 key={evt.eventId as string}
-                className={`flex items-center justify-between py-2 text-xs ${i > 0 ? "border-t-2 border-black dark:border-white" : ""}`}
+                className="flex items-center justify-between border-2 border-black bg-white dark:bg-black p-2.5 font-mono text-xs shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
               >
                 <div className="flex items-center gap-2 min-w-0">
-                  <span className="font-mono font-bold text-black uppercase truncate dark:text-white">
+                  <span className="font-mono font-bold bg-neutral-100 dark:bg-neutral-900 text-black dark:text-white border border-neutral-300 dark:border-neutral-700 px-1.5 py-0.5 text-[10px] uppercase truncate">
                     {String(evt.eventType ?? "")}
                   </span>
-                  <span className="text-gray-400 font-mono truncate max-w-[120px]">
-                    {String(evt.userId ?? "").slice(0, 16)}...
+                  <span className="text-neutral-500 font-mono truncate max-w-[120px]">
+                    {String(evt.userId ?? "").slice(0, 12)}...
                   </span>
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
-                  <span className="font-mono font-black text-black dark:text-white">
-                    {Number(evt.debitAmount ?? 0).toLocaleString()}
+                  <span className="font-mono font-black text-[#eab308]">
+                    -{Number(evt.debitAmount ?? 0).toLocaleString()}
                   </span>
-                  <span className="text-gray-400 font-mono text-[10px]">
+                  <span className="text-neutral-400 text-[10px]">
                     {String(evt.ingestedTimestamp ?? "").slice(0, 10)}
                   </span>
                 </div>

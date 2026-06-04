@@ -5,6 +5,7 @@ import { EventFilters, type EventFiltersValue } from "@/components/events/EventF
 import { EventList } from "@/components/events/EventList"
 import { Button } from "@/components/ui/button"
 import { useCachedData, TTL } from "@/lib/useCache"
+import { useMode } from "@/lib/ModeContext"
 
 export const Route = createFileRoute("/dashboard/events")({
   component: EventsPage,
@@ -14,7 +15,8 @@ const EVENT_TYPE_OPTIONS = ["BASIC_USAGE", "AI_TOKEN_USAGE"]
 
 function EventsPage() {
   const [filters, setFilters] = useState<EventFiltersValue>({})
-  const [mode, setMode] = useState<string | undefined>(undefined)
+  const { mode, setMode } = useMode()
+  const modeParam = mode === "all" ? undefined : mode
   const keys = useCachedData("events-page-keys", listApiKeys, TTL.API_KEYS)
 
   const keysData = (keys.data as { keys: Array<Record<string, unknown>> } | null)?.keys ?? []
@@ -34,9 +36,9 @@ function EventsPage() {
             {(["all", "test", "production"] as const).map((m) => (
               <button
                 key={m}
-                onClick={() => setMode(m === "all" ? undefined : m)}
+                onClick={() => setMode(m)}
                 className={`px-3 py-1.5 font-mono text-xs font-black uppercase transition-colors ${
-                  (mode ?? "all") === m
+                  mode === m
                     ? "bg-yellow-400 text-black dark:bg-yellow-500"
                     : "text-gray-500 hover:bg-gray-100 hover:text-black dark:hover:bg-gray-800 dark:hover:text-white"
                 }`}
@@ -50,7 +52,7 @@ function EventsPage() {
             variant="secondary"
             onClick={() => {
               setFilters({})
-              setMode(undefined)
+              setMode("all")
             }}
           >
             RESET
@@ -73,7 +75,7 @@ function EventsPage() {
         userId={filters.userId}
         eventType={filters.eventType}
         model={filters.model}
-        mode={mode}
+        mode={modeParam}
         pageSize={15}
         title="All Events"
       />

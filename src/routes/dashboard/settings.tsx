@@ -20,6 +20,41 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { useTheme } from "@/lib/theme-provider"
 
 export const Route = createFileRoute("/dashboard/settings")({
+  head: () => ({
+    meta: [
+      {
+        title: "Console Settings | Scrawn Configuration",
+      },
+      {
+        name: "description",
+        content: "Configure subscription billing tags, develop custom pricing expressions, switch console theme aesthetics, and view workspace credentials.",
+      },
+      {
+        name: "og:title",
+        content: "Console Settings | Scrawn Configuration",
+      },
+      {
+        name: "og:description",
+        content: "Configure subscription billing tags, develop custom pricing expressions, switch console theme aesthetics, and view workspace credentials.",
+      },
+      {
+        name: "og:image",
+        content: "/og.jpg",
+      },
+      {
+        name: "twitter:title",
+        content: "Console Settings | Scrawn Configuration",
+      },
+      {
+        name: "twitter:description",
+        content: "Configure subscription billing tags, develop custom pricing expressions, switch console theme aesthetics, and view workspace credentials.",
+      },
+      {
+        name: "twitter:image",
+        content: "/og.jpg",
+      },
+    ],
+  }),
   component: SettingsPage,
 })
 
@@ -118,12 +153,12 @@ function SettingsPage() {
             Settings
           </h1>
 
-          <div className="flex border-2 border-black bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:bg-black dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">
+          <div className="flex border-2 border-black bg-white shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:bg-black dark:shadow-[3px_3px_0px_0px_rgba(255,255,255,1)]">
             {(["light", "dark", "system"] as const).map((t) => (
               <button
                 key={t}
                 onClick={() => setTheme(t)}
-                className={`px-3 py-2 font-mono text-xs font-black uppercase transition-colors ${theme === t ? "bg-yellow-400 text-black dark:bg-yellow-500" : "text-gray-500 hover:bg-gray-100 hover:text-black dark:hover:bg-gray-800 dark:hover:text-white"}`}
+                className={`px-3 py-2 font-mono text-xs font-black uppercase transition-colors ${theme === t ? "bg-black text-white dark:bg-white dark:text-black" : "text-neutral-500 hover:bg-neutral-100 hover:text-black dark:hover:bg-neutral-900 dark:hover:text-white"}`}
               >
                 {t}
               </button>
@@ -135,10 +170,13 @@ function SettingsPage() {
         </Button>
       </div>
 
-      <section className="border-2 border-black bg-white p-6 dark:border-white dark:bg-black">
-        <h2 className="mb-4 font-mono text-xl font-black text-black uppercase dark:text-white">
-          TAGS
-        </h2>
+      <section className="border-2 border-black bg-white p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:bg-black dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
+        <div className="mb-4 border-b-2 border-black dark:border-white pb-3 flex items-center justify-between">
+          <h2 className="font-mono text-xl font-black text-black uppercase dark:text-white">
+            TAGS
+          </h2>
+          <span className="font-mono text-xs text-neutral-400 font-bold">+</span>
+        </div>
         <form onSubmit={handleAddTag} className="mb-6 flex gap-2">
           <input
             value={newTagKey}
@@ -169,13 +207,13 @@ function SettingsPage() {
           </p>
         )}
         <div className="flex flex-wrap gap-3">
-          {tagList.map((key) => {
+          {tagList.map((key, i) => {
             const amount = getTagAmount(key)
             const deleting = deletingTag === key
             return (
               <div
                 key={key}
-                className="flex items-center gap-3 border-2 border-black bg-yellow-400 py-1 pr-1 pl-3 font-mono text-sm font-bold text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:bg-yellow-500"
+                className={`flex items-center gap-3 border-2 border-black bg-yellow-400 py-1 pr-1 pl-3 font-mono text-sm font-bold text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:bg-yellow-500 ${i % 2 === 0 ? "rotate-[-1deg]" : "rotate-[1deg]"}`}
               >
                 <span>
                   {key}
@@ -200,10 +238,13 @@ function SettingsPage() {
         </div>
       </section>
 
-      <section className="border-2 border-black bg-white p-6 dark:border-white dark:bg-black">
-        <h2 className="mb-4 font-mono text-xl font-black text-black uppercase dark:text-white">
-          EXPRESSIONS
-        </h2>
+      <section className="border-2 border-black bg-white p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:bg-black dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
+        <div className="mb-4 border-b-2 border-black dark:border-white pb-3 flex items-center justify-between">
+          <h2 className="font-mono text-xl font-black text-black uppercase dark:text-white">
+            EXPRESSIONS
+          </h2>
+          <span className="font-mono text-xs text-neutral-400 font-bold">+</span>
+        </div>
         <div className="mb-6">
           <ExpressionBuilder
             tags={tagList}
@@ -218,12 +259,12 @@ function SettingsPage() {
           </p>
         )}
         <div className="flex flex-wrap gap-3">
-          {exprList.map((e) => {
+          {exprList.map((e, i) => {
             const deleting = deletingExpr === e
             return (
               <div
                 key={e}
-                className="flex items-center gap-3 border-2 border-black bg-yellow-400 py-1 pr-1 pl-3 font-mono text-sm font-bold text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:border-white"
+                className={`flex items-center gap-3 border-2 border-black bg-yellow-400 py-1 pr-1 pl-3 font-mono text-sm font-bold text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:border-white ${i % 2 === 0 ? "rotate-[1deg]" : "rotate-[-1deg]"}`}
               >
                 <span>{e}</span>
                 <button

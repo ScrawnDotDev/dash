@@ -28,15 +28,31 @@ export const Route = createRootRoute({
       {
         name: "og:description",
         content:
-          "Bill your self-rolled abomination in one-ish line. Open-source usage-based billing that wraps DodoPayments.",
+          "Bill your self-rolled abomination in one-ish line. Open-source usage-based billing infrastructure for builders.",
       },
       {
         name: "og:image",
-        content: "/og.png",
+        content: "https://app.scrawn.dev/og.jpg",
+      },
+      {
+        name: "og:image:width",
+        content: "1200",
+      },
+      {
+        name: "og:image:height",
+        content: "630",
+      },
+      {
+        name: "og:image:type",
+        content: "image/jpeg",
       },
       {
         name: "twitter:card",
         content: "summary_large_image",
+      },
+      {
+        name: "twitter:image",
+        content: "https://app.scrawn.dev/og.jpg",
       },
     ],
     links: [

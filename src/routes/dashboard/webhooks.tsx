@@ -2,17 +2,55 @@ import { useState } from "react"
 import { createFileRoute } from "@tanstack/react-router"
 import { listDeliveries, listApiKeys } from "@/lib/scrawn-server"
 import { useCachedData, TTL } from "@/lib/useCache"
+import { useMode } from "@/lib/ModeContext"
 import { WebhookFilters, type WebhookFiltersValue } from "@/components/webhooks/WebhookFilters"
 import { Button } from "@/components/ui/button"
 
 export const Route = createFileRoute("/dashboard/webhooks")({
+  head: () => ({
+    meta: [
+      {
+        title: "Webhooks Log | Scrawn Telemetry Deliveries",
+      },
+      {
+        name: "description",
+        content: "Monitor webhook deliveries, review HTTP response payloads, inspect error logs, and track events dispatched from DodoPayments in real-time.",
+      },
+      {
+        name: "og:title",
+        content: "Webhooks Log | Scrawn Telemetry Deliveries",
+      },
+      {
+        name: "og:description",
+        content: "Monitor webhook deliveries, review HTTP response payloads, inspect error logs, and track events dispatched from DodoPayments in real-time.",
+      },
+      {
+        name: "og:image",
+        content: "/og.jpg",
+      },
+      {
+        name: "twitter:title",
+        content: "Webhooks Log | Scrawn Telemetry Deliveries",
+      },
+      {
+        name: "twitter:description",
+        content: "Monitor webhook deliveries, review HTTP response payloads, inspect error logs, and track events dispatched from DodoPayments in real-time.",
+      },
+      {
+        name: "twitter:image",
+        content: "/og.jpg",
+      },
+    ],
+  }),
   component: WebhooksPage,
 })
 
 function WebhooksPage() {
   const [filters, setFilters] = useState<WebhookFiltersValue>({})
   const [page, setPage] = useState(0)
-  const [mode, setMode] = useState<string | undefined>(undefined)
+  const { mode, setMode } = useMode()
+
+  const roleParam = mode === "all" ? undefined : mode
 
   const keys = useCachedData("webhooks-page-keys", listApiKeys, TTL.API_KEYS)
   const allTypes = useCachedData(
@@ -21,8 +59,8 @@ function WebhooksPage() {
     TTL.DASHBOARD_SUMMARY
   )
   const { data: deliveriesData, loading, refresh } = useCachedData(
-    `webhook-deliveries:mode=${mode ?? "all"}:apiKeyId=${filters.apiKeyId ?? ""}:eventType=${filters.eventType ?? ""}:status=${filters.status ?? ""}:page=${page}`,
-    () => listDeliveries({ data: { apiKeyId: filters.apiKeyId, eventType: filters.eventType, status: filters.status, role: mode, limit: 20, offset: page * 20 } }),
+    `webhook-deliveries:mode=${mode}:apiKeyId=${filters.apiKeyId ?? ""}:eventType=${filters.eventType ?? ""}:status=${filters.status ?? ""}:page=${page}`,
+    () => listDeliveries({ data: { apiKeyId: filters.apiKeyId, eventType: filters.eventType, status: filters.status, role: roleParam, limit: 20, offset: page * 20 } }),
     TTL.WEBHOOK_DELIVERIES
   )
   const deliveries =
@@ -51,17 +89,22 @@ function WebhooksPage() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
-        <h1 className="font-mono text-2xl font-black tracking-widest text-black uppercase dark:text-white">
-          Webhooks
-        </h1>
         <div className="flex items-center gap-3">
-          <div className="flex border-2 border-black bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:bg-black dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">
+          <h1 className="font-mono text-2xl font-black tracking-widest text-black uppercase dark:text-white">
+            Webhooks
+          </h1>
+          <span className="border-2 border-black bg-[#38bdf8] px-2 py-0.5 font-mono text-xs font-black uppercase text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] rotate-[1deg] dark:border-white dark:text-black">
+            Deliveries
+          </span>
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="flex border-2 border-black bg-white shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:bg-black dark:shadow-[3px_3px_0px_0px_rgba(255,255,255,1)]">
             {(["all", "test", "production"] as const).map((m) => (
               <button
                 key={m}
-                onClick={() => setMode(m === "all" ? undefined : m)}
+                onClick={() => setMode(m)}
                 className={`px-3 py-1.5 font-mono text-xs font-black uppercase transition-colors ${
-                  (mode ?? "all") === m
+                  mode === m
                     ? "bg-yellow-400 text-black dark:bg-yellow-500"
                     : "text-gray-500 hover:bg-gray-100 hover:text-black dark:hover:bg-gray-800 dark:hover:text-white"
                 }`}
@@ -76,7 +119,7 @@ function WebhooksPage() {
         </div>
       </div>
 
-      <div className="border-2 border-black bg-white p-4 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:bg-black dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">
+      <div className="border-2 border-black bg-white p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:bg-card dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
         <WebhookFilters
           value={filters}
           onChange={(v) => { setFilters(v); setPage(0) }}
@@ -93,11 +136,11 @@ function WebhooksPage() {
           No Deliveries Found
         </p>
       ) : (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-3">
           {deliveries.map((d: Record<string, unknown>) => (
             <div
               key={d.id as string}
-              className="border-2 border-black bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:bg-black dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]"
+              className={`border-2 border-black bg-white dark:bg-card shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] ${d.status === "delivered" ? "border-l-8 border-l-green-500" : "border-l-8 border-l-red-500"}`}
             >
               <div className="p-4">
                 <div className="flex items-start justify-between border-b-2 border-black pb-3 dark:border-white">
@@ -109,7 +152,7 @@ function WebhooksPage() {
                       <span className="font-mono text-sm font-black text-black uppercase dark:text-white">
                         {String(d.eventType ?? "")}
                       </span>
-                      <span className="text-xs text-gray-500">
+                      <span className="text-xs text-gray-500 dark:text-neutral-400">
                         {String(d.resource ?? "")}.{String(d.action ?? "")}
                       </span>
                       <span
@@ -118,14 +161,14 @@ function WebhooksPage() {
                         {String(d.apiKeyRole ?? "")}
                       </span>
                     </div>
-                    <div className="mt-2 space-y-1 text-xs text-gray-500">
+                    <div className="mt-2 space-y-1 text-xs text-gray-500 dark:text-neutral-400">
                       <p>ID: {String(d.eventId ?? "")}</p>
                       {!!d.endpointUrl && <p>ENDPOINT: <code className="font-bold break-all text-black dark:text-white">{String(d.endpointUrl)}</code></p>}
                       {!!d.apiKeyName && <p>KEY: <span className="font-bold text-black dark:text-white">{String(d.apiKeyName)}</span></p>}
                     </div>
                   </div>
                   <div className="flex flex-col items-end gap-2">
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-gray-500 dark:text-neutral-400">
                       {new Date(String(d.createdAt ?? "")).toLocaleString()}
                     </p>
                     {d.responseStatus != null && (
@@ -156,7 +199,7 @@ function WebhooksPage() {
                       {expanded.has(d.id as string) ? "HIDE" : "SHOW"} PAYLOAD
                     </Button>
                     {expanded.has(d.id as string) && (
-                      <pre className="mt-2 overflow-x-auto border-2 border-black bg-gray-100 p-3 font-mono text-xs text-black shadow-[inset_4px_4px_0px_0px_rgba(0,0,0,0.1)] dark:border-white dark:bg-gray-900 dark:text-white dark:shadow-[inset_4px_4px_0px_0px_rgba(255,255,255,0.1)]">
+                      <pre className="mt-2 overflow-x-auto border-2 border-black bg-black p-3 font-mono text-xs text-green-400 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">
                         {JSON.stringify(d.requestBody, null, 2)}
                       </pre>
                     )}

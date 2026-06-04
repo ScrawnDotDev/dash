@@ -18,6 +18,8 @@ const buttonVariants = cva(
           "border-transparent bg-transparent hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black",
         destructive: "border-black bg-red-500 text-white font-mono font-black uppercase tracking-widest shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none dark:border-white dark:bg-red-600",
         link: "border-transparent text-primary underline-offset-4 hover:underline",
+        fuchsia: "border-black bg-[#ff00ff] text-black font-mono font-black uppercase tracking-widest shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none dark:border-white dark:bg-fuchsia-600 dark:text-white",
+        cyan: "border-black bg-[#38bdf8] text-black font-mono font-black uppercase tracking-widest shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none dark:border-white dark:bg-cyan-500",
       },
       size: {
         default:

@@ -6,8 +6,8 @@
       "name": "dashboard",
       "dependencies": {
         "@fontsource-variable/jetbrains-mono": "^5.2.8",
-        "@scrawn/analytics": "0.0.14",
-        "@scrawn/core": "^0.0.12",
+        "@scrawn/analytics": "0.0.15",
+        "@scrawn/core": "^0.0.13",
         "@tabler/icons-react": "^3.44.0",
         "@tailwindcss/vite": "^4.2.1",
         "@tanstack/react-devtools": "^0.10.5",
@@ -598,9 +598,9 @@
 
     "@rollup/rollup-win32-x64-msvc": ["@rollup/rollup-win32-x64-msvc@4.60.4", "", { "os": "win32", "cpu": "x64" }, "sha512-QVTUovf40zgTqlFVrKA1uXMVvU2QWEFWfAH8Wdc48IxLvrJMQVMBRjuQyUpzZCDkakImib9eVazbWlC6ksWtJw=="],
 
-    "@scrawn/analytics": ["@scrawn/analytics@0.0.14", "", { "dependencies": { "@scrawn/core": "^0.0.12" } }, "sha512-XCvtSsl5iVqrAgrcl/pp2bXvloabrJIDtXd2u8QRnIeAX0Zm5E89SzIPNYWq9Cz3UG4GKNMPixBX9lsCIIJL8A=="],
+    "@scrawn/analytics": ["@scrawn/analytics@0.0.15", "", { "dependencies": { "@scrawn/core": "^0.0.13" } }, "sha512-XAgsSpTUDZ0mEz8TbE0lZAH+6Y4f+gCp/kCxqpD2KFL9dOmtd5aG8Ngf3nIk3QBCdmJDygZidRR6+Wz4jXe6/A=="],
 
-    "@scrawn/core": ["@scrawn/core@0.0.12", "", { "dependencies": { "@bufbuild/protobuf": "2.12.0", "@grpc/grpc-js": "^1.13.1", "chalk": "^5.6.2", "pino": "^10.1.0", "zod": "^4.1.12" } }, "sha512-mxYBUlRq00ZPbmjwhVxjsZWHhb+C2CP68vEgFeKwe1cdu/zps0M18GYhlZkBZif72qeZwvF8of+Lt0m9wyf0iw=="],
+    "@scrawn/core": ["@scrawn/core@0.0.13", "", { "dependencies": { "@bufbuild/protobuf": "2.12.0", "@grpc/grpc-js": "^1.13.1", "chalk": "^5.6.2", "pino": "^10.1.0", "zod": "^4.1.12" } }, "sha512-Fdw0PeSubB2TPsY1m++5F/K2Fiyx65UCkxrN8wpe6e8zXHXNAScHN+ndkAG9D5Ga1m3g7J8XCwW83jeR/1eExg=="],
 
     "@sec-ant/readable-stream": ["@sec-ant/readable-stream@0.4.1", "", {}, "sha512-831qok9r2t8AlxLko40y2ebgSDhenenCatLVeW/uBtnHPyhHOvG0C7TvfgecV+wHzIm5KUICgzmVpWS+IMEAeg=="],
 
