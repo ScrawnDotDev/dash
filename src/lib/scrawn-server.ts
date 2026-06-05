@@ -60,7 +60,6 @@ export const submitOnboarding = createServerFn({ method: "POST" })
       dodoTestApiKey: string
       dodoLiveProductId: string
       dodoTestProductId: string
-      dodoWebhookSecret: string
       currency: string
       redirectUrl: string
     }>()
@@ -72,11 +71,7 @@ export const submitOnboarding = createServerFn({ method: "POST" })
         Authorization: `Bearer ${SCRAWN_KEY}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        crons: ["0 0 * * *"],
-        webhookUrl: "",
-        ...ctx.data,
-      }),
+      body: JSON.stringify(ctx.data),
     })
     if (!res.ok) {
       const body = await res.json().catch(() => ({}))
