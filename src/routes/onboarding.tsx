@@ -187,7 +187,7 @@ function Onboarding() {
 
       {/* Main split-screen container */}
       <main className="relative z-10 mx-auto flex w-full max-w-[1400px] flex-1 flex-col items-center justify-center gap-12 px-6 py-12 lg:flex-row lg:items-stretch lg:justify-between">
-        
+
         {/* Left Column: Visual schematic & Step information */}
         <div className="flex w-full flex-col justify-center items-start lg:w-[50%]">
           <AnimatePresence mode="wait">
@@ -222,10 +222,22 @@ function Onboarding() {
         <div className="relative flex w-full max-w-md flex-col justify-center items-center lg:w-[45%]">
           {/* Stacked background offset card */}
           <div className="absolute -right-3 bottom-3 left-3 top-3 border-2 border-black bg-neutral-100 dark:border-white dark:bg-neutral-900" />
-          
+
           {/* Foreground Form Card */}
           <div className="relative z-10 w-full border-2 border-black bg-white p-8 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:bg-black dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
-            
+
+            <div className="mb-4 border-2 border-black bg-yellow-50 px-4 py-3 font-mono text-xs font-bold leading-relaxed text-black dark:border-white dark:bg-yellow-500/10 dark:text-white">
+              Need help setting up your Dodo Payments keys?{" "}
+              <a
+                href="https://docs.scrawn.dev/dashboard-setup"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline underline-offset-2 hover:text-[#ff00ff] dark:hover:text-[#ff00ff]"
+              >
+                Read the docs →
+              </a>
+            </div>
+
             <form
               key="wizard-form"
               onSubmit={handleNext}
@@ -237,7 +249,7 @@ function Onboarding() {
                       <span>Step {step + 1} of 7</span>
                     </div>
                     <div className="w-full h-3 border-2 border-black bg-neutral-100 dark:border-white dark:bg-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] relative overflow-hidden">
-                      <motion.div 
+                      <motion.div
                         className="h-full bg-[#ff00ff] border-r-2 border-black dark:border-white"
                         animate={{ width: `${((step + 1) / 7) * 100}%` }}
                         transition={{ duration: 0.3, ease: "easeInOut" }}
@@ -501,7 +513,7 @@ function Onboarding() {
           </div>
         </div>
       </main>
-      
+
       {/* Empty space matching height at bottom */}
       <div className="py-6 shrink-0" />
     </div>

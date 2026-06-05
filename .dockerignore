@@ -8,3 +8,4 @@ NUL
 .env
 .env.local
 bun.lock
+.scrawn

@@ -16,3 +16,4 @@ todos.json
 .pgdata
 scrawn.log
 .firecrawl
+.scrawn
