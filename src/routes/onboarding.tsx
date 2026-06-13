@@ -7,7 +7,6 @@ import { motion, AnimatePresence } from "framer-motion"
 import {
   Eye,
   EyeOff,
-  Lock,
   Key,
   Coins,
   Globe,
@@ -67,22 +66,12 @@ const stepDetails = [
     desc: "Your DodoPayments Test API Key is used to mock checkout states, run sandbox webhooks, and simulate user pricing upgrades during local development.",
   },
   {
-    tag: "// STEP 03 - SANDBOX PRODUCT",
-    title: "TEST PRODUCT ID",
-    desc: "The test-mode product identifier used for sandbox checkout sessions and development billing simulations.",
-  },
-  {
-    tag: "// STEP 04 - PRODUCTION PRODUCT",
-    title: "LIVE PRODUCT ID",
-    desc: "The live-mode product identifier used for production checkout sessions and real billing operations.",
-  },
-  {
-    tag: "// STEP 05 - SETTLEMENT CONFIG",
+    tag: "// STEP 03 - SETTLEMENT CONFIG",
     title: "BASE CURRENCY",
     desc: "Select the default base currency. All system revenue analytics, metered logs, and usage graphs will process and display values in this currency.",
   },
   {
-    tag: "// STEP 06 - REDIRECT GATEWAY",
+    tag: "// STEP 04 - REDIRECT GATEWAY",
     title: "REDIRECT URL",
     desc: "The default endpoint URL where customers will be redirected back to after completing checkout or managing their subscriptions.",
   },
@@ -95,8 +84,6 @@ function Onboarding() {
   const [step, setStep] = useState(0)
   const [dodoLiveApiKey, setDodoLiveApiKey] = useState("")
   const [dodoTestApiKey, setDodoTestApiKey] = useState("")
-  const [dodoLiveProductId, setDodoLiveProductId] = useState("")
-  const [dodoTestProductId, setDodoTestProductId] = useState("")
   const [currency, setCurrency] = useState("usd")
   const [redirectUrl, setRedirectUrl] = useState("http://localhost:3000")
   const [error, setError] = useState("")
@@ -123,7 +110,7 @@ function Onboarding() {
 
   function handleNext(e: React.FormEvent) {
     e.preventDefault()
-    if (step < 5) {
+    if (step < 3) {
       setStep(step + 1)
     } else {
       handleFinalSubmit()
@@ -137,8 +124,6 @@ function Onboarding() {
       data: {
         dodoLiveApiKey,
         dodoTestApiKey,
-        dodoLiveProductId,
-        dodoTestProductId,
         currency,
         redirectUrl,
       },
@@ -237,12 +222,12 @@ function Onboarding() {
                   <div className="flex flex-col gap-2">
                     <div className="flex justify-between items-center font-mono text-[10px] font-black text-neutral-500 uppercase tracking-widest">
                       <span>Configuration Progress</span>
-                      <span>Step {step + 1} of 6</span>
+                      <span>Step {step + 1} of 4</span>
                     </div>
                     <div className="w-full h-3 border-2 border-black bg-neutral-100 dark:border-white dark:bg-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] relative overflow-hidden">
                       <motion.div
                         className="h-full bg-[#ff00ff] border-r-2 border-black dark:border-white"
-                        animate={{ width: `${((step + 1) / 6) * 100}%` }}
+                        animate={{ width: `${((step + 1) / 4) * 100}%` }}
                         transition={{ duration: 0.3, ease: "easeInOut" }}
                       />
                     </div>
@@ -327,58 +312,6 @@ function Onboarding() {
                           className="flex flex-col gap-1.5"
                         >
                           <label className="font-mono text-xs font-bold uppercase tracking-wider text-neutral-600 dark:text-neutral-400">
-                            Dodo Test Product ID
-                          </label>
-                          <div className="relative flex items-center">
-                            <Lock className="absolute left-3 h-4 w-4 text-neutral-400 pointer-events-none" />
-                            <input
-                              type="text"
-                              value={dodoTestProductId}
-                              onChange={(e) => setDodoTestProductId(e.target.value)}
-                              placeholder="pdt_..."
-                              required
-                              className="w-full border-2 border-black bg-white dark:bg-black dark:border-white pl-10 pr-4 py-2.5 text-sm font-mono text-black dark:text-white transition-all outline-none focus:bg-yellow-50/10 dark:focus:bg-zinc-950 focus:translate-x-[1px] focus:translate-y-[1px]"
-                            />
-                          </div>
-                        </motion.div>
-                      )}
-
-                      {step === 3 && (
-                        <motion.div
-                          key="step3"
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -10 }}
-                          transition={{ duration: 0.2 }}
-                          className="flex flex-col gap-1.5"
-                        >
-                          <label className="font-mono text-xs font-bold uppercase tracking-wider text-neutral-600 dark:text-neutral-400">
-                            Dodo Live Product ID
-                          </label>
-                          <div className="relative flex items-center">
-                            <Lock className="absolute left-3 h-4 w-4 text-neutral-400 pointer-events-none" />
-                            <input
-                              type="text"
-                              value={dodoLiveProductId}
-                              onChange={(e) => setDodoLiveProductId(e.target.value)}
-                              placeholder="pdt_..."
-                              required
-                              className="w-full border-2 border-black bg-white dark:bg-black dark:border-white pl-10 pr-4 py-2.5 text-sm font-mono text-black dark:text-white transition-all outline-none focus:bg-yellow-50/10 dark:focus:bg-zinc-950 focus:translate-x-[1px] focus:translate-y-[1px]"
-                            />
-                          </div>
-                        </motion.div>
-                      )}
-
-                      {step === 4 && (
-                        <motion.div
-                          key="step4"
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -10 }}
-                          transition={{ duration: 0.2 }}
-                          className="flex flex-col gap-1.5"
-                        >
-                          <label className="font-mono text-xs font-bold uppercase tracking-wider text-neutral-600 dark:text-neutral-400">
                             Currency
                           </label>
                           <div className="relative flex items-center">
@@ -398,9 +331,9 @@ function Onboarding() {
                         </motion.div>
                       )}
 
-                      {step === 5 && (
+                      {step === 3 && (
                         <motion.div
-                          key="step5"
+                          key="step3"
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: -10 }}
@@ -456,7 +389,7 @@ function Onboarding() {
                     >
                       {loading ? (
                         "Processing..."
-                      ) : step < 5 ? (
+                      ) : step < 3 ? (
                         <>
                           Continue <ArrowRight className="h-4 w-4" />
                         </>
